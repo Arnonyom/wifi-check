@@ -234,6 +234,8 @@ button.cell:hover{border-color:var(--brand-strong)}
 .demo .dfield{min-height:36px;padding:4px 10px;width:auto;min-width:0}
 .row .dfield{width:auto}
 #dpbox .overlay{z-index:50}
+.cell.flexc{border-style:dashed;align-items:center;justify-content:center;opacity:.85}
+
 /* simulator */
 .simbanner{margin:0;padding:10px 14px;border-radius:10px;background:var(--late-soft);color:var(--late);border:1px dashed var(--amber);font-size:14px}
 .simchips{gap:6px;flex-wrap:wrap}
@@ -516,7 +518,8 @@ var SHIFTS=[
   {id:'A3',team:'A',start:'18:00',end:'03:00'},
   {id:'A4',team:'A',start:'23:30',end:'08:30'},
   {id:'B1',team:'B',start:'07:00',end:'19:00'},
-  {id:'B2',team:'B',start:'19:00',end:'07:00'}
+  {id:'B2',team:'B',start:'19:00',end:'07:00'},
+  {id:'A5',team:'A',start:'19:00',end:'04:00',flex:true}
 ];
 var DOW_TH=['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์'];
 var DOW_S=['อา.','จ.','อ.','พ.','พฤ.','ศ.','ส.'];
@@ -585,8 +588,9 @@ function rng(seed){var x=seed>>>0;return function(){x=(Math.imul(x,1664525)+1013
 function slotS(S,d,s){
   var team=TEAMS[s.team];
   if(team.days.indexOf(dowOf(d))<0)return null;
-  var regular=S.employees.find(function(e){return e.active&&e.role==='staff'&&e.shift===s.id;})||null;
   var o=S.overrides[d+'|'+s.id];
+  if(s.flex&&!o)return null;
+  var regular=regularOfS(S,d,s);
   if(o&&o.off){var c=S.employees.find(function(e){return e.id===o.cover;})||null;return {regular:regular,off:true,cover:c,note:o.note||'',kind:o.kind||'',working:c};}
   return {regular:regular,off:false,cover:null,note:'',kind:'',working:regular};
 }
@@ -645,7 +649,8 @@ async function loadAll(){
     sb.from('attendance').select('*').gte('work_date',since).order('check_in'),
     sb.from('leaves').select('*').order('created_at'),
     sb.from('notifications').select('*').order('ts',{ascending:false}).limit(200),
-    sb.from('notification_reads').select('notif_id')
+    sb.from('notification_reads').select('notif_id'),
+    sb.from('rota_periods').select('*').order('week_from')
   ]);
   for(var i=0;i<q.length;i++)if(q[i].error)throw q[i].error;
   if(q[0].data)clockOffset=Date.parse(q[0].data)-Date.now();
@@ -658,6 +663,7 @@ async function loadAll(){
   var read={};(q[7].data||[]).forEach(function(r){read[r.notif_id]=1;});
   var uid0=me?me.id:curUid;
   S.notifications=(q[6].data||[]).map(function(n){return {id:n.id,ts:Date.parse(n.ts),to:n.to_ids||[],title:n.title,body:n.body||'',kind:n.kind||'',read:read[n.id]&&uid0?[uid0]:[]};});
+  S.rota=(q[8].data||[]).map(function(r){return {week:r.week_from,active:r.active,ids:[r.a2,r.a3,r.a4]};});
   state=S;
   if(me){var fresh=emp(me.id);if(fresh)me=fresh;}
   loaded=true;
@@ -865,7 +871,7 @@ function upcomingHtml(){
     var tag=r.kind==='own'?'<span class="chip mute">ตามปกติ</span>':(r.kind==='cover'?'<span class="chip">ทำแทน '+esc(fn(r.other))+'</span>':'<span class="chip off">หยุด · '+esc(fn(r.other))+' ทำแทน</span>');
     return '<div class="li"><span class="when">'+esc(dayShort(r.d))+' · <span class="tnum">'+shiftLabel(r.s)+'</span></span>'+tag+'</div>';
   }).join('')||'<p class="muted small" style="padding:10px 0">ไม่มีกะใน 7 วันข้างหน้า'+(me.team==='OPS'?' (พนักงานสำรองจะมีกะเมื่อผู้ดูแลมอบหมายให้ทำแทน)':'')+'</p>';
-  var sub=me.role==='admin'?'ผู้ดูแลระบบ · ช่วยทำงานได้':esc(me.name)+' · '+TEAMS[me.team].name+(TEAMS[me.team].days.length?' ('+TEAMS[me.team].dayText+')':'')+(me.shift?' · กะประจำ '+shiftLabel(shiftById(me.shift)):'');
+  var sub=me.role==='admin'?'ผู้ดูแลระบบ · ช่วยทำงานได้':esc(me.name)+' · '+TEAMS[me.team].name+(TEAMS[me.team].days.length?' ('+TEAMS[me.team].dayText+')':'')+(me.shift?' · '+shiftTxt(me):'');
   return '<section class="card"><h2>กะของฉัน</h2><p class="muted small" style="margin:2px 0 6px">'+sub+'</p><div class="list">'+rows+'</div></section>';
 }
 function checkCardHtml(){
@@ -1516,7 +1522,7 @@ function detContent(k){
     var e=emp(arg);R=rangeRows(dashDays);
     var mineR=R.filter(function(r){return r.w&&r.w.id===arg;}),offR=R.filter(function(r){return r.sl.off&&r.sl.regular&&r.sl.regular.id===arg;});
     var covN=mineR.filter(function(r){return r.sl.off;}).length;
-    return {title:e?e.name:'พนักงาน',sub:(e?teamLabel(e)+(e.shift?' · กะประจำ '+shiftLabel(shiftById(e.shift)):''):'')+' · '+rangeTxt(),
+    return {title:e?e.name:'พนักงาน',sub:(e?teamLabel(e)+(e.shift?' · '+shiftTxt(e):''):'')+' · '+rangeTxt(),
       html:finSum(mineR)+'<p class="muted small">ทำแทนคนอื่น '+covN+' กะ · หยุด '+offR.length+' กะ</p><h3>กะที่ทำงาน</h3>'+rowsList(mineR.filter(isFin),{extra:function(r){return r.rec?signed(offMin(r))+' น.':'';}})+(offR.length?'<h3>วันที่หยุด</h3>'+rowsList(offR,{asRegular:true}):'')};
   }
   if(kind==='shift'){
@@ -1704,6 +1710,7 @@ function simCheckIn(){
   var r={kind:'in',when:t,emp:e,d:d,s:s};
   if(isNaN(t)){r.err='กรุณาเลือกวันและเวลาเข้างาน';return r;}
   var sl=slot(d,s);
+  if(!sl&&s.flex&&TEAMS[s.team].days.indexOf(dowOf(d))>=0){r.err='คุณไม่ได้อยู่ในกะนี้';r.why='กะฉุกเฉิน 19.00–04.00 วันนี้ยังไม่มีการเรียกตัว (เรียกได้ที่หน้าตารางกะ)';return r;}
   if(!sl){r.err='ทีมนี้ไม่ทำงานวันดังกล่าว';r.why=TEAMS[s.team].name+' ไม่มีกะในวัน'+DOW_TH[dowOf(d)];return r;}
   var w=sl.off?sl.cover:sl.regular;
   if(!w||w.id!==e.id){r.err='คุณไม่ได้อยู่ในกะนี้';r.why=sl.off?(sl.cover?'วันนี้ '+sl.cover.name+' ทำแทน '+fn(sl.regular):fn(sl.regular)+' หยุด และยังไม่มีผู้ทำแทน'):'ผู้ประจำกะนี้คือ '+(sl.regular?sl.regular.name:'— (ยังไม่มีผู้ประจำ)');return r;}
@@ -1786,15 +1793,109 @@ document.addEventListener('change',function(e){
   else if(id==='simOut'){sim.tout=e.target.value;sim.rout=null;renderView();}
 });
 
+/* ---------- ทีม A: หมุนกะรายสัปดาห์ + กะฉุกเฉิน 19.00–04.00 ---------- */
+var ROT=['A2','A3','A4'],rotaEdit=false,rotaNext=null;
+function rotaAt(S,d){
+  var m=mondayOf(d),best=null;
+  (S&&S.rota||[]).forEach(function(r){if(r.week<=m&&(!best||r.week>best.week))best=r;});
+  return best&&best.active?best:null;
+}
+function rotaK(r,d){return Math.round((Date.parse(mondayOf(d))-Date.parse(r.week))/(7*864e5));}
+function isRotating(e){var r=rotaAt(state,bkk(now()).date);return !!(e&&r&&r.ids.indexOf(e.id)>=0);}
+/* กะที่คนนี้ทำในวันที่ d */
+function shiftOnS(S,e,d){
+  if(!e)return null;
+  var r=rotaAt(S,d);if(!r)return e.shift;
+  var i=r.ids.indexOf(e.id);
+  if(i<0)return ROT.indexOf(e.shift)>=0?null:e.shift;
+  return ROT[((i+rotaK(r,d))%3+3)%3];
+}
+/* ผู้ประจำกะ */
+function regularOfS(S,d,s){
+  if(s.flex)return null;
+  var r=rotaAt(S,d),j=ROT.indexOf(s.id);
+  if(r&&j>=0){var id=r.ids[((j-rotaK(r,d))%3+3)%3];return S.employees.find(function(e){return e.id===id&&e.active&&e.role==='staff';})||null;}
+  return S.employees.find(function(e){return e.active&&e.role==='staff'&&e.shift===s.id&&!(r&&r.ids.indexOf(e.id)>=0);})||null;
+}
+function shiftOn(e,d){return shiftOnS(state,e,d);}
+function shiftTxt(e,d){
+  var sid=shiftOn(e,d||bkk(now()).date);if(!sid)return '';
+  return (isRotating(e)?'หมุนกะ · สัปดาห์นี้ ':'กะ ')+shiftLabel(shiftById(sid));
+}
+function rotaWeekRows(mon,n){
+  var out=[];for(var i=0;i<n;i++){var m=addDays(mon,7*i);out.push({mon:m,by:ROT.map(function(sid){var s=shiftById(sid),sl=slot(m,s);return sl&&sl.regular?sl.regular:null;})});}
+  return out;
+}
+function rotaCard(){
+  var today=bkk(now()).date,mon=mondayOf(today),a=rotaAt(state,today);
+  var teamA=state.employees.filter(function(e){return e.active&&e.role==='staff'&&e.team==='A';});
+  var fixed=state.employees.find(function(e){return e.active&&e.role==='staff'&&e.shift==='A1';});
+  if(rotaNext===null)rotaNext=!!a;
+  var wk=rotaNext?addDays(mon,7):mon;
+  var cur=ROT.map(function(sid){var sl=slot(wk,shiftById(sid));return sl&&sl.regular?sl.regular.id:'';});
+  var head='<h2>การหมุนกะทีม A</h2><p class="muted small">คนที่อยู่กะ 23.30 → สัปดาห์ถัดไปไปกะ 10.00 → แล้วไปกะ 18.00 → กลับมากะ 23.30 (ครบรอบ 3 สัปดาห์ เปลี่ยนทุกวันจันทร์) · กะ 08.30–17.30 เป็นกะประจำคงที่</p>';
+  var rows=rotaWeekRows(mon,6).map(function(w,i){return '<tr'+(i===0?' class="today"':'')+'><td class="tnum">'+esc(thDate(w.mon,{day:'numeric',month:'short'}))+' – '+esc(thDate(addDays(w.mon,4),{day:'numeric',month:'short'}))+(i===0?' <span class="chip">สัปดาห์นี้</span>':'')+'</td>'+w.by.map(function(p){return '<td>'+(p?esc(p.name):'<span class="muted">ว่าง</span>')+'</td>';}).join('')+'</tr>';}).join('');
+  var table='<div class="scroll"><table><thead><tr><th>สัปดาห์</th>'+ROT.map(function(sid){return '<th>'+shiftLabel(shiftById(sid))+'</th>';}).join('')+'</tr></thead><tbody>'+rows+'</tbody></table></div>';
+  var status=a?'<p>เปิดการหมุนกะอยู่ · กะประจำ 08.30–17.30: <b>'+esc(fixed?fixed.name:'ยังไม่มี')+'</b></p>':'<p class="alert-y">ยังไม่ได้เปิดการหมุนกะ ตอนนี้ทุกคนอยู่กะเดิมทุกสัปดาห์</p>';
+  if(!rotaEdit)return '<section class="card stack">'+head+status+(a?'<h3>6 สัปดาห์ข้างหน้า</h3>'+table:'')+'<div class="row"><button class="btn'+(a?' sec':'')+'" data-act="rota-edit">'+(a?'แก้ไขการหมุนกะ':'ตั้งการหมุนกะ')+'</button>'+(a?'<button class="btn sec" data-act="rota-off">ปิดการหมุนกะ</button>':'')+'</div><div class="err" id="rotaErr" role="alert"></div></section>';
+  var opt=function(sel){return '<option value="">— ว่าง —</option>'+teamA.map(function(e){return '<option value="'+e.id+'"'+(e.id===sel?' selected':'')+'>'+esc(e.name)+(e.shift==='A1'?' (กะประจำ 08.30)':'')+'</option>';}).join('');};
+  return '<section class="card stack" id="rotaEd">'+head+
+    '<div class="fields"><div><label for="rotaStart">เริ่มใช้ตั้งแต่</label><select id="rotaStart"><option value="this"'+(rotaNext?'':' selected')+'>สัปดาห์นี้ ('+esc(thDate(mon,{day:'numeric',month:'short'}))+' – '+esc(thDate(addDays(mon,4),{day:'numeric',month:'short'}))+')</option><option value="next"'+(rotaNext?' selected':'')+'>สัปดาห์หน้า ('+esc(thDate(addDays(mon,7),{day:'numeric',month:'short'}))+' – '+esc(thDate(addDays(mon,11),{day:'numeric',month:'short'}))+')</option></select></div></div>'+
+    '<p>เลือกว่าในสัปดาห์เริ่มต้นนั้นใครอยู่กะไหน สัปดาห์ต่อไประบบจะหมุนให้อัตโนมัติ · สัปดาห์ก่อนหน้าจะยังเป็นแบบเดิม ไม่กระทบประวัติ</p>'+
+    '<div class="fields">'+ROT.map(function(sid,i){return '<div><label for="rota'+i+'">กะ '+shiftLabel(shiftById(sid))+'</label><select id="rota'+i+'">'+opt(cur[i])+'</select></div>';}).join('')+'</div>'+
+    '<p class="muted small">ถ้าเลือกคนที่อยู่กะประจำ 08.30–17.30 คนนั้นจะย้ายมาหมุนกะ และกะ 08.30 จะว่าง · ตารางที่เคยตั้งหยุด/ทำแทนไว้ยังอยู่เหมือนเดิม</p>'+
+    '<div class="err" id="rotaErr" role="alert"></div><div class="row"><button class="btn" data-act="rota-save">บันทึกการหมุนกะ</button><button class="btn sec" data-act="rota-cancel">ยกเลิก</button></div></section>';
+}
+async function saveRota(off){
+  if(busy)return;var er=$('rotaErr');
+  var ids=off?[null,null,null]:[0,1,2].map(function(i){return $('rota'+i).value||null;});
+  var picked=ids.filter(Boolean);
+  if(!off&&picked.length!==new Set(picked).size){er.textContent='เลือกคนซ้ำกันไม่ได้';return;}
+  if(!off&&!picked.length){er.textContent='เลือกอย่างน้อย 1 คน';return;}
+  busy=true;er.textContent='';
+  try{
+    var mon0=mondayOf(bkk(now()).date);
+    await rpc('set_rotation',{p_week:off?null:(rotaNext?addDays(mon0,7):mon0),p_a2:ids[0],p_a3:ids[1],p_a4:ids[2]});
+    rotaEdit=false;rotaNext=null;await loadAll();busy=false;renderAll();
+    toast(off?'ปิดการหมุนกะแล้ว':'บันทึกการหมุนกะแล้ว',off?'ทุกคนจะอยู่กะเดิมทุกสัปดาห์':'ตารางกะสัปดาห์ต่อไปหมุนให้อัตโนมัติ');
+  }catch(e){busy=false;er=$('rotaErr');if(er)er.textContent=errMsg(e);}
+}
+/* ตัวแก้ไขกะฉุกเฉิน 19.00–04.00 */
+function flexEditor(d,s,sl){
+  var on=!!(sl&&sl.off),cur=on&&sl.cover?sl.cover.id:'';
+  var A1=shiftById('A1'),dsl=slot(d,A1),D=dsl&&dsl.regular;
+  var list=state.employees.filter(function(e){return e.active&&(e.role==='staff'||e.canWork);});
+  if(!cur&&D)cur=D.id;
+  return '<section class="card stack" id="slotEd"><h2>กะฉุกเฉิน 19.00–04.00 · ทีม A</h2><p class="muted small">'+esc(thDate(d,{weekday:'long',day:'numeric',month:'long',year:'numeric'}))+'</p>'+
+    '<p>ปกติไม่มีคนเข้ากะนี้ เรียกตัวเมื่อมีเหตุฉุกเฉิน'+(D?' · ปกติจะเรียก <b>'+esc(D.name)+'</b> (กะประจำ 08.30–17.30)':'')+'</p>'+
+    '<div class="fields"><div><label for="flexSel">เรียกใครเข้ากะ</label><select id="flexSel">'+list.map(function(e){return '<option value="'+e.id+'"'+(e.id===cur?' selected':'')+'>'+esc(e.name)+' · '+esc(teamLabel(e))+'</option>';}).join('')+'</select></div>'+
+    '<div><label for="flexNote">หมายเหตุ (ไม่บังคับ)</label><input id="flexNote" maxlength="80" value="'+esc(on?sl.note:'')+'" placeholder="เช่น ระบบล่ม"></div></div>'+
+    '<label style="margin:0"><input type="checkbox" id="flexMove" checked> ให้คนนี้หยุดกะประจำของวันนั้น (ย้ายมาเข้ากะ 19.00–04.00 แทน)</label>'+
+    '<div class="err" id="slotErr" role="alert"></div><div class="row"><button class="btn" data-act="flex-save">เรียกเข้ากะ</button>'+(on?'<button class="btn sec" data-act="flex-clear">ยกเลิกการเรียกตัว</button>':'')+'<button class="btn sec" data-act="cancel-slot">ปิด</button></div></section>';
+}
+async function saveFlex(clear){
+  if(busy)return;var d=editSlot.d,er=$('slotErr');
+  busy=true;er.textContent='';
+  try{
+    await rpc('call_flex',{p_date:d,p_emp:clear?null:$('flexSel').value,p_move:clear?false:$('flexMove').checked,p_note:clear?'':$('flexNote').value.trim()});
+    editSlot=null;await loadAll();busy=false;renderAll();
+    toast(clear?'ยกเลิกการเรียกตัวแล้ว':'เรียกเข้ากะฉุกเฉินแล้ว',dayShort(d)+' กะ 19.00–04.00');
+  }catch(e){busy=false;er=$('slotErr');if(er)er.textContent=errMsg(e);}
+}
+
+document.addEventListener('change',function(e){if(e.target&&e.target.id==='rotaStart'){rotaNext=e.target.value==='next';renderView();}});
+
 /* schedule */
 function cellHtml(d,s,admin){
   var sl=slot(d,s);
-  if(!sl)return '<div class="cell na">–</div>';
+  if(!sl){if(s.flex&&admin&&TEAMS[s.team].days.indexOf(dowOf(d))>=0)return '<button class="cell flexc'+(editSlot&&editSlot.d===d&&editSlot.s===s.id?' sel':'')+'" data-act="edit-slot" data-d="'+d+'" data-s="'+s.id+'" aria-label="เรียกเข้ากะฉุกเฉิน '+dayShort(d)+'"><span class="muted small">เรียกเมื่อฉุกเฉิน</span></button>';return '<div class="cell na">–</div>';}
   var nowT=now(),w=sl.working;
   var mine=(w&&w.id===me.id)||(sl.regular&&sl.regular.id===me.id);
   var sel=editSlot&&editSlot.d===d&&editSlot.s===s.id;
   var cls='cell'+(sl.off?' off':'')+(mine?' me':'')+(sel?' sel':'');
-  var inner=sl.off
+  var inner=sl.off&&s.flex?'<span class="pn">'+esc(fn(sl.cover))+'</span><span class="chip late">เรียกตัว</span>'+(sl.note?'<span class="muted small">'+esc(sl.note)+'</span>':'')
+    :sl.off&&sl.kind==='flex'&&!sl.cover?'<span class="pn">'+esc(fn(sl.regular))+'</span><span class="chip mute">ย้ายไป 19.00–04.00</span>'
+    :sl.off
     ?'<span class="pn">'+esc(fn(sl.regular))+'</span><span class="chip off">หยุด</span><span class="cov">ทำแทน: '+(sl.cover?esc(fn(sl.cover))+tagFor(sl.cover):'—')+'</span>'+(sl.note?'<span class="muted small">'+esc(sl.note)+'</span>':'')
     :'<span class="pn">'+(sl.regular?esc(fn(sl.regular)):'<span class="muted">ว่าง</span>')+'</span>';
   var rec=w?state.attendance.find(function(a){return a.emp===w.id&&a.date===d&&a.shift===s.id;}):null;
@@ -1823,6 +1924,7 @@ function coverOptions(d,s,key,selected){
 }
 function slotEditor(){
   var d=editSlot.d,s=shiftById(editSlot.s),key=d+'|'+s.id,sl=slot(d,s);
+  if(s.flex)return flexEditor(d,s,sl);
   var head='<h2>แก้ไขกะ '+shiftLabel(s)+' · '+TEAMS[s.team].name+'</h2><p class="muted small">'+esc(thDate(d,{weekday:'long',day:'numeric',month:'long',year:'numeric'}))+'</p>';
   if(!sl.regular)return '<section class="card stack">'+head+'<p>กะนี้ยังไม่มีผู้ประจำ เพิ่มหรือย้ายพนักงานเข้ากะนี้ที่เมนู "พนักงาน" ก่อน</p><div><button class="btn sec" data-act="cancel-slot">ปิด</button></div></section>';
   var o=state.overrides[key];
@@ -1978,7 +2080,7 @@ async function saveSlot(){
 /* people (admin) */
 function shiftOptions(team,sel){
   if(team!=='A'&&team!=='B')return '';
-  return SHIFTS.filter(function(s){return s.team===team;}).map(function(s){return '<option value="'+s.id+'"'+(sel===s.id?' selected':'')+'>'+shiftLabel(s)+'</option>';}).join('');
+  return SHIFTS.filter(function(s){return s.team===team&&!s.flex;}).map(function(s){return '<option value="'+s.id+'"'+(sel===s.id?' selected':'')+'>'+shiftLabel(s)+'</option>';}).join('');
 }
 function empForm(){
   var isNew=editEmp==='new',c=isNew?{name:'',username:'',role:'staff',team:'A',shift:'A1',phone:'',active:true,canWork:false}:emp(editEmp);
@@ -2005,7 +2107,7 @@ function pcard(e){
     ?'<button class="btn danger sm" data-act="del-yes" data-id="'+e.id+'">ยืนยันลบ</button><button class="btn sec sm" data-act="del-no">ยกเลิก</button>'
     :'<button class="btn sec sm" data-act="edit-emp" data-id="'+e.id+'">แก้ไข</button>'+(e.id===me.id?'<button class="btn sec sm" data-act="pw-self">เปลี่ยนรหัสผ่าน</button>':'<button class="btn sec sm" data-act="pw-reset" data-id="'+e.id+'">รีเซ็ตรหัสผ่าน</button><button class="btn sec sm" data-act="del-emp" data-id="'+e.id+'">ลบ</button>');
   var chips='<span class="chip '+(e.active?'':'mute')+'">'+(e.active?'ใช้งาน':'ปิดใช้งาน')+'</span>'+(e.mustChange?'<span class="chip late">รอตั้งรหัสใหม่</span>':'');
-  if(e.role==='staff'&&e.shift)chips+='<span class="chip mute tnum">กะ '+shiftLabel(shiftById(e.shift))+'</span>';
+  if(e.role==='staff'&&e.shift)chips+='<span class="chip mute tnum">'+shiftTxt(e)+'</span>';
   if(e.team==='OPS')chips+='<span class="chip mute">ทำแทนได้</span>';
   if(e.role==='admin'&&e.canWork)chips+='<span class="chip mute">ช่วยทำงานได้</span>';
   return '<article class="card pcard"><div><b>'+esc(e.name)+'</b><br><span class="muted small">'+esc(e.username)+(e.phone?' · '+esc(e.phone):'')+'</span></div><div class="row" style="gap:6px">'+chips+'</div><div class="row" style="gap:6px">'+del+'</div></article>';
@@ -2269,7 +2371,7 @@ function viewSettings(){
         '<div><button class="btn" data-act="apply-csv"'+(okN?'':' disabled')+'>นำเข้า '+okN+' แถวที่ถูกต้อง</button></div>';
     }
   }
-  return '<div class="stack"><div><h1>ตั้งค่า</h1><p class="muted">กฎเวลาลงเวลา และนำเข้า/ส่งออกตารางกะ</p></div>'+
+  return '<div class="stack"><div><h1>ตั้งค่า</h1><p class="muted">การหมุนกะ กฎเวลาลงเวลา และนำเข้า/ส่งออกตารางกะ</p></div>'+rotaCard()+
     '<section class="card stack"><h2>กฎการลงเวลา</h2><div class="fields">'+
       '<div><label for="setOpen">เปิดให้ลงเวลาก่อนเริ่มกะ (นาที)</label><input type="number" id="setOpen" min="0" max="240" inputmode="numeric" value="'+S.openBefore+'"></div>'+
       '<div><label for="setLate">ถือว่าสายเมื่อเข้างานเกิน (นาทีหลังเริ่มกะ)</label><input type="number" id="setLate" min="0" max="240" inputmode="numeric" value="'+S.lateAfter+'"></div></div>'+
@@ -2289,8 +2391,7 @@ function viewSettings(){
 /* ---------- leave ---------- */
 function leaveSlots(l){
   var e=emp(l.emp),out=[];if(!e||!e.shift)return out;
-  var s=shiftById(e.shift);
-  for(var d=l.from;d<=l.to;d=addDays(d,1))if(TEAMS[s.team].days.indexOf(dowOf(d))>=0)out.push({d:d,s:s,key:d+'|'+s.id});
+  for(var d=l.from;d<=l.to;d=addDays(d,1)){var s=shiftById(shiftOn(e,d));if(s&&TEAMS[s.team].days.indexOf(dowOf(d))>=0)out.push({d:d,s:s,key:d+'|'+s.id});}
   return out;
 }
 function countDays(empId,from,to){return leaveSlots({emp:empId,from:from,to:to}).length;}
@@ -2316,7 +2417,7 @@ function viewLeave(){
     '<section class="card stack"><h2>คำขอใหม่</h2>'+
     '<div class="typeseg" role="group" aria-label="ประเภทการลา">'+['vac','per','sick'].map(function(k){return '<button data-act="lvtype" data-t="'+k+'" aria-pressed="'+(lv.type===k)+'">'+LEAVE_TH[k]+'</button>';}).join('')+'</div>'+
     '<div class="fields"><div><label>ตั้งแต่วันที่</label>'+dateField('lvFrom',f)+'</div><div><label>ถึงวันที่</label>'+dateField('lvTo',t)+'</div></div>'+
-    '<p class="muted small">'+(days?'วันทำงานที่ลา: <b>'+days+' วัน</b> (กะ '+shiftLabel(shiftById(me.shift))+')':'ช่วงนี้ไม่มีกะของคุณ (ทีมไม่ทำงาน)')+'</p>'+
+    '<p class="muted small">'+(days?'วันทำงานที่ลา: <b>'+days+' วัน</b> ('+shiftTxt(me)+')':'ช่วงนี้ไม่มีกะของคุณ (ทีมไม่ทำงาน)')+'</p>'+
     '<div><label for="lvReason">เหตุผล (ไม่บังคับ)</label><input id="lvReason" maxlength="120" value="'+esc(lv.reason)+'" placeholder="เช่น ไปพบแพทย์ ธุระครอบครัว"></div>'+
     '<div class="err" role="alert">'+esc(lv.err)+'</div>'+(lv.ok?'<p class="ok" role="status">'+esc(lv.ok)+'</p>':'')+
     '<div><button class="btn" data-act="lv-submit">ส่งคำขอลา</button></div></section>'+
@@ -2476,6 +2577,12 @@ document.addEventListener('click',function(e){
     case 'sim-out':var ro=simCheckOut();sim.rout=ro;sim.log.push(ro);renderView();break;
     case 'sim-set':sim[D.k]=D.v;if(D.k==='tin'){sim.rin=null;sim.rout=null;}else sim.rout=null;renderView();break;
     case 'sim-clear':sim.log=[];renderView();break;
+    case 'flex-save':saveFlex(false);break;
+    case 'flex-clear':saveFlex(true);break;
+    case 'rota-edit':rotaEdit=true;renderView();break;
+    case 'rota-cancel':rotaEdit=false;rotaNext=null;renderView();break;
+    case 'rota-save':saveRota(false);break;
+    case 'rota-off':saveRota(true);break;
     case 'pw-self':pwm={mode:'self'};renderPw();break;
     case 'pw-reset':pwm={mode:'reset',id:D.id};renderPw();break;
     case 'pw-close':pwm=null;renderPw();break;
