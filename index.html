@@ -799,7 +799,7 @@ async function doLogout(){
 /* ---------- views ---------- */
 function renderView(){
   if(!me){renderLogin();return;}
-  if(me.mustChange){$('main').innerHTML=viewForcePw();pwLive();return;}
+  if(me.mustChange){if(!$('forceForm')){$('main').innerHTML=viewForcePw();pwLive();}return;}
   var fns={home:viewHome,today:viewDash,schedule:viewSchedule,people:viewPeople,report:viewReport,settings:viewSettings,history:viewHistory,leave:viewLeave,leaves:viewLeaves};
   $('main').innerHTML=(fns[view]||viewHome)();
 }
