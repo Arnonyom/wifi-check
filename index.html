@@ -234,6 +234,20 @@ button.cell:hover{border-color:var(--brand-strong)}
 .demo .dfield{min-height:36px;padding:4px 10px;width:auto;min-width:0}
 .row .dfield{width:auto}
 #dpbox .overlay{z-index:50}
+/* password */
+.pwrow{display:flex;gap:6px;align-items:center}
+.pwrow input{flex:1;min-width:0}
+.pweye{width:44px;height:44px;font-size:16px}
+.pwchk{list-style:none;margin:2px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:4px 14px;font-size:13px;color:var(--muted)}
+.pwchk li::before{content:'○ ';}
+.pwchk li.on{color:var(--brand-strong)}
+.pwchk li.on::before{content:'✓ ';font-weight:700}
+.pwbar{height:4px;border-radius:2px;background:var(--line);overflow:hidden}
+.pwbar i{display:block;height:100%;width:0;background:var(--st-bad);transition:width .2s}
+.pwbar i.s2{background:var(--st-warn)}.pwbar i.s3,.pwbar i.s4,.pwbar i.s5{background:var(--st-good)}
+#pwbox .overlay{z-index:46}
+#pwForm{gap:10px}
+
 /* drill-down */
 .cardh{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
 .xbtn{flex:none;min-height:32px;padding:4px 10px}
@@ -455,7 +469,7 @@ details.tv .scroll{max-height:240px;overflow:auto;margin-top:6px}
   <div id="demo"></div>
   <main id="main"></main>
 </div>
-<div id="modal"></div><div id="detbox"></div>
+<div id="modal"></div><div id="detbox"></div><div id="pwbox"></div>
 <div id="dpbox"></div><div id="toast" aria-live="polite"></div><div id="tip" class="tip" role="tooltip" hidden></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
@@ -595,7 +609,7 @@ async function rpc(name,args){
   return Array.isArray(r.data)?r.data[0]:r.data;
 }
 function mapEmp(p){
-  return {id:p.id,username:p.username,name:p.name,role:p.role,team:p.team,shift:p.shift_id,phone:p.phone||'',active:p.active,canWork:p.can_work,notify:p.notify,push:lsGet('wc-push-'+p.id)==='1'};
+  return {id:p.id,username:p.username,name:p.name,role:p.role,team:p.team,shift:p.shift_id,phone:p.phone||'',active:p.active,canWork:p.can_work,notify:p.notify,mustChange:!!p.must_change_pw,push:lsGet('wc-push-'+p.id)==='1'};
 }
 async function loadAll(){
   var today=bkk(Date.now()).date,since=addDays(today,-130);
@@ -742,15 +756,15 @@ function renderChrome(){
   top.innerHTML=brandHtml()+'<div class="top-right">'+themeBtn()+
     '<div class="bellwrap"><button class="iconbtn" data-act="bell" aria-label="แจ้งเตือน'+(u?' '+u+' รายการที่ยังไม่อ่าน':'')+'" aria-expanded="'+bellOpen+'" aria-haspopup="dialog">'+ico(ICONS.bell)+(u?'<span class="badge">'+(u>9?'9+':u)+'</span>':'')+'</button>'+(bellOpen?bellPanel():'')+'</div>'+
     '<div class="user"><div class="uname"><b>'+esc(me.name)+'</b><span>'+esc(teamLabel(me))+'</span></div>'+
-    '<button class="iconbtn" data-act="logout" aria-label="ออกจากระบบ" title="ออกจากระบบ">'+ico(ICONS.out)+'</button></div></div>';
-  nav.hidden=false;
+    (me.mustChange?'':'<button class="iconbtn" data-act="pw-self" aria-label="เปลี่ยนรหัสผ่าน" title="เปลี่ยนรหัสผ่าน">'+ico('<circle cx="8" cy="15" r="4"/><path d="M10.8 12.2 20 3M17 6l3 3M14.5 8.5l2.5 2.5"/>')+'</button>')+'<button class="iconbtn" data-act="logout" aria-label="ออกจากระบบ" title="ออกจากระบบ">'+ico(ICONS.out)+'</button></div></div>';
+  nav.hidden=!!me.mustChange;
   var pl=pendingLeaves();
   nav.innerHTML=tabList().map(function(x){
     return '<button class="tab" data-act="tab" data-v="'+x[0]+'"'+(view===x[0]?' aria-current="page"':'')+'>'+ico(ICONS[x[2]])+'<span>'+x[1]+'</span>'+(x[0]==='leaves'&&pl?'<span class="count">'+pl+'</span>':'')+'</button>';
   }).join('');
   demo.innerHTML='';
 }
-function renderAll(){renderChrome();renderView();renderModal();renderDet();renderDp();}
+function renderAll(){renderChrome();renderView();renderModal();renderDet();renderPw();renderDp();}
 
 /* ---------- login ---------- */
 function renderLogin(){
@@ -759,7 +773,7 @@ function renderLogin(){
     '<section class="card hero"><h1>เข้าสู่ระบบ</h1><p class="muted" style="margin:4px 0 14px">ลงเวลาเข้า–ออกงานของทีมกะ</p>'+
     '<form id="loginForm" class="stack" autocomplete="on">'+
       '<div><label for="lu">ชื่อผู้ใช้</label><input id="lu" autocapitalize="none" autocomplete="username" required></div>'+
-      '<div><label for="lp">รหัสผ่าน (ตัวเลข 6 หลัก)</label><input id="lp" type="password" inputmode="numeric" maxlength="6" autocomplete="current-password" required></div>'+
+      '<div><label for="lp">รหัสผ่าน</label><input id="lp" type="password" maxlength="72" autocomplete="current-password" autocapitalize="none" spellcheck="false" required></div>'+
       '<button class="btn" type="submit" id="lbtn">เข้าสู่ระบบ</button><div class="err" id="lerr" role="alert">'+esc(loginMsg)+'</div>'+
     '</form><p class="muted small">ไม่มีการสมัครเอง บัญชีสร้างโดยผู้ดูแลเท่านั้น ลืมรหัสผ่านให้ติดต่อผู้ดูแล</p></section></div>';
 }
@@ -771,20 +785,21 @@ async function doLogin(){
   try{
     var r=await sb.auth.signInWithPassword({email:u+'@'+(CFG.USER_DOMAIN||'wifi-check.app'),password:p});
     if(r.error){err.textContent=/invalid|credentials/i.test(r.error.message)?'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง':errMsg(r.error);btn.disabled=false;busy=false;return;}
-    busy=false;
+    busy=false;lastPw=p;
     await enter(r.data.user.id);
   }catch(e){err.textContent=errMsg(e);btn.disabled=false;}
   busy=false;
 }
 async function doLogout(){
   try{await sb.auth.signOut();}catch(e){}
-  me=null;view='home';modal=null;bellOpen=false;dp=null;state=emptyState();loginMsg='';renderAll();
+  me=null;lastPw='';pwm=null;view='home';modal=null;bellOpen=false;dp=null;state=emptyState();loginMsg='';renderAll();
 }
 
 /* ---------- views ---------- */
 /* ---------- views ---------- */
 function renderView(){
   if(!me){renderLogin();return;}
+  if(me.mustChange){$('main').innerHTML=viewForcePw();pwLive();return;}
   var fns={home:viewHome,today:viewDash,schedule:viewSchedule,people:viewPeople,report:viewReport,settings:viewSettings,history:viewHistory,leave:viewLeave,leaves:viewLeaves};
   $('main').innerHTML=(fns[view]||viewHome)();
 }
@@ -1548,6 +1563,99 @@ function renderDet(){
     '<div class="dbody">'+c.html+'</div>'+(c.foot?'<div class="row dft">'+c.foot+'</div>':'')+'</div></div>';
 }
 
+/* ---------- รหัสผ่าน: กฎ / เปลี่ยนเอง / ผู้ดูแลรีเซ็ต / บังคับเปลี่ยน ---------- */
+var pwm=null,lastPw='';
+var PW_RULE='อย่างน้อย 8 ตัว ใช้ได้ทั้งตัวอักษรภาษาอังกฤษตัวเล็ก ตัวใหญ่ ตัวเลข และอักขระพิเศษ เช่น ! @ # $ % _ - (ห้ามมีช่องว่างหรือภาษาไทย)';
+function pwProblems(p){
+  var out=[];
+  if(p.length<8)out.push('ยาวอย่างน้อย 8 ตัว (ตอนนี้ '+p.length+')');
+  if(p.length>72)out.push('ยาวไม่เกิน 72 ตัว');
+  if(p&&!/^[\x21-\x7E]*$/.test(p))out.push('ใช้ได้เฉพาะ A–Z a–z 0–9 และอักขระพิเศษ (ห้ามช่องว่าง/ภาษาไทย)');
+  return out;
+}
+function pwStrength(p){var k=0;if(/[a-z]/.test(p))k++;if(/[A-Z]/.test(p))k++;if(/\d/.test(p))k++;if(/[^A-Za-z0-9]/.test(p))k++;if(p.length>=12)k++;return k;}
+function pwField(id,label,ac){
+  return '<div><label for="'+id+'">'+label+'</label><div class="pwrow"><input id="'+id+'" type="password" maxlength="72" autocomplete="'+(ac||'new-password')+'" autocapitalize="none" spellcheck="false"><button type="button" class="iconbtn pweye" data-act="pw-eye" data-id="'+id+'" aria-label="แสดงรหัสผ่าน">👁</button></div></div>';
+}
+function pwFormHtml(o){
+  return (o.current?pwField('pwCur','รหัสผ่านปัจจุบัน','current-password'):'')+
+    pwField('pwNew',o.newLabel||'รหัสผ่านใหม่')+
+    '<ul class="pwchk" id="pwChk" aria-live="polite"><li data-k="len">อย่างน้อย 8 ตัว</li><li data-k="chr">เฉพาะ A–Z a–z 0–9 และอักขระพิเศษ</li><li data-k="mat">ยืนยันรหัสตรงกัน</li></ul><div class="pwbar" aria-hidden="true"><i id="pwBar"></i></div>'+
+    pwField('pwNew2','ยืนยันรหัสผ่านใหม่อีกครั้ง')+
+    '<p class="muted small">'+PW_RULE+'</p><div class="err" id="pwErr" role="alert"></div>';
+}
+function pwLive(){
+  var a=$('pwNew'),b=$('pwNew2'),c=$('pwChk');if(!a||!c)return;
+  var p=a.value,q=b?b.value:'';
+  var st={len:p.length>=8&&p.length<=72,chr:p.length>0&&/^[\x21-\x7E]*$/.test(p),mat:p.length>0&&p===q};
+  Array.prototype.forEach.call(c.children,function(li){li.className=st[li.dataset.k]?'on':'';});
+  var bar=$('pwBar');if(bar){var s=p?pwStrength(p):0;bar.style.width=(s*20)+'%';bar.className='s'+s;}
+}
+function pwValues(needCur){
+  var cur=needCur?$('pwCur').value:'',p=$('pwNew').value,q=$('pwNew2').value,errs=pwProblems(p);
+  if(needCur&&!cur)errs.unshift('กรอกรหัสผ่านปัจจุบัน');
+  if(p!==q)errs.push('รหัสผ่านใหม่ทั้งสองช่องไม่ตรงกัน');
+  if(needCur&&cur&&p===cur)errs.push('รหัสผ่านใหม่ต้องไม่ซ้ำกับรหัสเดิม');
+  return {cur:cur,p:p,errs:errs};
+}
+function renderPw(){
+  var box=$('pwbox');if(!box)return;
+  if(!pwm||!me){box.innerHTML='';return;}
+  var t=pwm.mode==='reset'?emp(pwm.id):me,isReset=pwm.mode==='reset';
+  box.innerHTML='<div class="overlay" data-act="pw-bg"><form class="modal" id="pwForm" role="dialog" aria-modal="true" aria-labelledby="pwTitle" autocomplete="off">'+
+    '<h2 id="pwTitle">'+(isReset?'รีเซ็ตรหัสผ่าน':'เปลี่ยนรหัสผ่าน')+'</h2>'+
+    '<dl class="kv"><div><dt>ชื่อ</dt><dd>'+esc(t?t.name:'—')+'</dd></div><div><dt>ชื่อผู้ใช้</dt><dd class="tnum"><b>'+esc(t?t.username:'—')+'</b></dd></div></dl>'+
+    pwFormHtml({current:!isReset})+
+    (isReset?'<p class="alert-y">รหัสนี้เป็นรหัสชั่วคราว เมื่อ '+esc(t?fn(t):'')+' ล็อกอินครั้งถัดไป ระบบจะให้ตั้งรหัสใหม่ของตัวเองทันที</p>':'')+
+    '<div class="row"><button class="btn grow" type="submit" id="pwOk">ยืนยัน</button><button class="btn sec" type="button" data-act="pw-close">ยกเลิก</button></div></form></div>';
+  var f=$(isReset?'pwNew':'pwCur');if(f)f.focus();
+}
+async function submitPw(){
+  if(busy||!pwm)return;
+  var isReset=pwm.mode==='reset',v=pwValues(!isReset),er=$('pwErr'),btn=$('pwOk');
+  if(v.errs.length){er.textContent=v.errs.join(' · ');return;}
+  busy=true;btn.disabled=true;er.textContent='';
+  try{
+    if(isReset){
+      var t=emp(pwm.id);
+      await adminFn({action:'set_password',id:pwm.id,password:v.p});
+      pwm=null;busy=false;renderPw();await loadAll();renderAll();
+      toast('รีเซ็ตรหัสผ่านแล้ว',(t?t.name+' ('+t.username+')':'')+' ต้องตั้งรหัสใหม่เมื่อล็อกอินครั้งถัดไป');
+    }else{
+      await adminFn({action:'change_own',current:v.cur,password:v.p});
+      await sb.auth.signInWithPassword({email:me.username+'@'+(CFG.USER_DOMAIN||'wifi-check.app'),password:v.p});
+      pwm=null;busy=false;renderPw();toast('เปลี่ยนรหัสผ่านแล้ว','ครั้งหน้าให้ใช้รหัสผ่านใหม่ในการล็อกอิน');
+    }
+  }catch(e){busy=false;if(btn)btn.disabled=false;if(er)er.textContent=errMsg(e);}
+}
+/* หน้าบังคับตั้งรหัสใหม่ (บัญชีที่ใช้รหัสชั่วคราวหรือรหัสแบบเก่า) */
+function viewForcePw(){
+  return '<div class="login-wrap" style="grid-template-columns:minmax(0,460px)"><form class="card hero stack" id="forceForm" autocomplete="off">'+
+    '<h1>ตั้งรหัสผ่านใหม่</h1><p class="muted">สวัสดี '+esc(me.name)+' (<b>'+esc(me.username)+'</b>) ก่อนใช้งานต่อ กรุณาตั้งรหัสผ่านใหม่ของคุณเอง</p>'+
+    pwFormHtml({current:!lastPw})+
+    '<button class="btn" type="submit" id="pwOk">ยืนยันและเข้าสู่ระบบ</button><button class="btn sec" type="button" data-act="logout">ออกจากระบบ</button></form></div>';
+}
+async function submitForce(){
+  if(busy)return;
+  var v=pwValues(!lastPw),er=$('pwErr'),btn=$('pwOk');
+  var cur=lastPw||v.cur;
+  if(lastPw&&v.p===lastPw)v.errs.push('รหัสผ่านใหม่ต้องไม่ซ้ำกับรหัสเดิม');
+  if(v.errs.length){er.textContent=v.errs.join(' · ');return;}
+  busy=true;btn.disabled=true;er.textContent='';
+  try{
+    await adminFn({action:'change_own',current:cur,password:v.p});
+    var r=await sb.auth.signInWithPassword({email:me.username+'@'+(CFG.USER_DOMAIN||'wifi-check.app'),password:v.p});
+    lastPw='';busy=false;
+    await enter(r&&r.data&&r.data.user?r.data.user.id:me.id);
+    toast('ตั้งรหัสผ่านใหม่แล้ว','ครั้งหน้าให้ใช้รหัสผ่านใหม่ในการล็อกอิน');
+  }catch(e){busy=false;if(btn)btn.disabled=false;if(er)er.textContent=errMsg(e);}
+}
+document.addEventListener('input',function(e){if(e.target&&(e.target.id==='pwNew'||e.target.id==='pwNew2'))pwLive();});
+document.addEventListener('submit',function(e){
+  if(e.target.id==='pwForm'){e.preventDefault();submitPw();}
+  else if(e.target.id==='forceForm'){e.preventDefault();submitForce();}
+});
+
 /* schedule */
 function cellHtml(d,s,admin){
   var sl=slot(d,s);
@@ -1749,12 +1857,13 @@ function empForm(){
     '<div class="fields">'+
     '<div><label for="fName">ชื่อ-นามสกุล</label><input id="fName" value="'+esc(c.name)+'"></div>'+
     '<div><label for="fUser">ชื่อผู้ใช้</label><input id="fUser" autocapitalize="none" value="'+esc(c.username)+'"'+(isNew?'':' disabled')+'></div>'+
-    '<div><label for="fPin">รหัสผ่าน 6 หลัก'+(isNew?'':' (เว้นว่างถ้าไม่เปลี่ยน)')+'</label><input id="fPin" inputmode="numeric" maxlength="6" placeholder="เช่น 482915"></div>'+
+    (isNew?'<div><label for="fPin">รหัสผ่านเริ่มต้น (ชั่วคราว)</label><div class="pwrow"><input id="fPin" type="password" maxlength="72" autocomplete="new-password" autocapitalize="none" spellcheck="false"><button type="button" class="iconbtn pweye" data-act="pw-eye" data-id="fPin" aria-label="แสดงรหัสผ่าน">👁</button></div></div><div><label for="fPin2">ยืนยันรหัสผ่านเริ่มต้น</label><div class="pwrow"><input id="fPin2" type="password" maxlength="72" autocomplete="new-password" autocapitalize="none" spellcheck="false"><button type="button" class="iconbtn pweye" data-act="pw-eye" data-id="fPin2" aria-label="แสดงรหัสผ่าน">👁</button></div></div>':'')+
     '<div><label for="fPhone">เบอร์โทร</label><input id="fPhone" inputmode="tel" value="'+esc(c.phone)+'"></div>'+
     '<div><label for="fRole">บทบาท</label><select id="fRole"><option value="staff"'+(!isAdm?' selected':'')+'>พนักงาน</option><option value="admin"'+(isAdm?' selected':'')+'>ผู้ดูแลระบบ</option></select></div>'+
     '<div id="fTeamRow"'+(isAdm?' hidden':'')+'><label for="fTeam">ทีม</label><select id="fTeam"><option value="A"'+(c.team==='A'?' selected':'')+'>ทีม A (จ–ศ)</option><option value="B"'+(c.team==='B'?' selected':'')+'>ทีม B (ศ–จ)</option><option value="OPS"'+(isOps?' selected':'')+'>Operation (Daytime) · สำรอง</option></select></div>'+
     '<div id="fShiftRow"'+(isAdm||isOps?' hidden':'')+'><label for="fShift">กะประจำ</label><select id="fShift">'+shiftOptions(c.team==='B'?'B':'A',c.shift)+'</select></div>'+
     '</div>'+
+    (isNew?'<p class="muted small">'+PW_RULE+' · ผู้ใช้จะต้องตั้งรหัสใหม่ของตัวเองเมื่อล็อกอินครั้งแรก</p>':'<p class="muted small">เปลี่ยนรหัสผ่านของพนักงานคนนี้ ใช้ปุ่ม "รีเซ็ตรหัสผ่าน" ในการ์ดพนักงาน</p>')+
     '<p class="muted small" id="fOpsHint"'+(isOps&&!isAdm?'':' hidden')+'>พนักงานสำรองไม่มีกะประจำ จะปรากฏในรายชื่อผู้ทำงานแทนเมื่อผู้ดูแลตั้งกะเป็นหยุด และลงเวลาได้เฉพาะกะที่ได้รับมอบหมาย</p>'+
     '<label style="margin:0" id="fWorkRow"'+(isAdm?'':' hidden')+'><input type="checkbox" id="fWork"'+(c.canWork?' checked':'')+'> ผู้ดูแลคนนี้ช่วยทำงานทดแทนได้ (ลงเวลาและถูกเลือกเป็นผู้ทำแทน)</label>'+
     '<label style="margin:0"><input type="checkbox" id="fActive"'+(c.active?' checked':'')+'> เปิดใช้งานบัญชี</label>'+
@@ -1764,8 +1873,8 @@ function empForm(){
 function pcard(e){
   var del=armed==='del:'+e.id
     ?'<button class="btn danger sm" data-act="del-yes" data-id="'+e.id+'">ยืนยันลบ</button><button class="btn sec sm" data-act="del-no">ยกเลิก</button>'
-    :'<button class="btn sec sm" data-act="edit-emp" data-id="'+e.id+'">แก้ไข</button>'+(e.id===me.id?'':'<button class="btn sec sm" data-act="del-emp" data-id="'+e.id+'">ลบ</button>');
-  var chips='<span class="chip '+(e.active?'':'mute')+'">'+(e.active?'ใช้งาน':'ปิดใช้งาน')+'</span>';
+    :'<button class="btn sec sm" data-act="edit-emp" data-id="'+e.id+'">แก้ไข</button>'+(e.id===me.id?'<button class="btn sec sm" data-act="pw-self">เปลี่ยนรหัสผ่าน</button>':'<button class="btn sec sm" data-act="pw-reset" data-id="'+e.id+'">รีเซ็ตรหัสผ่าน</button><button class="btn sec sm" data-act="del-emp" data-id="'+e.id+'">ลบ</button>');
+  var chips='<span class="chip '+(e.active?'':'mute')+'">'+(e.active?'ใช้งาน':'ปิดใช้งาน')+'</span>'+(e.mustChange?'<span class="chip late">รอตั้งรหัสใหม่</span>':'');
   if(e.role==='staff'&&e.shift)chips+='<span class="chip mute tnum">กะ '+shiftLabel(shiftById(e.shift))+'</span>';
   if(e.team==='OPS')chips+='<span class="chip mute">ทำแทนได้</span>';
   if(e.role==='admin'&&e.canWork)chips+='<span class="chip mute">ช่วยทำงานได้</span>';
@@ -1779,13 +1888,13 @@ function viewPeople(){
     return '<section class="stack" style="gap:8px"><h2>'+g[1]+' <span class="muted small">'+list.length+' คน</span></h2>'+
       (list.length?'<div class="pgrid">'+list.map(pcard).join('')+'</div>':'<p class="muted small">ยังไม่มีพนักงานสำรอง กด "+ เพิ่มพนักงาน" แล้วเลือกทีม Operation (Daytime)</p>')+'</section>';
   }).join('');
-  return '<div class="stack"><div class="row between"><div><h1>พนักงาน</h1><p class="muted">ผู้ดูแลสร้างและแก้ไขโปรไฟล์ รหัสผ่านที่ตั้งที่นี่ใช้ล็อกอินได้ทันที</p></div>'+
+  return '<div class="stack"><div class="row between"><div><h1>พนักงาน</h1><p class="muted">ผู้ดูแลสร้างและแก้ไขโปรไฟล์ · รหัสผ่านที่ผู้ดูแลตั้งเป็นรหัสชั่วคราว ผู้ใช้ต้องตั้งรหัสใหม่เองเมื่อล็อกอินครั้งแรก</p></div>'+
     '<button class="btn" data-act="new-emp">+ เพิ่มพนักงาน</button></div>'+(editEmp?empForm():'')+html+'</div>';
 }
 async function saveEmp(){
   if(busy)return;
   var g=$,isNew=editEmp==='new',cur=isNew?null:emp(editEmp);
-  var name=g('fName').value.trim(),username=isNew?g('fUser').value.trim().toLowerCase():cur.username,pin=g('fPin').value.trim(),phone=g('fPhone').value.trim();
+  var name=g('fName').value.trim(),username=isNew?g('fUser').value.trim().toLowerCase():cur.username,pin=isNew?g('fPin').value:'',pin2=isNew?g('fPin2').value:'',phone=g('fPhone').value.trim();
   var role=g('fRole').value,active=g('fActive').checked,errs=[];
   var team=role==='admin'?null:g('fTeam').value;
   var shift=(role==='admin'||team==='OPS')?null:g('fShift').value;
@@ -1795,7 +1904,7 @@ async function saveEmp(){
     if(!/^[a-z0-9._-]{3,20}$/.test(username))errs.push('ชื่อผู้ใช้ 3–20 ตัว ใช้ a-z 0-9 . _ - เท่านั้น');
     else if(state.employees.some(function(e){return e.username===username;}))errs.push('ชื่อผู้ใช้นี้ถูกใช้แล้ว');
   }
-  if((isNew||pin)&&!/^\d{6}$/.test(pin))errs.push('รหัสผ่านต้องเป็นตัวเลข 6 หลัก');
+  if(isNew){pwProblems(pin).forEach(function(x){errs.push('รหัสผ่าน: '+x);});if(pin!==pin2)errs.push('รหัสผ่านทั้งสองช่องไม่ตรงกัน');}
   if(role==='staff'&&team!=='OPS'){
     if(!shift)errs.push('เลือกกะประจำ');
     else if(active){
@@ -1809,7 +1918,7 @@ async function saveEmp(){
   busy=true;g('fErr').textContent='';
   try{
     if(isNew){
-      var r=await adminFn({action:'create',username:username,pin:pin,name:name,role:role,team:team,shift_id:shift,phone:phone,can_work:canWork});
+      var r=await adminFn({action:'create',username:username,password:pin,name:name,role:role,team:team,shift_id:shift,phone:phone,can_work:canWork});
       if(!active&&r&&r.id){var u0=await sb.from('profiles').update({active:false}).eq('id',r.id);if(u0.error)throw u0.error;}
     }else{
       var ch=[];
@@ -1817,12 +1926,10 @@ async function saveEmp(){
       if(cur.team!==team||cur.shift!==shift)ch.push('ทีม/กะประจำ เป็น '+teamTxt);
       if(cur.active!==active)ch.push(active?'เปิดใช้งานบัญชี':'ปิดใช้งานบัญชี');
       if(!!cur.canWork!==canWork)ch.push(canWork?'เปิดสิทธิ์ช่วยทำงานแทน':'ปิดสิทธิ์ช่วยทำงานแทน');
-      if(pin)ch.push('รหัสผ่าน');
       if(cur.role!==role)ch.push('บทบาท');
       var u=await sb.from('profiles').update({name:name,role:role,team:team,shift_id:shift,phone:phone,active:active,can_work:canWork}).eq('id',cur.id).select('id');
       if(u.error)throw u.error;
       if(!u.data||!u.data.length)throw new Error('บันทึกไม่สำเร็จ (ไม่มีสิทธิ์แก้ไข)');
-      if(pin)await adminFn({action:'set_pin',id:cur.id,pin:pin});
       if(ch.length)notify([cur.id,me.id],'แก้ไขโปรไฟล์','ผู้ดูแลแก้ไขข้อมูล '+name+': '+ch.join(', '));
     }
     editEmp=null;await loadAll();busy=false;renderAll();
@@ -2234,6 +2341,11 @@ document.addEventListener('click',function(e){
       break;
     case 'tab':view=D.v;resetUi();renderAll();window.scrollTo(0,0);break;
     case 'dash':dashDays=Number(D.n);renderView();break;
+    case 'pw-self':pwm={mode:'self'};renderPw();break;
+    case 'pw-reset':pwm={mode:'reset',id:D.id};renderPw();break;
+    case 'pw-close':pwm=null;renderPw();break;
+    case 'pw-bg':if(e.target===el){pwm=null;renderPw();}break;
+    case 'pw-eye':var pi2=$(D.id);if(pi2){pi2.type=pi2.type==='password'?'text':'password';el.setAttribute('aria-label',pi2.type==='password'?'แสดงรหัสผ่าน':'ซ่อนรหัสผ่าน');}break;
     case 'det':openDet(D.k);break;
     case 'dc-mode':dcMode=D.m;renderView();break;
     case 'dc-nav':dcNav(D.n);renderView();break;
@@ -2367,6 +2479,7 @@ document.addEventListener('keydown',function(e){
   if((e.key==='Enter'||e.key===' ')&&e.target.matches&&e.target.matches('[data-act="det"]:not(button)')){e.preventDefault();e.target.dispatchEvent(new MouseEvent('click',{bubbles:true}));return;}
   if(e.key!=='Escape')return;
   if(dp){dp=null;renderDp();}
+  else if(pwm){pwm=null;renderPw();}
   else if(det.length){closeDet(false);}
   else if(modal){closeModal();}
   else if(bellOpen){bellOpen=false;renderChrome();}
