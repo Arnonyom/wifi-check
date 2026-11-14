@@ -234,6 +234,11 @@ button.cell:hover{border-color:var(--brand-strong)}
 .demo .dfield{min-height:36px;padding:4px 10px;width:auto;min-width:0}
 .row .dfield{width:auto}
 #dpbox .overlay{z-index:50}
+/* notification links */
+.notego{display:block;margin-top:4px;font-size:12.5px;font-weight:600;color:var(--brand-strong)}
+.toast.tgo{cursor:pointer;text-align:left;font:inherit;color:inherit;width:100%}
+.toast.tgo:hover{filter:brightness(.98);transform:translateY(-1px)}
+
 /* table header with Excel */
 .tblhead{display:flex;justify-content:space-between;align-items:flex-end;gap:10px;flex-wrap:wrap}
 .tblhead h3{margin:0}
@@ -727,7 +732,7 @@ function announceNew(first){
     if(n.ts>lastNoteTs){
       mx=Math.max(mx,n.ts);
       if(!first&&me&&me.notify!==false&&n.read.indexOf(me.id)<0&&(me.role==='admin'||n.to.indexOf(me.id)>=0)){
-        toast(n.title,n.body,n.kind);
+        toast(n.title,n.body,n.kind,n.id);
         if(me.push){try{if(window.Notification&&Notification.permission==='granted')new Notification(n.title,{body:n.body});}catch(e){}}
       }
     }
@@ -822,7 +827,7 @@ function bellPanel(){
   var list=visibleNotes().slice(0,40);
   var items=list.map(function(n){
     var isRead=n.read.indexOf(me.id)>=0,b=bkk(n.ts),warn=n.kind==='warn';
-    return '<button class="note'+(warn?' warn':'')+'" data-act="read" data-id="'+n.id+'"><span class="dot'+(isRead?' read':'')+(warn&&!isRead?' amber':'')+'" aria-label="'+(isRead?'อ่านแล้ว':'ยังไม่อ่าน')+'"></span><span class="grow"><b>'+esc(n.title)+'</b><span class="pre">'+esc(n.body)+'</span><span class="muted small tnum">'+esc(thDate(b.date,{day:'numeric',month:'short'}))+' '+b.hhmm+' น.</span></span></button>';
+    return '<button class="note'+(warn?' warn':'')+'" data-act="read" data-id="'+n.id+'"><span class="dot'+(isRead?' read':'')+(warn&&!isRead?' amber':'')+'" aria-label="'+(isRead?'อ่านแล้ว':'ยังไม่อ่าน')+'"></span><span class="grow"><b>'+esc(n.title)+'</b><span class="pre">'+esc(n.body)+'</span><span class="muted small tnum">'+esc(thDate(b.date,{day:'numeric',month:'short'}))+' '+b.hhmm+' น.</span>'+(function(g){return g?'<span class="notego">ไปที่หน้า'+esc(g.label)+' <span aria-hidden="true">›</span></span>':'';})(noteTarget(n))+'</span></button>';
   }).join('')||'<p class="muted small" style="padding:14px">ยังไม่มีการแจ้งเตือน</p>';
   return '<div class="pop" role="dialog" aria-label="การแจ้งเตือน"><div class="row between" style="padding:6px 8px 4px"><b>แจ้งเตือน</b><button class="btn sec sm" data-act="read-all">อ่านทั้งหมด</button></div>'+
     '<div class="pref">'+swRow('bell-notify',me.notify!==false,'แจ้งเตือนในเว็บ (เด้งและตัวเลข)')+swRow('bell-push',!!me.push,'แจ้งเตือนบนอุปกรณ์ (Push)')+'</div>'+items+'</div>';
@@ -2326,6 +2331,43 @@ function xlSchedule(f,t){
   return XL.download([{name:'schedule',rows:rows,widths:[12,9,10,11,11,16,20,9,16,20,24]}],xlName('schedule',f,t));
 }
 
+/* notification links */
+function noteDate(n){
+  var m=/(\d{1,2})\/(\d{1,2})(?:\/(\d{4}))?/.exec(n.body||'');if(!m)return '';
+  var ref=bkk(n.ts||now()).date,y=+ref.slice(0,4),mo=+m[2],dd=+m[1];
+  if(m[3]){y=+m[3];if(y>2400)y-=543;}
+  else{var rm=+ref.slice(5,7);if(mo-rm>6)y--;else if(rm-mo>6)y++;}
+  if(mo<1||mo>12||dd<1||dd>31)return '';
+  return y+'-'+(mo<10?'0':'')+mo+'-'+(dd<10?'0':'')+dd;
+}
+function noteTarget(n){
+  if(!me)return null;
+  var A=me.role==='admin',t=n.title||'',d=noteDate(n),who=(n.to||[]).map(emp).filter(function(x){return x&&x.role==='staff';})[0];
+  var team=t==='ตารางกะทีม B'?'B':who&&who.team==='B'?'B':(!A&&me.team==='B'?'B':'A');
+  var sched={v:'schedule',label:'ตารางกะ',d:d,t:team};
+  if(/คำขอลา/.test(t))return A?{v:'leaves',label:'คำขอลา',lvf:t==='คำขอลาใหม่'?'pending':'all'}:{v:'leave',label:'ขอลา'};
+  if(/การลา/.test(t))return A?{v:'leaves',label:'คำขอลา',lvf:'all'}:{v:'leave',label:'ขอลา'};
+  if(t==='ตารางหมุนกะ'||t==='ตารางกะทีม B')return A?{v:'settings',label:'ตั้งค่า'}:sched;
+  if(/ทำแทน|สลับกะ|ฉุกเฉิน|ตารางกะ|ยกเลิกการหยุด|เปลี่ยนกะ/.test(t))return sched;
+  if(/เข้างานสาย|ออกงานก่อนเวลา|ลงเวลาแทน|ลืม/.test(t))return A?{v:'today',label:'รายละเอียดวัน',det:d?'day:'+d:''}:{v:'history',label:'ประวัติ'};
+  if(/บัญชี|โปรไฟล์|พนักงาน|รหัสผ่าน/.test(t))return A?{v:'people',label:'พนักงาน'}:null;
+  if(/กฎการลงเวลา/.test(t))return A?{v:'settings',label:'ตั้งค่า'}:{v:'home',label:'ลงเวลา'};
+  return null;
+}
+function goNote(n){
+  var g=noteTarget(n);if(!g)return false;
+  if(tabList().map(function(x){return x[0];}).indexOf(g.v)<0)return false;
+  view=g.v;resetUi();
+  if(g.v==='schedule'){if(g.d)schedAnchor=g.d;schedTeam=g.t;}
+  if(g.lvf)lvFilter=g.lvf;
+  renderAll();window.scrollTo(0,0);
+  if(g.det)setTimeout(function(){openDet(g.det);},30);
+  return true;
+}
+function markNoteRead(n){
+  if(n&&n.read.indexOf(me.id)<0){n.read.push(me.id);rpc('mark_read',{p_ids:[n.id]}).catch(function(){});}
+}
+
 /* schedule */
 function cellHtml(d,s,admin){
   var sl=slot(d,s);
@@ -2963,11 +3005,15 @@ function onDate(id,val){
 }
 
 /* ---------- toast + tooltip ---------- */
-function toast(title,body,kind){
+function toast(title,body,kind,nid){
   var box=$('toast');if(!box)return;
-  var el=document.createElement('div');el.className='toast'+(kind==='warn'?' warn':'');
+  var tn=nid!=null&&state.notifications.find(function(x){return x.id===nid;}),tg=tn&&noteTarget(tn);
+  var el=document.createElement(tg?'button':'div');el.className='toast'+(kind==='warn'?' warn':'')+(tg?' tgo':'');
+  if(tg){el.type='button';el.setAttribute('data-act','toast-go');el.setAttribute('data-id',nid);el.title='ไปที่หน้า'+tg.label;}
   var b=document.createElement('b');b.textContent=title;var s=document.createElement('span');s.textContent=body||'';
-  el.appendChild(b);el.appendChild(s);box.appendChild(el);
+  el.appendChild(b);el.appendChild(s);
+  if(tg){var g=document.createElement('span');g.className='notego';g.textContent='กดเพื่อไปที่หน้า'+tg.label+' ›';el.appendChild(g);}
+  box.appendChild(el);
   while(box.children.length>3)box.removeChild(box.firstChild);
   setTimeout(function(){if(el.parentNode)el.parentNode.removeChild(el);},5500);
 }
@@ -3087,7 +3133,16 @@ document.addEventListener('click',function(e){
     case 'hist':histMonth=addMonth(histMonth,Number(D.n));renderView();break;
     case 'read':
       var n=state.notifications.find(function(x){return x.id===D.id;});
-      if(n&&n.read.indexOf(me.id)<0){n.read.push(me.id);renderChrome();rpc('mark_read',{p_ids:[n.id]}).catch(function(){});}
+      if(!n)break;
+      markNoteRead(n);
+      if(!goNote(n))renderChrome();
+      break;
+    case 'toast-go':
+      var tn=state.notifications.find(function(x){return x.id===D.id;});
+      if(el.parentNode)el.parentNode.removeChild(el);
+      if(!tn)break;
+      markNoteRead(tn);
+      if(!goNote(tn))renderChrome();
       break;
     case 'read-all':
       var rids=[];visibleNotes().forEach(function(x){if(x.read.indexOf(me.id)<0){x.read.push(me.id);rids.push(x.id);}});
