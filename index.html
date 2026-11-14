@@ -234,6 +234,57 @@ button.cell:hover{border-color:var(--brand-strong)}
 .demo .dfield{min-height:36px;padding:4px 10px;width:auto;min-width:0}
 .row .dfield{width:auto}
 #dpbox .overlay{z-index:50}
+/* table header with Excel */
+.tblhead{display:flex;justify-content:space-between;align-items:flex-end;gap:10px;flex-wrap:wrap}
+.tblhead h3{margin:0}
+.xlbtn{display:inline-flex;align-items:center;gap:6px;background:#1D6F42;border-color:#1D6F42;color:#fff}
+.xlbtn:hover{filter:brightness(1.08)}
+
+/* admin editor */
+.fgbar{height:8px;border-radius:4px;background:var(--surface-2);overflow:hidden;display:flex;min-width:60px;flex:1}
+.fgbar i{display:block;height:100%}
+.fgbar .a{background:var(--st-warn)}.fgbar .m{background:var(--st-bad)}
+.fgrow{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(60px,2fr) minmax(0,15em);gap:12px;align-items:center}
+@media (max-width:720px){.fgrow{grid-template-columns:1fr;gap:6px}.fgrow .row{justify-content:flex-start!important}}
+.edmodes{gap:8px;flex-wrap:wrap}
+.radchip{display:inline-flex;align-items:center;gap:6px;margin:0;padding:8px 12px;border:1px solid var(--line);border-radius:999px;cursor:pointer;background:var(--surface)}
+.radchip.on{border-color:var(--brand-strong);background:var(--brand-soft);font-weight:600}
+.radchip input{accent-color:var(--brand-strong)}
+/* theme picker */
+.thwrap{position:relative}
+.thpop{width:min(300px,calc(100vw - 32px));padding:14px;display:flex;flex-direction:column;gap:10px}
+.thopts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.thopt{display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 6px;border:1px solid var(--line);border-radius:12px;background:var(--surface);cursor:pointer;font-size:13px}
+.thopt.on{border-color:var(--brand-strong);box-shadow:0 0 0 2px var(--brand-strong) inset;font-weight:600}
+.thsw{width:36px;height:24px;border-radius:8px;border:1px solid rgba(0,0,0,.12);display:block}
+.thsw-light{background:#F3F8EE}.thsw-dark{background:#0C1710}
+.thsw-glass{background:linear-gradient(135deg,#a8e063 0%,#56c2b5 45%,#8e8cf0 100%);box-shadow:inset 0 0 0 3px rgba(255,255,255,.55)}
+#glassRange{width:100%;accent-color:var(--brand-strong)}
+/* liquid glass */
+:root[data-theme="glass"]{
+  --bg:transparent;
+  --surface:rgba(255,255,255,var(--ga,.5));
+  --surface-2:rgba(255,255,255,calc(var(--ga,.5) * .6));
+  --ink:#0D2315; --muted:#38533F; --line:rgba(255,255,255,.7);
+  --brand:#7AC143; --brand-strong:#1F6A0E; --on-strong:#FFFFFF; --brand-soft:rgba(122,193,67,.28); --on-brand:#0D2315;
+  --late:#5E3A00; --late-soft:rgba(255,226,150,.6); --amber:#D99A00; --off:#8E241D; --off-soft:rgba(255,205,198,.6); --hatch:rgba(255,255,255,.3);
+  --scrim:rgba(8,28,18,.35);
+  --shadow:0 10px 30px rgba(16,60,36,.16),inset 0 1px 0 rgba(255,255,255,.75);
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --grid:rgba(255,255,255,.55); --axis:rgba(30,70,45,.35);
+  color-scheme:light;
+}
+:root[data-theme="glass"] body{background:#d6eedd;background-image:radial-gradient(60vw 50vw at 8% 10%,rgba(141,214,90,.85),transparent 60%),radial-gradient(55vw 45vw at 92% 18%,rgba(72,190,180,.75),transparent 60%),radial-gradient(60vw 55vw at 75% 95%,rgba(140,130,240,.6),transparent 60%),radial-gradient(50vw 45vw at 15% 90%,rgba(255,206,120,.55),transparent 60%);background-attachment:fixed}
+:root[data-theme="glass"] body::before{background:transparent}
+:root[data-theme="glass"] .card,:root[data-theme="glass"] .modal,:root[data-theme="glass"] .iconbtn,:root[data-theme="glass"] .tab,:root[data-theme="glass"] .pop,:root[data-theme="glass"] .toast,:root[data-theme="glass"] .seg,:root[data-theme="glass"] .cell,:root[data-theme="glass"] .thopt,:root[data-theme="glass"] .radchip,:root[data-theme="glass"] input,:root[data-theme="glass"] select,:root[data-theme="glass"] textarea,:root[data-theme="glass"] .btn.sec{-webkit-backdrop-filter:blur(var(--gb,18px)) saturate(170%);backdrop-filter:blur(var(--gb,18px)) saturate(170%)}
+:root[data-theme="glass"] .card,:root[data-theme="glass"] .modal,:root[data-theme="glass"] .pop{box-shadow:var(--shadow)}
+:root[data-theme="glass"] .modal,:root[data-theme="glass"] .pop,:root[data-theme="glass"] .toast{background:linear-gradient(140deg,rgba(255,255,255,calc(var(--gp,.6) + .1)) 0%,rgba(255,255,255,var(--gp,.6)) 55%,rgba(255,255,255,calc(var(--gp,.6) * .85)) 100%);-webkit-backdrop-filter:blur(calc(var(--gb,18px) + 14px)) saturate(185%);backdrop-filter:blur(calc(var(--gb,18px) + 14px)) saturate(185%);border:1px solid rgba(255,255,255,.8);box-shadow:0 24px 60px rgba(16,60,36,.22),inset 0 1px 0 rgba(255,255,255,.95),inset 0 -1px 0 rgba(255,255,255,.35)}
+:root[data-theme="glass"] .toast{border-left:4px solid var(--brand-strong)}
+:root[data-theme="glass"] .overlay{background:rgba(18,48,32,.16)}
+:root[data-theme="glass"] .dhd{background:rgba(255,255,255,calc(var(--gp,.6) * .6 + .35))}
+:root[data-theme="glass"] .topbar{background:rgba(255,255,255,calc(var(--ga,.5) * .5 + .4));margin-inline:calc(-1 * max(16px,env(safe-area-inset-left,0px)));padding-inline:max(16px,env(safe-area-inset-left,0px))}
+:root[data-theme="glass"] input,:root[data-theme="glass"] select,:root[data-theme="glass"] textarea{background:rgba(255,255,255,calc(var(--ga,.5) * .8 + .15))}
+@media (max-width:720px){:root[data-theme="glass"] .tabs{background:rgba(255,255,255,calc(var(--ga,.5) * .7 + .1));-webkit-backdrop-filter:blur(var(--gb,18px)) saturate(170%);backdrop-filter:blur(var(--gb,18px)) saturate(170%)}}
+
 .cell.flexc{border-style:dashed;align-items:center;justify-content:center;opacity:.85}
 
 /* simulator */
@@ -659,7 +710,7 @@ async function loadAll(){
   S.employees=(q[1].data||[]).map(mapEmp);
   if(q[2].data)S.settings={openBefore:q[2].data.open_before,lateAfter:q[2].data.late_after};
   (q[3].data||[]).forEach(function(o){S.overrides[o.work_date+'|'+o.shift_id]={off:true,cover:o.cover,note:o.note||'',kind:o.kind||'',leave:o.leave_id,by:o.set_by,ts:Date.parse(o.set_at)};});
-  S.attendance=(q[4].data||[]).map(function(a){return {id:a.id,emp:a.emp,date:a.work_date,shift:a.shift_id,in:Date.parse(a.check_in),out:a.check_out?Date.parse(a.check_out):null,late:a.late_min,lateFlag:a.late_flag,early:a.early_min,earlyFlag:a.early_flag,cover:a.is_cover};});
+  S.attendance=(q[4].data||[]).map(function(a){return {id:a.id,emp:a.emp,date:a.work_date,shift:a.shift_id,in:Date.parse(a.check_in),out:a.check_out?Date.parse(a.check_out):null,late:a.late_min,lateFlag:a.late_flag,early:a.early_min,earlyFlag:a.early_flag,cover:a.is_cover,byAdmin:a.by_admin||null,adminNote:a.admin_note||''};});
   S.leaves=(q[5].data||[]).map(function(l){return {id:l.id,emp:l.emp,type:l.type,from:l.from_date,to:l.to_date,days:l.days,reason:l.reason||'',status:l.status,note:l.note||'',by:l.decided_by,decidedTs:l.decided_at?Date.parse(l.decided_at):null,ts:Date.parse(l.created_at)};});
   var read={};(q[7].data||[]).forEach(function(r){read[r.notif_id]=1;});
   var uid0=me?me.id:curUid;
@@ -756,7 +807,7 @@ function toggleTheme(){
   renderAll();
 }
 try{var th=localStorage.getItem(THEME_KEY);if(th)document.documentElement.setAttribute('data-theme',th);}catch(e){}
-function themeBtn(){return '<button class="iconbtn" data-act="theme" aria-label="สลับโหมดสว่าง/มืด" title="สลับโหมดสว่าง/มืด">'+ico(effDark()?ICONS.sun:ICONS.moon)+'</button>';}
+function themeBtn(){return '<div class="thwrap"><button class="iconbtn" data-act="theme" aria-label="ธีมหน้าจอ" title="ธีมหน้าจอ" aria-expanded="'+themeOpen+'">'+ico(curTheme()==='dark'?ICONS.moon:ICONS.sun)+'</button>'+(themeOpen?themePanel():'')+'</div>';}
 
 /* ---------- chrome ---------- */
 function brandHtml(){return '<div class="brand"><div class="mark">'+ico(ICONS.wifi)+'</div><div><b>WiFi-Check</b><small>เข้างาน · ออกงาน · ตารางกะ</small></div></div>';}
@@ -1450,7 +1501,7 @@ function rowHtml(r,opt){
   else{
     if(r.rec)right+='<span class="muted small tnum">เข้า '+fmtHM(r.rec.in)+' · ออก '+(r.rec.out?fmtHM(r.rec.out):'—')+'</span> ';
     if(opt.extra)right+='<span class="chip mute tnum">'+esc(opt.extra(r))+'</span> ';
-    right+=kChip(r);
+    right+=kChip(r)+(r.rec&&r.rec.byAdmin?' <span class="chip late">ผู้ดูแลลงให้</span>':'');
   }
   return '<button class="li lib"'+dk('slot:'+r.d+'|'+r.s.id)+'><span class="grow"><span class="when">'+esc(dayShort(r.d))+'</span> <span class="muted small tnum">'+TEAMS[r.s.team].name+' · '+shiftLabel(r.s)+'</span><br>'+who+sub+'</span><span class="row" style="gap:6px;justify-content:flex-end">'+right+'</span><span class="go" aria-hidden="true">›</span></button>';
 }
@@ -1572,10 +1623,11 @@ function detContent(k){
     if(a){
       kvh+='<div><dt>เวลาเข้างาน</dt><dd class="tnum">'+fmtHM(a.in)+' น. <span class="muted small">('+esc(offTxt(off2))+')</span></dd></div>';
       kvh+='<div><dt>เวลาออกงาน</dt><dd class="tnum">'+(a.out?fmtHM(a.out)+' น.'+(a.earlyFlag?' <span class="muted small">(ก่อนเลิกกะ '+a.early+' นาที)</span>':''):'ยังไม่ออกงาน')+'</dd></div>';
+      if(a.byAdmin){var ab=emp(a.byAdmin);kvh+='<div><dt>ลงเวลาโดย</dt><dd>ผู้ดูแล '+esc(ab?ab.name:'')+(a.adminNote?' <span class="muted small">· หมายเหตุ: '+esc(a.adminNote)+'</span>':'')+'</dd></div>';}
       if(a.out)kvh+='<div><dt>ชั่วโมงทำงาน</dt><dd class="tnum">'+hrsOf(r2).toFixed(2)+' ชม.</dd></div>';
     }
     if(o&&o.ts)kvh+='<div><dt>ตั้งการหยุดโดย</dt><dd>'+esc(ob?ob.name:'—')+' <span class="muted small tnum">'+esc(sd(bkk(o.ts).date))+' '+bkk(o.ts).hhmm+'</span></dd></div>';
-    var foot=btnK('day:'+r2.d,'ดูทั้งวัน',true)+(r2.w?btnK('emp:'+r2.w.id,'ดูข้อมูลของ '+esc(fn(r2.w)),true):'')+(o&&o.leave?btnK('lv:'+o.leave,'ดูคำขอลา',true):'')+'<button class="btn sec sm" data-act="go-sched" data-d="'+r2.d+'" data-t="'+sl2.team+'">เปิดในตารางกะ</button>';
+    var foot=btnK('day:'+r2.d,'ดูทั้งวัน',true)+(r2.w?btnK('emp:'+r2.w.id,'ดูข้อมูลของ '+esc(fn(r2.w)),true):'')+(o&&o.leave?btnK('lv:'+o.leave,'ดูคำขอลา',true):'')+'<button class="btn sec sm" data-act="go-sched" data-d="'+r2.d+'" data-t="'+sl2.team+'">เปิดในตารางกะ</button>'+(me.role==='admin'&&!sl2.flex?'<button class="btn sm" data-act="go-edit" data-d="'+r2.d+'" data-s="'+sl2.id+'" data-t="'+sl2.team+'">ลงเวลาแทน / เปลี่ยนคน</button>':'');
     return {title:(r2.w?r2.w.name:'กะ '+shiftLabel(sl2)),sub:dayShort(r2.d)+' · '+shiftLabel(sl2),html:'<dl class="kv">'+kvh+'</dl>',foot:foot};
   }
   return {title:'ไม่พบข้อมูล',html:''};
@@ -1955,6 +2007,325 @@ async function saveFlex(clear){
 
 document.addEventListener('change',function(e){if(!e.target)return;if(e.target.id==='rotaStart'){rotaWeek=e.target.value;renderView();}else if(e.target.id==='rotaBStart'){rotaBStart=e.target.value;renderView();}});
 
+/* ---------- ผู้ดูแล: เปลี่ยนคนทำงาน/สลับกะหลายวัน + ลงเวลาแทน ---------- */
+function rangeEnd(d,r){
+  if(r==='day')return d;
+  if(r==='week')return addDays(mondayOf(d),6);
+  if(r==='2w')return addDays(mondayOf(d),13);
+  return editSlot.to&&editSlot.to>=d?editSlot.to:d;
+}
+/* วันที่จะมีผล + วันที่ข้าม (พร้อมเหตุผล) */
+function planDays(s,mode,other,from,to){
+  var ok=[],skip=[];
+  for(var dd=from;dd<=to;dd=addDays(dd,1)){
+    var sl=slot(dd,s);if(!sl)continue;
+    if(mode==='work'){if(state.overrides[dd+'|'+s.id])ok.push(dd);continue;}
+    if(!sl.regular){skip.push([dd,'ไม่มีผู้ประจำ']);continue;}
+    if(!other){ok.push(dd);continue;}
+    if(other===sl.regular.id){skip.push([dd,'เป็นผู้ประจำอยู่แล้ว']);continue;}
+    var oe=emp(other);
+    if(mode==='cover'){
+      var b=busyIn(other,startTs(dd,s),endTs(dd,s),dd+'|'+s.id,dd);
+      if(b)skip.push([dd,'ชนกะ '+b]);else ok.push(dd);
+    }else{
+      var os=shiftOn(oe,dd),osh=os&&shiftById(os);
+      if(!osh||os===s.id||!slot(dd,osh))skip.push([dd,'ไม่มีกะของ '+fn(oe)]);else ok.push(dd);
+    }
+  }
+  return {ok:ok,skip:skip};
+}
+function swapOptions(d,s,sel){
+  var sl=slot(d,s),reg=sl&&sl.regular?sl.regular.id:'';
+  var opts=state.employees.filter(function(e){return e.active&&(e.role==='staff'||e.canWork)&&e.id!==reg;}).map(function(e){
+    var os=shiftOn(e,d),osh=os&&shiftById(os);
+    if(!osh||!slot(d,osh)||os===s.id)return '';
+    return '<option value="'+e.id+'"'+(e.id===sel?' selected':'')+'>'+esc(e.name)+' · '+shiftLabel(osh)+' ('+TEAMS[osh.team].name+')</option>';
+  }).filter(Boolean);
+  return '<option value="">— เลือกคนที่จะสลับกะด้วย —</option>'+opts.join('');
+}
+function coverOptions2(d,s,sel){
+  var sl=slot(d,s),reg=sl&&sl.regular?sl.regular.id:'';
+  var list=state.employees.filter(function(e){return canCover(e)&&e.id!==reg;});
+  var grp=function(label,arr){return arr.length?'<optgroup label="'+esc(label)+'">'+arr.map(function(e){var b=busyIn(e.id,startTs(d,s),endTs(d,s),d+'|'+s.id,d);return '<option value="'+e.id+'"'+(e.id===sel?' selected':'')+'>'+esc(e.name)+(b?' — วันนี้มีกะ '+b:'')+'</option>';}).join('')+'</optgroup>':'';};
+  return '<option value="">— เลือกผู้ทำงานแทน —</option>'+
+    grp(TEAMS[s.team].name+' (ทีมเดียวกัน)',list.filter(function(e){return e.role==='staff'&&e.team===s.team;}))+
+    grp('Operation (Daytime) · สำรอง',list.filter(function(e){return e.role==='staff'&&e.team==='OPS';}))+
+    grp('ทีมอื่น',list.filter(function(e){return e.role==='staff'&&(e.team==='A'||e.team==='B')&&e.team!==s.team;}))+
+    grp('ผู้ดูแลระบบ (ช่วยทำงาน)',list.filter(function(e){return e.role==='admin';}));
+}
+function slotEditor2(d,s,sl){
+  var E=editSlot,key=d+'|'+s.id,o=state.overrides[key];
+  if(!E.mode)E.mode=!o?'work':(o.kind==='swap'?'swap':'cover');
+  if(E.other===undefined)E.other=o&&o.cover?o.cover:'';
+  if(!E.range)E.range='day';
+  var head='<h2>แก้ไขกะ '+shiftLabel(s)+' · '+TEAMS[s.team].name+'</h2><p class="muted small">'+esc(thDate(d,{weekday:'long',day:'numeric',month:'long',year:'numeric'}))+'</p>';
+  var now0=!sl.off?'ทำงานตามปกติ':(o&&o.kind==='swap'?'สลับกะ: '+esc(sl.cover?sl.cover.name:'—')+' มาทำแทน':(sl.cover?esc(sl.cover.name)+' ทำแทน':'หยุด · ยังไม่มีผู้ทำแทน'));
+  var to=rangeEnd(d,E.range),from=d,plan=planDays(s,E.mode,E.mode==='work'?null:E.other,from,to);
+  var rangeSel='<select id="edRange">'+[['day','เฉพาะวันนี้'],['week','ถึงสิ้นสัปดาห์นี้ ('+thDate(addDays(mondayOf(d),6),{day:'numeric',month:'short'})+')'],['2w','ถึงสิ้นสัปดาห์หน้า ('+thDate(addDays(mondayOf(d),13),{day:'numeric',month:'short'})+')'],['custom','กำหนดวันสิ้นสุดเอง']].map(function(x){return '<option value="'+x[0]+'"'+(E.range===x[0]?' selected':'')+'>'+esc(x[1])+'</option>';}).join('')+'</select>';
+  var pick=E.mode==='cover'?'<div><label for="edOther">ผู้ทำงานแทน (ทีมเดียวกันก็ได้)</label><select id="edOther">'+coverOptions2(d,s,E.other)+'</select></div>'
+    :E.mode==='swap'?'<div><label for="edOther">สลับกะกับ</label><select id="edOther">'+swapOptions(d,s,E.other)+'</select></div>':'';
+  var chips=plan.ok.map(function(x){return '<span class="chip">'+esc(DOW_S[dowOf(x)]+' '+thDate(x,{day:'numeric',month:'short'}))+'</span>';}).join('')+
+    plan.skip.map(function(x){return '<span class="chip mute" title="'+esc(x[1])+'">ข้าม '+esc(DOW_S[dowOf(x[0])]+' '+thDate(x[0],{day:'numeric',month:'short'}))+' · '+esc(x[1])+'</span>';}).join('');
+  var who=E.mode==='swap'&&E.other?(function(){var oe=emp(E.other),os=shiftOn(oe,d);return '<p class="muted small">'+esc(sl.regular?sl.regular.name:'—')+' ไปทำกะ '+(os?shiftLabel(shiftById(os)):'—')+' ของ '+esc(fn(oe))+' และ '+esc(fn(oe))+' มาทำกะ '+shiftLabel(s)+' แทน</p>';})():'';
+  var sec1='<section class="card stack" id="slotEd">'+head+
+    '<p>ผู้ประจำกะ: <b>'+esc(sl.regular?sl.regular.name:'ยังไม่มี')+'</b> · ตอนนี้: '+now0+'</p>'+
+    '<div class="row edmodes" role="radiogroup" aria-label="ใครทำงานกะนี้">'+[['work','ทำงานตามปกติ'],['cover','ให้คนอื่นทำแทน'],['swap','สลับกะกับคนอื่น']].map(function(m){return '<label class="radchip'+(E.mode===m[0]?' on':'')+'"><input type="radio" name="edMode" value="'+m[0]+'"'+(E.mode===m[0]?' checked':'')+'> '+m[1]+'</label>';}).join('')+'</div>'+
+    '<div class="fields">'+pick+'<div><label for="edRange">ช่วงวันที่</label>'+rangeSel+'</div>'+(E.range==='custom'?'<div><label>ถึงวันที่</label>'+dateField('edTo',E.to||d)+'</div>':'')+
+    (E.mode!=='work'?'<div><label for="edNote">หมายเหตุ (ไม่บังคับ)</label><input id="edNote" maxlength="80" value="'+esc(E.note!=null?E.note:(o&&o.kind!=='swap'?o.note:''))+'" placeholder="เช่น ลาทั้งสัปดาห์ สลับกะกัน"></div>':'')+'</div>'+who+
+    '<div><p class="small muted" style="margin-bottom:6px">'+(E.mode==='work'?'วันที่จะกลับเป็นตามปกติ':'วันที่จะมีผล')+' ('+plan.ok.length+' วัน)</p><div class="row" style="gap:6px;flex-wrap:wrap">'+(chips||'<span class="muted small">ไม่มีวันที่ต้องเปลี่ยน</span>')+'</div></div>'+
+    '<div class="err" id="slotErr" role="alert"></div>'+
+    '<div class="row"><button class="btn" data-act="save-days"'+(plan.ok.length&&(E.mode==='work'||E.other)?'':' disabled')+'>บันทึก '+plan.ok.length+' วัน</button><button class="btn sec" data-act="cancel-slot">ปิด</button></div></section>';
+  return sec1+attEditor(d,s,sl);
+}
+function attEditor(d,s,sl){
+  var w=sl.working,E=editSlot;
+  var rec=state.attendance.find(function(a){return a.date===d&&a.shift===s.id;});
+  var head='<h2>ลงเวลาแทน</h2>';
+  if(!w&&!rec)return '<section class="card stack">'+head+'<p class="muted">กะนี้ยังไม่มีผู้ทำงาน ตั้งผู้ทำงานด้านบนก่อน</p></section>';
+  var pe=rec?emp(rec.emp):w;
+  var tin=E.tin||(rec?dtl(rec.in):dtl(startTs(d,s))),tout=E.tout!=null?E.tout:(rec&&rec.out?dtl(rec.out):(rec?'':dtl(endTs(d,s))));
+  var status=rec?'มีบันทึกแล้ว: เข้า '+fmtHM(rec.in)+(rec.out?' · ออก '+fmtHM(rec.out):' · ยังไม่ออกงาน')+(rec.byAdmin?' · ผู้ดูแลลงให้':' · พนักงานลงเอง'):'ยังไม่มีบันทึกเวลา';
+  return '<section class="card stack" id="attEd">'+head+'<p>พนักงาน: <b>'+esc(pe?pe.name:'—')+'</b>'+(rec&&w&&rec.emp!==w.id?' <span class="chip late">บันทึกเป็นชื่อคนอื่น ผู้ทำงานตอนนี้คือ '+esc(w.name)+'</span>':'')+'</p><p class="muted small">'+esc(status)+'</p>'+
+    '<div class="fields"><div><label for="atIn">เวลาเข้างาน</label><input id="atIn" type="datetime-local" value="'+esc(tin)+'"></div><div><label for="atOut">เวลาออกงาน (เว้นว่างถ้ายังไม่ออก)</label><input id="atOut" type="datetime-local" value="'+esc(tout)+'"></div>'+
+    '<div style="grid-column:1/-1"><label for="atNote">เหตุผล (ไม่บังคับ)</label><input id="atNote" maxlength="120" value="'+esc(E.atNote!=null?E.atNote:(rec?rec.adminNote||'':''))+'" placeholder="เช่น ลืมเช็กอิน โทรศัพท์แบตหมด"></div></div>'+
+    '<p class="muted small">ระบบคำนวณสาย/ออกก่อนจากเวลาที่ใส่ ตามกฎเดียวกับการลงเวลาปกติ และแจ้งเตือนพนักงาน</p>'+
+    '<div class="err" id="attErr" role="alert"></div><div class="row"><button class="btn" data-act="save-att">บันทึกเวลา</button>'+(rec?'<button class="btn sec" data-act="del-att">ลบบันทึกเวลา</button>':'')+'</div></section>';
+}
+async function saveDays(){
+  if(busy||!editSlot)return;
+  var E=editSlot,s=shiftById(E.s),to=rangeEnd(E.d,E.range),plan=planDays(s,E.mode,E.mode==='work'?null:E.other,E.d,to),er=$('slotErr');
+  if(E.mode!=='work'&&!E.other){er.textContent=E.mode==='swap'?'เลือกคนที่จะสลับกะด้วย':'เลือกผู้ทำงานแทน';return;}
+  if(!plan.ok.length){er.textContent='ไม่มีวันที่จะบันทึก';return;}
+  busy=true;er.textContent='';
+  try{
+    var r=await rpc('set_override_days',{p_shift:s.id,p_dates:plan.ok,p_mode:E.mode,p_other:E.mode==='work'?null:E.other,p_note:$('edNote')?$('edNote').value.trim():''});
+    editSlot=null;await loadAll();busy=false;renderAll();
+    var sk=r&&r.skipped&&r.skipped.length?' · ข้าม '+r.skipped.length+' วัน':'';
+    toast(E.mode==='work'?'กลับเป็นตามปกติแล้ว':E.mode==='swap'?'สลับกะแล้ว':'ตั้งผู้ทำแทนแล้ว',(r&&r.done!=null?r.done:plan.ok.length)+' วัน · กะ '+shiftLabel(s)+sk);
+  }catch(e){busy=false;er=$('slotErr');if(er)er.textContent=errMsg(e);}
+}
+async function saveAtt(del){
+  if(busy||!editSlot)return;
+  var E=editSlot,s=shiftById(E.s),d=E.d,sl=slot(d,s),er=$('attErr');
+  var rec=state.attendance.find(function(a){return a.date===d&&a.shift===s.id;});
+  var who=sl&&sl.working?sl.working.id:(rec?rec.emp:null);
+  var tin=$('atIn').value,tout=$('atOut').value;
+  if(!del){
+    if(!who){er.textContent='ยังไม่มีผู้ทำงานในกะนี้';return;}
+    if(!tin){er.textContent='ใส่เวลาเข้างาน';return;}
+    if(tout&&dtlParse(tout)<=dtlParse(tin)){er.textContent='เวลาออกงานต้องอยู่หลังเวลาเข้างาน';return;}
+  }
+  busy=true;er.textContent='';
+  try{
+    await rpc('admin_attendance',{p_date:d,p_shift:s.id,p_emp:del?null:who,p_in:del?null:new Date(dtlParse(tin)).toISOString(),p_out:del||!tout?null:new Date(dtlParse(tout)).toISOString(),p_note:$('atNote').value.trim()});
+    editSlot=null;await loadAll();busy=false;renderAll();
+    toast(del?'ลบบันทึกเวลาแล้ว':'บันทึกเวลาแทนแล้ว',dayShort(d)+' กะ '+shiftLabel(s));
+  }catch(e){busy=false;er=$('attErr');if(er)er.textContent=errMsg(e);}
+}
+document.addEventListener('change',function(e){
+  var t=e.target;if(!t||!editSlot||view!=='schedule')return;
+  if(t.name==='edMode'){editSlot.mode=t.value;editSlot.other='';renderView();}
+  else if(t.id==='edOther'){editSlot.other=t.value;renderView();}
+  else if(t.id==='edRange'){editSlot.range=t.value;renderView();}
+  else if(t.id==='atIn'){editSlot.tin=t.value;}
+  else if(t.id==='atOut'){editSlot.tout=t.value;}
+});
+document.addEventListener('input',function(e){var t=e.target;if(!t||!editSlot)return;if(t.id==='edNote')editSlot.note=t.value;else if(t.id==='atNote')editSlot.atNote=t.value;});
+
+/* ---------- ธีม: สว่าง / มืด / Liquid Glass ---------- */
+var themeOpen=false,GLASS_KEY='wc-glass';
+function curTheme(){return document.documentElement.getAttribute('data-theme')||(effDark()?'dark':'light');}
+function glassLevel(){var v=60;try{var x=localStorage.getItem(GLASS_KEY);if(x!=null&&x!=='')v=+x;}catch(e){}return isNaN(v)?60:Math.max(0,Math.min(100,v));}
+function applyGlass(v){var r=document.documentElement.style,ga=0.12+0.78*v/100;r.setProperty('--ga',ga.toFixed(3));r.setProperty('--gp',Math.max(ga,0.38).toFixed(3));r.setProperty('--gb',Math.round(6+22*v/100)+'px');}
+function setTheme(t){document.documentElement.setAttribute('data-theme',t);try{localStorage.setItem(THEME_KEY,t);}catch(e){}if(t==='glass')applyGlass(glassLevel());renderAll();}
+applyGlass(glassLevel());
+function themePanel(){
+  var t=curTheme(),v=glassLevel();
+  return '<div class="pop thpop" role="dialog" aria-label="ธีมหน้าจอ"><p class="small muted">ธีมหน้าจอ</p><div class="thopts">'+
+    [['light','สว่าง',ICONS.sun],['dark','มืด',ICONS.moon],['glass','Liquid Glass',ICONS.sun]].map(function(o){return '<button class="thopt'+(t===o[0]?' on':'')+'" data-act="theme-set" data-t="'+o[0]+'" aria-pressed="'+(t===o[0])+'"><span class="thsw thsw-'+o[0]+'"></span>'+o[1]+'</button>';}).join('')+'</div>'+
+    (t==='glass'?'<label for="glassRange" class="small">ความใส ↔ ขุ่น <b class="tnum" id="glassVal">'+v+'%</b></label><input id="glassRange" type="range" min="0" max="100" step="1" value="'+v+'"><div class="row between small muted"><span>ใส</span><span>ขุ่น</span></div>':'')+'</div>';
+}
+document.addEventListener('input',function(e){
+  if(e.target&&e.target.id==='glassRange'){var v=+e.target.value;applyGlass(v);try{localStorage.setItem(GLASS_KEY,String(v));}catch(x){}var gv=$('glassVal');if(gv)gv.textContent=v+'%';}
+});
+
+/* รายงาน: หมายเหตุเมื่อผู้ดูแลลงเวลาให้ + ใครลืมลงเวลาบ่อย */
+function adminRemark(a){
+  if(!a||!a.byAdmin)return '';
+  var by=emp(a.byAdmin);
+  return ' <span class="chip late" title="'+esc('ลงโดย '+(by?by.name:'ผู้ดูแล'))+'">ผู้ดูแลลงให้</span>'+(a.adminNote?'<br><span class="muted small">หมายเหตุ: '+esc(a.adminNote)+'</span>':'')+'<br><span class="muted small">โดย '+esc(by?fn(by):'ผู้ดูแล')+'</span>';
+}
+function forgotData(rows){
+  var per={};
+  rows.forEach(function(r){
+    if(!r.w)return;
+    var fin=['ok','late','missing','incomplete'].indexOf(r.k)>=0;
+    var p=per[r.w.id]||(per[r.w.id]={e:r.w,adm:0,miss:0,shifts:0,notes:{}});
+    if(fin)p.shifts++;
+    if(r.rec&&r.rec.byAdmin){p.adm++;if(r.rec.adminNote)p.notes[r.rec.adminNote]=(p.notes[r.rec.adminNote]||0)+1;}
+    if(r.k==='missing'||r.k==='incomplete')p.miss++;
+  });
+  return Object.keys(per).map(function(k){var p=per[k];p.reason=Object.keys(p.notes).sort(function(a,b){return p.notes[b]-p.notes[a];})[0]||'';return p;})
+    .filter(function(p){return p.adm+p.miss>0;}).sort(function(a,b){return (b.adm+b.miss)-(a.adm+a.miss)||b.adm-a.adm;});
+}
+function forgotCard(rows){
+  var list=forgotData(rows);
+  var mx=list.length?list[0].adm+list[0].miss:1;
+  var body=list.length?list.map(function(p,i){
+    var tot=p.adm+p.miss,reason=p.reason;
+    return '<button class="li lib"'+dk('emp:'+p.e.id)+'><span class="fgrow" style="flex:1;min-width:0"><span><b>'+(i+1)+'. '+esc(p.e.name)+'</b><br><span class="muted small">'+p.shifts+' กะในช่วงนี้'+(reason?' · เหตุผลที่พบบ่อย: '+esc(reason):'')+'</span></span>'+
+      '<span class="fgbar" aria-hidden="true"><i class="a" style="width:'+(100*p.adm/mx)+'%"></i><i class="m" style="width:'+(100*p.miss/mx)+'%"></i></span>'+
+      '<span class="row" style="gap:6px;flex-wrap:wrap;justify-content:flex-end">'+(p.adm?'<span class="chip late">ผู้ดูแลลงให้ '+p.adm+'</span>':'')+(p.miss?'<span class="chip off">ไม่มีบันทึก/ไม่ครบ '+p.miss+'</span>':'')+'<b class="tnum">'+tot+' ครั้ง</b></span></span><span class="go" aria-hidden="true">›</span></button>';
+  }).join(''):'<p class="muted small" style="padding:10px 0">ไม่มีใครลืมลงเวลาในช่วงที่เลือก</p>';
+  return '<section class="card stack">'+tblHead('ใครลืมลงเวลามากที่สุด','นับจากกะที่ผู้ดูแลต้องลงเวลาให้ <span class="chip late">เหลือง</span> และกะที่ยังไม่มีบันทึกหรือลงไม่ครบ <span class="chip off">แดง</span> ในช่วงวันที่และตัวกรองด้านบน','xl-forgot')+'<div class="list">'+body+'</div></section>';
+}
+
+/* ---------- Excel (.xlsx) เขียน/อ่าน โดยไม่ใช้ไลบรารีภายนอก ---------- */
+var XL=(function(){
+  var CRC=(function(){var t=new Uint32Array(256);for(var n=0;n<256;n++){var c=n;for(var k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0;}return t;})();
+  function crc32(b){var c=0xFFFFFFFF;for(var i=0;i<b.length;i++)c=CRC[(c^b[i])&255]^(c>>>8);return (c^0xFFFFFFFF)>>>0;}
+  var enc=new TextEncoder();
+  function u16(v){return [v&255,(v>>>8)&255];}
+  function u32(v){return [v&255,(v>>>8)&255,(v>>>16)&255,(v>>>24)&255];}
+  /* zip แบบไม่บีบอัด (STORE) */
+  function zip(files){
+    var parts=[],central=[],off=0;
+    files.forEach(function(f){
+      var name=enc.encode(f.name),data=typeof f.data==='string'?enc.encode(f.data):f.data,crc=crc32(data);
+      var head=[].concat([0x50,0x4b,0x03,0x04],u16(20),u16(0x0800),u16(0),u16(0),u16(0x21),u32(crc),u32(data.length),u32(data.length),u16(name.length),u16(0));
+      parts.push(new Uint8Array(head),name,data);
+      central.push(new Uint8Array([].concat([0x50,0x4b,0x01,0x02],u16(20),u16(20),u16(0x0800),u16(0),u16(0),u16(0x21),u32(crc),u32(data.length),u32(data.length),u16(name.length),u16(0),u16(0),u16(0),u16(0),u32(0),u32(off))),name);
+      off+=head.length+name.length+data.length;
+    });
+    var csize=central.reduce(function(s,a){return s+a.length;},0);
+    var end=new Uint8Array([].concat([0x50,0x4b,0x05,0x06],u16(0),u16(0),u16(files.length),u16(files.length),u32(csize),u32(off),u16(0)));
+    return new Blob(parts.concat(central,[end]),{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+  }
+  function x(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g,'');}
+  function col(i){var s='';i++;while(i>0){var m=(i-1)%26;s=String.fromCharCode(65+m)+s;i=Math.floor((i-1)/26);}return s;}
+  function sheetXml(sh){
+    var rows=sh.rows,cols=(sh.widths||[]).map(function(w,i){return '<col min="'+(i+1)+'" max="'+(i+1)+'" width="'+w+'" customWidth="1"/>';}).join('');
+    var body=rows.map(function(r,ri){
+      return '<row r="'+(ri+1)+'">'+r.map(function(v,ci){
+        var ref=col(ci)+(ri+1),st=ri===0?' s="1"':'';
+        if(v===null||v===undefined||v==='')return '<c r="'+ref+'"'+st+'/>';
+        if(typeof v==='number'&&isFinite(v))return '<c r="'+ref+'"'+st+'><v>'+v+'</v></c>';
+        return '<c r="'+ref+'" t="inlineStr"'+st+'><is><t xml:space="preserve">'+x(v)+'</t></is></c>';
+      }).join('')+'</row>';
+    }).join('');
+    var last=col(Math.max(0,(rows[0]||[]).length-1))+Math.max(1,rows.length);
+    return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">'+
+      '<sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>'+
+      (cols?'<cols>'+cols+'</cols>':'')+'<sheetData>'+body+'</sheetData>'+(rows.length>1?'<autoFilter ref="A1:'+last+'"/>':'')+'</worksheet>';
+  }
+  function safeName(n,i,used){var s=String(n||('Sheet'+(i+1))).replace(/[\\\/\?\*\[\]:]/g,' ').slice(0,31)||('Sheet'+(i+1));while(used[s])s=s.slice(0,28)+'_'+(i+1);used[s]=1;return s;}
+  function build(sheets){
+    var used={},names=sheets.map(function(s,i){return safeName(s.name,i,used);});
+    var files=[
+      {name:'[Content_Types].xml',data:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>'+sheets.map(function(s,i){return '<Override PartName="/xl/worksheets/sheet'+(i+1)+'.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>';}).join('')+'</Types>'},
+      {name:'_rels/.rels',data:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>'},
+      {name:'xl/workbook.xml',data:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets>'+names.map(function(n,i){return '<sheet name="'+x(n)+'" sheetId="'+(i+1)+'" r:id="rId'+(i+1)+'"/>';}).join('')+'</sheets></workbook>'},
+      {name:'xl/_rels/workbook.xml.rels',data:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'+sheets.map(function(s,i){return '<Relationship Id="rId'+(i+1)+'" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet'+(i+1)+'.xml"/>';}).join('')+'<Relationship Id="rId'+(sheets.length+1)+'" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>'},
+      {name:'xl/styles.xml',data:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="2"><font><sz val="11"/><name val="Tahoma"/></font><font><b/><sz val="11"/><color rgb="FFFFFFFF"/><name val="Tahoma"/></font></fonts><fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FF2E7D1A"/><bgColor indexed="64"/></patternFill></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="2"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1"/></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>'}
+    ];
+    sheets.forEach(function(s,i){files.push({name:'xl/worksheets/sheet'+(i+1)+'.xml',data:sheetXml(s)});});
+    return zip(files);
+  }
+  function download(sheets,filename){
+    var blob=build(sheets),url=URL.createObjectURL(blob),a=document.createElement('a');
+    a.href=url;a.download=filename;a.rel='noopener';document.body.appendChild(a);a.click();
+    setTimeout(function(){URL.revokeObjectURL(url);a.remove();},4000);
+    return blob;
+  }
+  /* อ่าน .xlsx (แผ่นแรก) → array ของแถว */
+  async function inflate(data){
+    if(typeof DecompressionStream==='undefined')throw new Error('เบราว์เซอร์นี้เปิดไฟล์ Excel ไม่ได้ ให้บันทึกเป็น .csv แล้วนำเข้าแทน');
+    var ds=new DecompressionStream('deflate-raw'),w=ds.writable.getWriter();w.write(data);w.close();
+    return new Uint8Array(await new Response(ds.readable).arrayBuffer());
+  }
+  async function unzip(buf){
+    var b=new Uint8Array(buf),dv=new DataView(buf),out={},e=b.length-22;
+    while(e>=0&&dv.getUint32(e,true)!==0x06054b50)e--;
+    if(e<0)throw new Error('ไฟล์นี้ไม่ใช่ไฟล์ Excel (.xlsx)');
+    var n=dv.getUint16(e+10,true),p=dv.getUint32(e+16,true),dec=new TextDecoder();
+    for(var i=0;i<n;i++){
+      var method=dv.getUint16(p+10,true),csz=dv.getUint32(p+20,true),nl=dv.getUint16(p+28,true),xl=dv.getUint16(p+30,true),cl=dv.getUint16(p+32,true),lo=dv.getUint32(p+42,true);
+      var name=dec.decode(b.subarray(p+46,p+46+nl));
+      var lnl=dv.getUint16(lo+26,true),lxl=dv.getUint16(lo+28,true),start=lo+30+lnl+lxl,raw=b.subarray(start,start+csz);
+      out[name]={method:method,raw:raw};p+=46+nl+xl+cl;
+    }
+    return {get:async function(nm){var f=out[nm];if(!f)return null;var d=f.method===0?f.raw:await inflate(f.raw);return dec.decode(d);},names:Object.keys(out)};
+  }
+  function colIdx(ref){var m=/^([A-Z]+)/.exec(ref||'');if(!m)return -1;var n=0;for(var i=0;i<m[1].length;i++)n=n*26+(m[1].charCodeAt(i)-64);return n-1;}
+  async function read(buf){
+    var z=await unzip(buf),P=new DOMParser();
+    var wb=await z.get('xl/workbook.xml'),rels=await z.get('xl/_rels/workbook.xml.rels');
+    var target='xl/worksheets/sheet1.xml';
+    if(wb&&rels){var w=P.parseFromString(wb,'application/xml'),r=P.parseFromString(rels,'application/xml');var s0=w.getElementsByTagName('sheet')[0];if(s0){var rid=s0.getAttribute('r:id')||s0.getAttributeNS('http://schemas.openxmlformats.org/officeDocument/2006/relationships','id');var rel=Array.prototype.find.call(r.getElementsByTagName('Relationship'),function(x){return x.getAttribute('Id')===rid;});if(rel){var t=rel.getAttribute('Target').replace(/^\//,'');target=t.indexOf('xl/')===0?t:'xl/'+t;}}}
+    var ssx=await z.get('xl/sharedStrings.xml'),ss=[];
+    if(ssx){var sd=P.parseFromString(ssx,'application/xml');Array.prototype.forEach.call(sd.getElementsByTagName('si'),function(si){ss.push(Array.prototype.map.call(si.getElementsByTagName('t'),function(t){return t.textContent;}).join(''));});}
+    var sx=await z.get(target);if(!sx)throw new Error('ไม่พบแผ่นงานในไฟล์');
+    var doc=P.parseFromString(sx,'application/xml'),rows=[];
+    Array.prototype.forEach.call(doc.getElementsByTagName('row'),function(row){
+      var arr=[];
+      Array.prototype.forEach.call(row.getElementsByTagName('c'),function(c){
+        var ci=colIdx(c.getAttribute('r')),t=c.getAttribute('t'),v='';
+        if(t==='inlineStr'){v=Array.prototype.map.call(c.getElementsByTagName('t'),function(x){return x.textContent;}).join('');}
+        else{var ve=c.getElementsByTagName('v')[0];v=ve?ve.textContent:'';if(t==='s')v=ss[+v]||'';}
+        if(ci<0)ci=arr.length;while(arr.length<ci)arr.push('');arr[ci]=v;
+      });
+      rows.push(arr);
+    });
+    return rows;
+  }
+  return {build:build,download:download,read:read};
+})();
+function xlDate(d){return d;}
+function xlName(base,f,t){return 'WiFi-Check_'+base+'_'+f+(t&&t!==f?'_to_'+t:'')+'.xlsx';}
+/* Excel serial date (ตัวเลขวันที่ใน Excel) → YYYY-MM-DD */
+function xlCellText(v){
+  if(/^\d{5}(\.\d+)?$/.test(v)){var d=new Date(Math.round((+v-25569)*864e5));return d.toISOString().slice(0,10);}
+  return v;
+}
+function xlTime(v){if(/^0?\.\d+$/.test(v)||v==='0'){var m=Math.round(parseFloat(v)*1440);return ('0'+Math.floor(m/60)%24).slice(-2)+':'+('0'+m%60).slice(-2);}return v;}
+function rowsToCsv(rows){
+  rows=rows.filter(function(r){return r.some(function(c){return String(c).trim()!=='';});});
+  var head=(rows[0]||[]).map(function(h){return String(h).trim().toLowerCase();});
+  return rows.map(function(r,ri){return r.map(function(c,ci){c=String(c);if(ri>0){if(head[ci]==='date')c=xlCellText(c);else if(head[ci]==='shift_start'||head[ci]==='shift_end')c=xlTime(c);}return csvCell(c);}).join(',');}).join('\n');
+}
+/* ข้อมูลที่วางจาก Excel จะคั่นด้วย Tab → แปลงเป็น CSV */
+function pasteToCsv(t){
+  var first=(t.split(/\r?\n/)[0]||'');
+  if(first.indexOf('\t')<0)return t;
+  return rowsToCsv(t.split(/\r?\n/).map(function(l){return l.split('\t');}));
+}
+/* ---------- ส่งออก Excel จากหน้ารายงาน / ตั้งค่า ---------- */
+function xlBtn(act,label){return '<button class="btn sm xlbtn" data-act="'+act+'" title="ดาวน์โหลดไฟล์ Excel"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>'+(label||'Excel')+'</button>';}
+function tblHead(title,sub,act){return '<div class="tblhead"><div><h3>'+title+'</h3>'+(sub?'<p class="muted small">'+sub+'</p>':'')+'</div>'+xlBtn(act)+'</div>';}
+function hhmmOf(ts){return ts?bkk(ts).hhmm:'';}
+function xlReport(){
+  var R=repRange(),rows=repRows();
+  var head=['วันที่','วัน','ทีม','กะ','ผู้ประจำกะ','ตาราง','ผู้ทำงานจริง','การลา/หมายเหตุ','เข้างาน','ออกงาน','ชั่วโมง','สาย (นาที)','ออกก่อน (นาที)','สถานะ','ผู้ดูแลลงเวลาให้','หมายเหตุผู้ดูแล'];
+  var data=[head].concat(rows.map(function(r){var a=r.rec,s=r.s,sl=r.sl;
+    return [r.d,DOW_TH[dowOf(r.d)],TEAMS[s.team].name,shiftLabel(s),sl.regular?sl.regular.name:'',sl.off?(sl.kind==='swap'?'สลับกะ':'หยุด'):'ทำงาน',r.w?r.w.name:'',sl.off?(LEAVE_TH[sl.kind]||sl.note||''):'',
+      a?hhmmOf(a.in):'',a&&a.out?hhmmOf(a.out):'',a&&a.out?Math.round((a.out-a.in)/36e3)/100:'',a&&a.lateFlag?a.late:0,a&&a.earlyFlag?a.early:0,statusText(r),a&&a.byAdmin?'ใช่ ('+fn(emp(a.byAdmin))+')':'',a&&a.byAdmin?a.adminNote:''];}));
+  return XL.download([{name:'รายงานรายกะ',rows:data,widths:[12,9,10,14,20,9,20,16,9,9,8,10,12,22,20,26]}],xlName('report',R.f,R.t));
+}
+function xlForgot(){
+  var R=repRange(),L=forgotData(repRows());
+  var data=[['อันดับ','ชื่อ','กะในช่วงนี้','ผู้ดูแลลงเวลาให้ (ครั้ง)','ไม่มีบันทึก/ไม่ครบ (ครั้ง)','รวม (ครั้ง)','เหตุผลที่พบบ่อย']].concat(L.map(function(p,i){return [i+1,p.e.name,p.shifts,p.adm,p.miss,p.adm+p.miss,p.reason||''];}));
+  return XL.download([{name:'ใครลืมลงเวลา',rows:data,widths:[8,22,12,20,22,11,26]}],xlName('forgot',R.f,R.t));
+}
+function xlCover(){
+  var R=repRange(),rows=repRows().filter(function(r){return r.sl.off;});
+  var data=[['วันที่','วัน','ทีม','กะ','ผู้หยุด','ประเภท','ผู้ทำงานแทน','หมายเหตุ']].concat(rows.map(function(r){var sl=r.sl;return [r.d,DOW_TH[dowOf(r.d)],TEAMS[r.s.team].name,shiftLabel(r.s),sl.regular?sl.regular.name:'',sl.kind==='swap'?'สลับกะ':(LEAVE_TH[sl.kind]||'หยุด'),sl.cover?sl.cover.name:'ยังไม่มีผู้ทำแทน',sl.note||''];}));
+  return XL.download([{name:'ใครหยุด ใครทำแทน',rows:data,widths:[12,9,10,14,20,12,20,26]}],xlName('leave-cover',R.f,R.t));
+}
+function xlSchedule(f,t){
+  var rows=parseCsv(buildCsv(f,t));
+  return XL.download([{name:'schedule',rows:rows,widths:[12,9,10,11,11,16,20,9,16,20,24]}],xlName('schedule',f,t));
+}
+
 /* schedule */
 function cellHtml(d,s,admin){
   var sl=slot(d,s);
@@ -1965,12 +2336,13 @@ function cellHtml(d,s,admin){
   var cls='cell'+(sl.off?' off':'')+(mine?' me':'')+(sel?' sel':'');
   var inner=sl.off&&s.flex?'<span class="pn">'+esc(fn(sl.cover))+'</span><span class="chip late">เรียกตัว</span>'+(sl.note?'<span class="muted small">'+esc(sl.note)+'</span>':'')
     :sl.off&&sl.kind==='flex'&&!sl.cover?'<span class="pn">'+esc(fn(sl.regular))+'</span><span class="chip mute">ย้ายไป 19.00–04.00</span>'
+    :sl.off&&sl.kind==='swap'?'<span class="pn">'+esc(fn(sl.cover))+'</span><span class="chip">สลับกะ</span><span class="muted small">แทน '+esc(fn(sl.regular))+'</span>'
     :sl.off
     ?'<span class="pn">'+esc(fn(sl.regular))+'</span><span class="chip off">หยุด</span><span class="cov">ทำแทน: '+(sl.cover?esc(fn(sl.cover))+tagFor(sl.cover):'—')+'</span>'+(sl.note?'<span class="muted small">'+esc(sl.note)+'</span>':'')
     :'<span class="pn">'+(sl.regular?esc(fn(sl.regular)):'<span class="muted">ว่าง</span>')+'</span>';
   var rec=w?state.attendance.find(function(a){return a.emp===w.id&&a.date===d&&a.shift===s.id;}):null;
   if(rec){
-    inner+='<span class="tm tnum"><small>เข้า</small> '+fmtHM(rec.in)+'<br><small>ออก</small> '+(rec.out?fmtHM(rec.out):'<span class="muted">ยังไม่ออก</span>')+'</span>'+chipsFor(rec);
+    inner+='<span class="tm tnum"><small>เข้า</small> '+fmtHM(rec.in)+'<br><small>ออก</small> '+(rec.out?fmtHM(rec.out):'<span class="muted">ยังไม่ออก</span>')+'</span>'+chipsFor(rec)+(rec.byAdmin?'<span class="chip mute">ผู้ดูแลลงให้</span>':'');
   }else if(w&&nowT>startTs(d,s)+ST().lateAfter*60000){
     inner+=nowT<endTs(d,s)?'<span class="chip late">ยังไม่เข้างาน</span>':'<span class="chip mute">ไม่มีบันทึก</span>';
   }
@@ -1995,6 +2367,7 @@ function coverOptions(d,s,key,selected){
 function slotEditor(){
   var d=editSlot.d,s=shiftById(editSlot.s),key=d+'|'+s.id,sl=slot(d,s);
   if(s.flex)return flexEditor(d,s,sl);
+  return slotEditor2(d,s,sl);
   var head='<h2>แก้ไขกะ '+shiftLabel(s)+' · '+TEAMS[s.team].name+'</h2><p class="muted small">'+esc(thDate(d,{weekday:'long',day:'numeric',month:'long',year:'numeric'}))+'</p>';
   if(!sl.regular)return '<section class="card stack">'+head+'<p>กะนี้ยังไม่มีผู้ประจำ เพิ่มหรือย้ายพนักงานเข้ากะนี้ที่เมนู "พนักงาน" ก่อน</p><div><button class="btn sec" data-act="cancel-slot">ปิด</button></div></section>';
   var o=state.overrides[key];
@@ -2275,11 +2648,11 @@ function statusText(r){
   return {missing:'ไม่มีบันทึก',noshow:'ยังไม่เข้างาน',waiting:'รอเข้างาน',future:'ยังไม่ถึงเวลา',vacant:'ไม่มีผู้ทำงาน'}[r.k]||'';
 }
 function buildRepCsv(rows){
-  var out=[['date','day','team','shift_start','shift_end','regular_name','schedule_status','cover_name','leave_type','worker_name','check_in','check_out','hours','late_minutes','early_minutes','status']];
+  var out=[['date','day','team','shift_start','shift_end','regular_name','schedule_status','cover_name','leave_type','worker_name','check_in','check_out','hours','late_minutes','early_minutes','status','admin_recorded','admin_note']];
   rows.forEach(function(r){
     var a=r.rec,s=r.s;
     out.push([r.d,DOW_TH[dowOf(r.d)],TEAMS[s.team].name,s.start,s.end,r.sl.regular?r.sl.regular.name:'',r.sl.off?'หยุด':'ทำงาน',r.sl.off&&r.sl.cover?r.sl.cover.name:'',r.sl.off?(LEAVE_TH[r.sl.kind]||r.sl.note||''):'',r.w?r.w.name:'',
-      a?bkk(a.in).date+' '+bkk(a.in).hhmm:'',a&&a.out?bkk(a.out).date+' '+bkk(a.out).hhmm:'',a&&a.out?((a.out-a.in)/3600000).toFixed(2):'',a&&a.lateFlag?a.late:0,a&&a.earlyFlag?a.early:0,statusText(r)]);
+      a?bkk(a.in).date+' '+bkk(a.in).hhmm:'',a&&a.out?bkk(a.out).date+' '+bkk(a.out).hhmm:'',a&&a.out?((a.out-a.in)/3600000).toFixed(2):'',a&&a.lateFlag?a.late:0,a&&a.earlyFlag?a.early:0,statusText(r),a&&a.byAdmin?'ผู้ดูแลลงให้ ('+fn(emp(a.byAdmin))+')':'',a&&a.byAdmin?a.adminNote:'']);
   });
   return out.map(function(r){return r.map(csvCell).join(',');}).join('\n');
 }
@@ -2316,7 +2689,7 @@ function viewReport(){
     var s=r.s,sl=r.sl;
     var who=sl.off?'<span class="strike">'+esc(sl.regular?sl.regular.name:'—')+'</span> <span class="chip off">หยุด</span>':(sl.regular?esc(sl.regular.name):'<span class="muted">ว่าง</span>');
     var work=sl.off?(r.w?'<b>'+esc(r.w.name)+'</b>'+tagFor(r.w)+' <span class="chip">ทำแทน</span>':'<span class="chip off">ไม่มีผู้ทำแทน</span>'):(r.w?esc(r.w.name):'—');
-    return '<tr><td class="tnum">'+esc(dayShort(r.d))+'</td><td class="tnum">'+TEAMS[s.team].name+' · '+shiftLabel(s)+'</td><td>'+who+(sl.off&&(LEAVE_TH[sl.kind]||sl.note)?' <span class="chip mute">'+esc(LEAVE_TH[sl.kind]||sl.note)+'</span>':'')+'</td><td>'+work+'</td><td class="tnum">'+(r.rec?fmtHM(r.rec.in):'—')+'</td><td class="tnum">'+(r.rec&&r.rec.out?fmtHM(r.rec.out):'—')+'</td><td class="tnum">'+(r.rec&&r.rec.out?((r.rec.out-r.rec.in)/3600000).toFixed(1):'—')+'</td><td>'+kChip(r)+'</td></tr>';
+    return '<tr><td class="tnum">'+esc(dayShort(r.d))+'</td><td class="tnum">'+TEAMS[s.team].name+' · '+shiftLabel(s)+'</td><td>'+who+(sl.off&&(LEAVE_TH[sl.kind]||sl.note)?' <span class="chip mute">'+esc(LEAVE_TH[sl.kind]||sl.note)+'</span>':'')+'</td><td>'+work+'</td><td class="tnum">'+(r.rec?fmtHM(r.rec.in):'—')+'</td><td class="tnum">'+(r.rec&&r.rec.out?fmtHM(r.rec.out):'—')+'</td><td class="tnum">'+(r.rec&&r.rec.out?((r.rec.out-r.rec.in)/3600000).toFixed(1):'—')+'</td><td>'+kChip(r)+adminRemark(r.rec)+'</td></tr>';
   }).join('')||'<tr><td colspan="8" class="muted">ไม่มีข้อมูลในช่วงที่เลือก</td></tr>';
   var cov=offRows.map(function(r){
     return '<div class="li"><span><span class="when">'+esc(dayShort(r.d))+'</span> <span class="muted small tnum">'+TEAMS[r.s.team].name+' '+shiftLabel(r.s)+'</span><br><span class="small"><span class="strike">'+esc(fn(r.sl.regular))+'</span> → '+(r.sl.cover?'<b>'+esc(r.sl.cover.name)+'</b>'+tagFor(r.sl.cover):'<span class="chip off">ยังไม่มีผู้ทำแทน</span>')+'</span></span><span class="chip mute">'+esc(LEAVE_TH[r.sl.kind]||r.sl.note||'หยุด')+'</span></div>';
@@ -2329,11 +2702,12 @@ function viewReport(){
       '<div><label>ถึงวันที่</label>'+dateField('rpTo',R.t)+'</div>'+
       '<div><label for="rpTeam">กะของทีม</label><select id="rpTeam"><option value="">ทุกทีม</option><option value="A"'+(rep.team==='A'?' selected':'')+'>ทีม A</option><option value="B"'+(rep.team==='B'?' selected':'')+'>ทีม B</option></select></div>'+
       '<div><label for="rpEmp">พนักงาน (ผู้ประจำหรือผู้ทำแทน)</label><select id="rpEmp">'+empOpts+'</select></div></div>'+(R.cut?'<p class="alert-y">แสดงสูงสุด 93 วันต่อครั้ง ตัดช่วงให้อัตโนมัติ</p>':'')+'</section>'+
-    '<div class="sum"><div><b>'+rows.length+'</b><span class="muted small">กะทั้งหมด</span></div><div><b>'+lateN+'</b><span class="muted small">สาย</span></div><div><b>'+earlyN+'</b><span class="muted small">ออกก่อน</span></div><div><b>'+missN+'</b><span class="muted small">ไม่ครบ/ไม่มีบันทึก</span></div><div><b>'+offRows.length+'</b><span class="muted small">กะที่มีคนหยุด</span></div><div><b class="tnum">'+(ms/3600000).toFixed(1)+'</b><span class="muted small">ชั่วโมงรวม</span></div></div>'+
+    '<div class="sum"><div><b>'+rows.length+'</b><span class="muted small">กะทั้งหมด</span></div><div><b>'+lateN+'</b><span class="muted small">สาย</span></div><div><b>'+earlyN+'</b><span class="muted small">ออกก่อน</span></div><div><b>'+missN+'</b><span class="muted small">ไม่ครบ/ไม่มีบันทึก</span></div><div><b>'+cntFin.filter(function(r){return r.rec.byAdmin;}).length+'</b><span class="muted small">ผู้ดูแลลงเวลาให้</span></div><div><b>'+offRows.length+'</b><span class="muted small">กะที่มีคนหยุด</span></div><div><b class="tnum">'+(ms/3600000).toFixed(1)+'</b><span class="muted small">ชั่วโมงรวม</span></div></div>'+
+    tblHead('รายละเอียดรายกะ',rows.length+' กะ · ตามช่วงวันที่และตัวกรองด้านบน','xl-rep')+
     '<div class="scroll"><table class="rt" style="min-width:860px"><thead><tr><th>วันที่</th><th>ทีม · กะ</th><th>ผู้ประจำกะ</th><th>ผู้ทำงานจริง</th><th>เข้า</th><th>ออก</th><th>ชม.</th><th>สถานะ</th></tr></thead><tbody>'+body+'</tbody></table></div>'+
-    '<section class="card"><h3>ใครหยุด ใครทำแทน</h3><p class="muted small">ลาพักร้อน '+lt.vac+' · ลากิจ '+lt.per+' · ลาป่วย '+lt.sick+(lt.other?' · อื่นๆ '+lt.other:'')+' กะ ในช่วงที่เลือก</p><div class="list" style="max-height:340px;overflow:auto">'+cov+'</div></section>'+
-    '<section class="card stack"><div class="row"><button class="btn" data-act="mk-rep">สร้างไฟล์ CSV</button>'+(rep.csv?'<button class="btn sec" data-act="copy-csv" data-ta="repOut" data-m="repMsg">คัดลอก</button>':'')+'<span class="ok" id="repMsg" role="status"></span></div>'+
-    (rep.csv?'<textarea id="repOut" rows="7" readonly aria-label="ข้อมูล CSV รายงาน">'+esc(rep.csv)+'</textarea><p class="muted small">ในต้นแบบนี้ให้คัดลอกข้อความไปวางใน Excel เวอร์ชันที่ใช้งานจริงจะมีปุ่มดาวน์โหลดไฟล์</p>':'')+'</section></div>';
+    forgotCard(rows)+
+    '<section class="card stack">'+tblHead('ใครหยุด ใครทำแทน','ลาพักร้อน '+lt.vac+' · ลากิจ '+lt.per+' · ลาป่วย '+lt.sick+(lt.other?' · อื่นๆ '+lt.other:'')+' กะ ในช่วงที่เลือก','xl-cover')+'<div class="list" style="max-height:340px;overflow:auto">'+cov+'</div></section>'+
+    '</div>';
 }
 
 /* settings: rules + schedule import/export (admin) */
@@ -2448,10 +2822,10 @@ function viewSettings(){
     '<p class="muted small">ตอนนี้: เปิดลงเวลาได้ตั้งแต่ '+S.openBefore+' นาทีก่อนเริ่มกะ · เข้างานหลังเริ่มกะไม่เกิน '+S.lateAfter+' นาทีถือว่าตรงเวลา · เกินจากนั้นบันทึกเป็นสาย (แสดงสีเหลืองและแจ้งเตือน) · ออกก่อนเวลาเลิกกะบันทึกเป็นออกก่อน</p>'+
     '<div class="row"><button class="btn" data-act="save-rules">บันทึกกฎ</button>'+(io.ruleMsg?'<span class="ok" role="status">'+esc(io.ruleMsg)+'</span>':'')+(io.ruleErr?'<span class="err" role="alert">'+esc(io.ruleErr)+'</span>':'')+'</div></section>'+
     '<section class="card stack"><h2>ส่งออกตารางกะ</h2><div class="fields"><div><label>ตั้งแต่วันที่</label>'+dateField('expFrom',ef)+'</div><div><label>ถึงวันที่</label>'+dateField('expTo',et)+'</div></div>'+
-    '<div class="row"><button class="btn" data-act="mk-csv">สร้างไฟล์ CSV</button>'+(io.exp?'<button class="btn sec" data-act="copy-csv" data-ta="expOut" data-m="expMsg">คัดลอก</button>':'')+'<span class="ok" id="expMsg" role="status"></span></div>'+
-    (io.exp?'<textarea id="expOut" rows="8" readonly aria-label="ข้อมูล CSV">'+esc(io.exp)+'</textarea><p class="muted small">ในต้นแบบนี้ให้คัดลอกข้อความไปวางใน Excel หรือบันทึกเป็น .csv เวอร์ชันที่ใช้งานจริงจะมีปุ่มดาวน์โหลดไฟล์</p>':'')+'</section>'+
-    '<section class="card stack"><h2>นำเข้าตารางกะ</h2><p class="muted small">ส่งออกเป็น CSV แก้ใน Excel แล้วนำเข้ากลับมา ระบบตรวจกะซ้อนและผู้ทำงานแทนให้ก่อนบันทึก</p><div><label for="csvFile">เลือกไฟล์ .csv</label><input type="file" id="csvFile" accept=".csv,text/csv"></div>'+
-    '<div><label for="csvIn">หรือวางข้อมูล CSV ที่นี่</label><textarea id="csvIn" rows="7" placeholder="date,day,team,shift_start,shift_end,regular_username,regular_name,status,cover_username,cover_name,note">'+esc(io.csv)+'</textarea></div>'+
+    '<div class="row">'+xlBtn('xl-sched','ดาวน์โหลด Excel')+'<span class="ok" id="expMsg" role="status"></span></div><p class="muted small">แก้ในไฟล์ Excel แล้วนำเข้ากลับมาได้ที่การ์ดด้านล่าง (อย่าแก้ชื่อหัวคอลัมน์แถวแรก)</p>'+
+    '</section>'+
+    '<section class="card stack"><h2>นำเข้าตารางกะ</h2><p class="muted small">ดาวน์โหลด Excel แก้ไข แล้วนำเข้ากลับมา ระบบตรวจกะซ้อนและผู้ทำงานแทนให้ก่อนบันทึก</p><div><label for="csvFile">เลือกไฟล์ Excel (.xlsx) หรือ .csv</label><input type="file" id="csvFile" accept=".xlsx,.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv"></div>'+
+    '<div><label for="csvIn">หรือคัดลอกตารางจาก Excel มาวางที่นี่</label><textarea id="csvIn" rows="7" placeholder="date,day,team,shift_start,shift_end,regular_username,regular_name,status,cover_username,cover_name,note">'+esc(io.csv)+'</textarea></div>'+
     '<p class="muted small">คอลัมน์ที่ต้องมี: date (ปปปป-ดด-วว), team (A/B), shift_start (เช่น 10:00), status (ทำงาน/หยุด) · ถ้าหยุดต้องใส่ cover_username (พนักงานสำรอง Ops ก็ใส่ได้)</p>'+
     '<div class="row"><button class="btn" data-act="check-csv">ตรวจสอบข้อมูล</button><button class="btn sec" data-act="sample-csv">ใส่ตัวอย่าง</button></div>'+
     (io.msg?'<p class="ok" role="status">'+esc(io.msg)+'</p>':'')+pv+'</section>'+
@@ -2578,6 +2952,7 @@ function onDate(id,val){
   switch(id){
     case 'simD':var tm=$('simTm');clockOffset=Date.parse(val+'T'+(tm&&tm.value?tm.value:'12:00')+':00+07:00')-Date.now();renderAll();return;
     case 'jump':schedAnchor=val;break;
+    case 'edTo':if(editSlot)editSlot.to=val;break;
     case 'simDate':sim.date=val;sim.shift='';simReset(false);break;
     case 'dcJump':dcAnchor=val>bkk(now()).date?bkk(now()).date:val;break;
     case 'rpFrom':case 'rpTo':rep.csv='';break;
@@ -2621,10 +2996,16 @@ document.addEventListener('scroll',hideTip,true);
 function resetUi(){editSlot=null;editEmp=null;armed='';io.preview=null;io.msg='';io.ruleMsg='';io.ruleErr='';bellOpen=false;lvOpen=null;lvReject=null;lvErr='';lv.err='';lv.ok='';rep.calSel='';dp=null;det=[];}
 document.addEventListener('click',function(e){
   if(bellOpen&&!e.target.closest('.bellwrap')){bellOpen=false;renderChrome();}
+  if(themeOpen&&!e.target.closest('.thwrap')){themeOpen=false;renderChrome();}
   var el=e.target.closest('[data-act]');if(!el)return;
   var a=el.dataset.act,D=el.dataset;
   switch(a){
-    case 'theme':toggleTheme();break;
+    case 'theme':themeOpen=!themeOpen;renderChrome();break;
+    case 'theme-set':themeOpen=false;setTheme(D.t);break;
+    case 'save-days':saveDays();break;
+    case 'save-att':saveAtt(false);break;
+    case 'del-att':saveAtt(true);break;
+    case 'go-edit':view='schedule';resetUi();schedAnchor=D.d;schedTeam=D.t;editSlot={d:D.d,s:D.s};renderAll();setTimeout(function(){var ed=$('slotEd');if(ed&&ed.scrollIntoView)ed.scrollIntoView({block:'start',behavior:'smooth'});},50);break;
     case 'logout':doLogout();break;
     case 'bell':bellOpen=!bellOpen;renderChrome();break;
     case 'bell-notify':
@@ -2728,7 +3109,10 @@ document.addEventListener('click',function(e){
         renderAll();
       })();
       break;
-    case 'mk-rep':rep.csv=buildRepCsv(repRows());renderView();break;
+    case 'xl-rep':xlReport();toast('กำลังดาวน์โหลด Excel','รายงานรายกะ');break;
+    case 'xl-forgot':xlForgot();toast('กำลังดาวน์โหลด Excel','ใครลืมลงเวลามากที่สุด');break;
+    case 'xl-cover':xlCover();toast('กำลังดาวน์โหลด Excel','ใครหยุด ใครทำแทน');break;
+    case 'xl-sched':var xf=getDv('expFrom',mondayOf(bkk(now()).date)),xt=getDv('expTo',xf);if(!xf||!xt||xf>xt){$('expMsg').textContent='เลือกช่วงวันที่ให้ถูกต้อง';break;}xlSchedule(xf,xt);toast('กำลังดาวน์โหลด Excel','ตารางกะ '+sd(xf)+' – '+sd(xt));break;
     case 'mk-csv':
       var f=getDv('expFrom',mondayOf(bkk(now()).date)),t=getDv('expTo',f);
       if(!f||!t||f>t){$('expMsg').textContent='เลือกช่วงวันที่ให้ถูกต้อง';break;}
@@ -2740,8 +3124,8 @@ document.addEventListener('click',function(e){
       break;
     case 'sample-csv':
       var m0=mondayOf(bkk(now()).date);io.csv=buildCsv(addDays(m0,7),addDays(m0,13));io.preview=null;io.msg='';renderView();break;
-    case 'check-csv':io.csv=$('csvIn').value;io.msg='';io.preview=checkCsv(io.csv);renderView();break;
-    case 'apply-csv':io.csv=$('csvIn')?$('csvIn').value:io.csv;applyCsv();break;
+    case 'check-csv':io.csv=pasteToCsv($('csvIn').value);io.msg='';io.preview=checkCsv(io.csv);renderView();break;
+    case 'apply-csv':io.csv=$('csvIn')?pasteToCsv($('csvIn').value):io.csv;applyCsv();break;
     case 'calnav':rep.calMonth=addMonth(rep.calMonth||bkk(now()).date.slice(0,7),Number(D.n));rep.calSel='';renderView();break;
     case 'calpick':rep.calSel=(rep.calSel===D.d)?'':D.d;renderView();break;
     case 'lvtype':lv.type=D.t;lv.err='';renderView();break;
@@ -2785,9 +3169,12 @@ document.addEventListener('change',function(e){
   }else if(t.id==='rpTeam'||t.id==='rpEmp'){
     rep.team=$('rpTeam').value;rep.emp=$('rpEmp').value;rep.csv='';renderView();
   }else if(t.id==='csvFile'&&t.files&&t.files[0]){
-    var fr=new FileReader();
-    fr.onload=function(){io.csv=String(fr.result||'');io.msg='';io.preview=checkCsv(io.csv);renderView();};
-    fr.readAsText(t.files[0],'utf-8');
+    var fr=new FileReader(),fl=t.files[0],isX=/\.xlsx$/i.test(fl.name);
+    fr.onload=function(){
+      if(!isX){io.csv=String(fr.result||'');io.msg='';io.preview=checkCsv(io.csv);renderView();return;}
+      XL.read(fr.result).then(function(rows){io.csv=rowsToCsv(rows);io.msg='';io.preview=checkCsv(io.csv);renderView();}).catch(function(err){io.preview=null;io.msg=err.message||'อ่านไฟล์ Excel ไม่ได้';renderView();});
+    };
+    if(isX)fr.readAsArrayBuffer(fl);else fr.readAsText(fl,'utf-8');
   }
 });
 document.addEventListener('keydown',function(e){
