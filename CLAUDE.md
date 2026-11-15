@@ -51,8 +51,8 @@ dev/                                            ← ต้นฉบับ + เ�
 
 ## ถ้าพัง — ย้อนกลับ
 
-- tag `stable-2026-11-15` คือเวอร์ชันที่ใช้งานได้ดีล่าสุด
-- ย้อนหน้าเว็บ: `git checkout stable-2026-11-15 -- index.html` แล้ว commit + push (หรือ `git revert <commit>`)
+- branch `stable-2026-11-15` คือเวอร์ชันที่ใช้งานได้ดีล่าสุด (ห้ามลบ ห้าม push ทับ)
+- ย้อนหน้าเว็บ: `git checkout origin/stable-2026-11-15 -- index.html` แล้ว commit + push (หรือ `git revert <commit>`)
 - migration ในฐานข้อมูลย้อนเองไม่ได้ ต้องเขียน SQL แก้กลับ ดังนั้นทดสอบ SQL ให้ดีก่อน
 
 ## กฎของงาน (อย่าเปลี่ยนถ้าไม่ได้สั่ง)
