@@ -1,0 +1,13 @@
+const {chromium}=require('playwright');const S=require('path').join(__dirname,'..')+'/';
+(async()=>{const b=await chromium.launch();const errs=[];const p=await b.newPage({viewport:{width:390,height:844}});
+p.on('pageerror',e=>errs.push(e.message));
+await p.goto('file://'+S+'preview_detail.html');await p.waitForTimeout(500);
+await p.fill('#lu','admin');await p.fill('#lp','Admin@2026');await p.click('#lbtn');await p.waitForTimeout(700);
+await p.click('[data-act=tab][data-v=schedule]');await p.waitForTimeout(200);
+await p.click('button:has-text("ทีม B")');await p.waitForTimeout(200);await p.click('[data-act=edit-slot] >> nth=0');await p.waitForTimeout(200);
+await p.check('input[name=edMode][value=swap]');await p.waitForTimeout(150);
+const ed=await p.$('#slotEd');await ed.scrollIntoViewIfNeeded();await p.screenshot({path:S+'mob_ed.png'});
+await p.click('[data-act=theme]');await p.click('[data-act=theme-set][data-t=glass]');await p.waitForTimeout(150);
+await p.click('[data-act=tab][data-v=today]');await p.waitForTimeout(200);await p.screenshot({path:S+'mob_glass.png'});
+await p.click('[data-act=theme]');await p.waitForTimeout(800);await p.screenshot({path:S+'mob_glass_pop.png'});
+console.log(errs.length?errs.join('\n'):'NO ERRORS');await b.close();})();

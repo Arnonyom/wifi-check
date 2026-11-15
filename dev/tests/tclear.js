@@ -1,0 +1,12 @@
+const {chromium}=require('playwright');const S=require('path').join(__dirname,'..')+'/';
+(async()=>{const b=await chromium.launch();const p=await b.newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));
+await p.clock.install();
+await p.goto('file://'+S+'preview_detail.html');await p.clock.runFor(1500);
+const login=async(u,pw)=>{await p.fill('#lu',u);await p.fill('#lp',pw);await p.click('#lbtn');await p.clock.runFor(1500);};
+await login('somchai','Temp1234!');
+await p.fill('#pwNew','Abcd12');await p.clock.runFor(100000);
+console.log('forced screen after 100s, typed value kept:',JSON.stringify(await p.inputValue('#pwNew')));
+await p.fill('#pwNew','NewPass#2026');await p.fill('#pwNew2','NewPass#2026');await p.click('#pwOk');await p.clock.runFor(2000);
+await p.click('[data-act=pw-self]');await p.fill('#pwCur','NewPass#2026');await p.fill('#pwNew','Zz');await p.clock.runFor(100000);
+console.log('self-change dialog after 100s, typed value kept:',JSON.stringify(await p.inputValue('#pwNew')),'cur',JSON.stringify(await p.inputValue('#pwCur')));
+console.log(errs.length?errs.join('\n'):'NO ERRORS');await b.close();})();

@@ -1,0 +1,9 @@
+# ไฟล์ที่สร้างอัตโนมัติจาก build_all.sh — ไม่ต้องเก็บ
+app_src.html
+index.html
+preview_*.html
+__pycache__/
+icons/*.svg
+icons/*.png
+xlout/
+*.png

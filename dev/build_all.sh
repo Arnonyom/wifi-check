@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# สร้าง dev/index.html (ตัวเว็บ) + dev/preview_*.html (ตัวอย่างข้อมูลจำลอง) จากไฟล์ต้นฉบับ
+# ใช้: bash dev/build_all.sh        (โลโก้หน้าจอโฮมคือแบบ B)
+set -e
+cd "$(dirname "$0")"
+export LOGO=${LOGO:-B}
+python3 patch_detail.py >/dev/null
+python3 patch_pw.py >/dev/null
+python3 patch_sim.py >/dev/null
+python3 patch_rota.py >/dev/null
+python3 patch_ops.py >/dev/null
+python3 patch_xl.py >/dev/null
+python3 patch_nl.py >/dev/null
+python3 patch_logo.py >/dev/null
+python3 build_prod.py >/dev/null
+python3 make_preview.py >/dev/null
+if cmp -s index.html ../index.html; then echo "build ok · ตรงกับเว็บจริง (../index.html) ทุกไบต์"; else echo "build ok · ต่างจากเว็บจริง (มีการแก้ไข) → ตรวจ + ทดสอบ + ขออนุมัติก่อน deploy"; fi
