@@ -842,7 +842,7 @@ function bellPanel(){
     return '<button class="note'+(warn?' warn':'')+'" data-act="read" data-id="'+n.id+'"><span class="dot'+(isRead?' read':'')+(warn&&!isRead?' amber':'')+'" aria-label="'+(isRead?'อ่านแล้ว':'ยังไม่อ่าน')+'"></span><span class="grow"><b>'+esc(n.title)+'</b><span class="pre">'+esc(n.body)+'</span><span class="muted small tnum">'+esc(thDate(b.date,{day:'numeric',month:'short'}))+' '+b.hhmm+' น.</span>'+(function(g){return g?'<span class="notego">ไปที่หน้า'+esc(g.label)+' <span aria-hidden="true">›</span></span>':'';})(noteTarget(n))+'</span></button>';
   }).join('')||'<p class="muted small" style="padding:14px">ยังไม่มีการแจ้งเตือน</p>';
   return '<div class="pop" role="dialog" aria-label="การแจ้งเตือน"><div class="row between" style="padding:6px 8px 4px"><b>แจ้งเตือน</b><button class="btn sec sm" data-act="read-all">อ่านทั้งหมด</button></div>'+
-    '<div class="pref">'+swRow('bell-notify',me.notify!==false,'แจ้งเตือนในเว็บ (เด้งและตัวเลข)')+swRow('bell-push',!!me.push,'แจ้งเตือนบนอุปกรณ์ (Push)')+'</div>'+items+'</div>';
+    '<div class="pref">'+swRow('bell-notify',me.notify!==false,'แจ้งเตือนในเว็บ (เด้งและตัวเลข)')+swRow('bell-push',!!me.push,'แจ้งเตือนของเครื่อง (ขณะเปิดแอป)')+'</div>'+items+'</div>';
 }
 function renderChrome(){
   var top=$('top'),nav=$('nav'),demo=$('demo'),shell=$('shell');
@@ -971,12 +971,14 @@ function checkCardHtml(){
     info='ยังไม่มีกะ';
   }
   var f=flash;flash=null;
+  var stale=state.attendance.filter(function(a){return a.emp===me.id&&!a.out&&endTs(a.date,shiftById(a.shift))+12*3600000<=t&&a.date>=addDays(today,-14);});
+  var staleHtml=stale.length?'<p class="alert-y" style="margin-top:8px" role="status">ยังไม่ได้ลงเวลาออก: '+stale.map(function(a){return esc(dayShort(a.date))+' กะ '+shiftLabel(shiftById(a.shift));}).join(', ')+' · แจ้งผู้ดูแลให้ลงเวลาออกให้ (ลงเวลาเข้างานกะใหม่ได้ตามปกติ)</p>':'';
   return '<section class="card hero"><p class="muted center">'+esc(thDate(today,{weekday:'long',day:'numeric',month:'long',year:'numeric'}))+'</p>'+
     '<div class="clock tnum" id="clk">'+bkk(t).hms+'</div>'+
     '<div class="ring" style="--p:'+p.toFixed(1)+'">'+btn+'</div>'+
     '<p class="center"><b>'+info+'</b></p>'+
     '<p class="center'+(warn?' alert-y':' muted small')+'" style="margin-top:6px">'+esc(msg)+'</p>'+
-    (f?'<p class="center '+(f.warn?'alert-y':'ok')+'" style="margin-top:8px" role="status">'+esc(f.t)+'</p>':'')+
+    (f?'<p class="center '+(f.warn?'alert-y':'ok')+'" style="margin-top:8px" role="status">'+esc(f.t)+'</p>':'')+staleHtml+
     '<p class="center muted small" style="margin-top:8px">เปิดให้ลงเวลาก่อนเริ่มกะ '+O+' นาที · สายเมื่อเกิน '+L+' นาทีหลังเริ่มกะ</p></section>';
 }
 function viewHome(){
@@ -1791,7 +1793,7 @@ function simCheckIn(){
   var st=startTs(d,s),en=endTs(d,s),open=st-S.openBefore*60000;
   if(t<open){r.err='ยังไม่ถึงเวลาเปิดให้ลงเวลา';r.why='เปิดให้ลงเวลาตั้งแต่ '+fmtHM(open)+' น. (ก่อนเริ่มกะ '+S.openBefore+' นาที) · ยังเหลืออีก '+durTxt(Math.ceil((open-t)/60000));return r;}
   if(t>en){r.err='กะนี้สิ้นสุดแล้ว';r.why='กะเลิก '+fmtHM(en)+' น. '+(bkk(en).date!==d?'('+sd(bkk(en).date)+')':'')+' เลยเวลามาแล้ว '+durTxt(Math.floor((t-en)/60000));return r;}
-  var openRec=state.attendance.find(function(a){return a.emp===e.id&&!a.out&&!(a.date===d&&a.shift===s.id);});
+  var openRec=state.attendance.find(function(a){return a.emp===e.id&&!a.out&&!(a.date===d&&a.shift===s.id)&&endTs(a.date,shiftById(a.shift))+12*3600000>t;});
   if(openRec){r.err='ยังมีกะที่ไม่ได้ออกงาน';r.why='ในระบบจริง '+e.name+' ยังไม่ได้ออกงานกะ '+shiftLabel(shiftById(openRec.shift))+' วันที่ '+sd(openRec.date);return r;}
   if(state.attendance.some(function(a){return a.emp===e.id&&a.date===d&&a.shift===s.id;})){r.err='ลงเวลาเข้างานกะนี้ไปแล้ว';r.why='ในระบบจริงมีบันทึกเข้างานของกะนี้อยู่แล้ว';return r;}
   var late=Math.floor((t-st)/60000);
@@ -2604,7 +2606,7 @@ function empForm(){
 }
 function pcard(e){
   var del=armed==='del:'+e.id
-    ?'<button class="btn danger sm" data-act="del-yes" data-id="'+e.id+'">ยืนยันลบ</button><button class="btn sec sm" data-act="del-no">ยกเลิก</button>'
+    ?'<p class="alert-y small" style="flex-basis:100%;margin:4px 0">ลบแล้วประวัติลงเวลาและการลาของ '+esc(e.name)+' จะหายถาวร ถ้าแค่เลิกใช้งาน ให้กด "แก้ไข" แล้วปิดใช้งานแทน</p><button class="btn danger sm" data-act="del-yes" data-id="'+e.id+'">ยืนยันลบถาวร</button><button class="btn sec sm" data-act="del-no">ยกเลิก</button>'
     :'<button class="btn sec sm" data-act="edit-emp" data-id="'+e.id+'">แก้ไข</button>'+(e.id===me.id?'<button class="btn sec sm" data-act="pw-self">เปลี่ยนรหัสผ่าน</button>':'<button class="btn sec sm" data-act="pw-reset" data-id="'+e.id+'">รีเซ็ตรหัสผ่าน</button><button class="btn sec sm" data-act="del-emp" data-id="'+e.id+'">ลบ</button>');
   var chips='<span class="chip '+(e.active?'':'mute')+'">'+(e.active?'ใช้งาน':'ปิดใช้งาน')+'</span>'+(e.mustChange?'<span class="chip late">รอตั้งรหัสใหม่</span>':'');
   if(e.role==='staff'&&e.shift)chips+='<span class="chip mute tnum">'+shiftTxt(e)+'</span>';
@@ -2688,7 +2690,8 @@ function repRange(){
 }
 function repRows(){
   var R=repRange(),t=now(),idx=attIdx(),out=[];
-  for(var d=R.t;d>=R.f;d=addDays(d,-1)){
+  var d0=dataStart();
+  for(var d=R.t;d>=R.f&&d>=d0;d=addDays(d,-1)){
     SHIFTS.forEach(function(s){
       if(rep.team&&s.team!==rep.team)return;
       var r=slotInfo(d,s,idx,t);if(!r)return;
@@ -2761,7 +2764,7 @@ function viewReport(){
       '<div><label>ตั้งแต่วันที่</label>'+dateField('rpFrom',R.f)+'</div>'+
       '<div><label>ถึงวันที่</label>'+dateField('rpTo',R.t)+'</div>'+
       '<div><label for="rpTeam">กะของทีม</label><select id="rpTeam"><option value="">ทุกทีม</option><option value="A"'+(rep.team==='A'?' selected':'')+'>ทีม A</option><option value="B"'+(rep.team==='B'?' selected':'')+'>ทีม B</option></select></div>'+
-      '<div><label for="rpEmp">พนักงาน (ผู้ประจำหรือผู้ทำแทน)</label><select id="rpEmp">'+empOpts+'</select></div></div>'+(R.cut?'<p class="alert-y">แสดงสูงสุด 93 วันต่อครั้ง ตัดช่วงให้อัตโนมัติ</p>':'')+'</section>'+
+      '<div><label for="rpEmp">พนักงาน (ผู้ประจำหรือผู้ทำแทน)</label><select id="rpEmp">'+empOpts+'</select></div></div>'+(R.cut?'<p class="alert-y">แสดงสูงสุด 93 วันต่อครั้ง ตัดช่วงให้อัตโนมัติ</p>':'')+(R.f<dataStart()?'<p class="muted small">ข้อมูลลงเวลาเริ่มวันที่ '+esc(sd(dataStart()))+' วันก่อนหน้านั้นจึงไม่แสดงในรายงาน</p>':'')+'</section>'+
     '<div class="sum"><div><b>'+rows.length+'</b><span class="muted small">กะทั้งหมด</span></div><div><b>'+lateN+'</b><span class="muted small">สาย</span></div><div><b>'+earlyN+'</b><span class="muted small">ออกก่อน</span></div><div><b>'+missN+'</b><span class="muted small">ไม่ครบ/ไม่มีบันทึก</span></div><div><b>'+cntFin.filter(function(r){return r.rec.byAdmin;}).length+'</b><span class="muted small">ผู้ดูแลลงเวลาให้</span></div><div><b>'+offRows.length+'</b><span class="muted small">กะที่มีคนหยุด</span></div><div><b class="tnum">'+(ms/3600000).toFixed(1)+'</b><span class="muted small">ชั่วโมงรวม</span></div></div>'+
     tblHead('รายละเอียดรายกะ',rows.length+' กะ · ตามช่วงวันที่และตัวกรองด้านบน','xl-rep')+
     '<div class="scroll"><table class="rt" style="min-width:860px"><thead><tr><th>วันที่</th><th>ทีม · กะ</th><th>ผู้ประจำกะ</th><th>ผู้ทำงานจริง</th><th>เข้า</th><th>ออก</th><th>ชม.</th><th>สถานะ</th></tr></thead><tbody>'+body+'</tbody></table></div>'+
@@ -2890,7 +2893,7 @@ function viewSettings(){
     '<p class="muted small">คอลัมน์ที่ต้องมี: date (ปปปป-ดด-วว), team (A/B), shift_start (เช่น 10:00), status (ทำงาน/หยุด) · ถ้าหยุดต้องใส่ cover_username (พนักงานสำรอง Ops ก็ใส่ได้)</p>'+
     '<div class="row"><button class="btn" data-act="check-csv">ตรวจสอบข้อมูล</button><button class="btn sec" data-act="sample-csv">ใส่ตัวอย่าง</button></div>'+
     (io.msg?'<p class="ok" role="status">'+esc(io.msg)+'</p>':'')+pv+'</section>'+
-    '<section class="card stack"><h2>แจ้งเตือนบนมือถือ (Push)</h2><p class="muted small">เมื่อนำเว็บขึ้นใช้งานจริง (GitHub Pages + Supabase) และผู้ใช้กด "เพิ่มลงหน้าจอโฮม" ระบบจะส่งแจ้งเตือนเข้าเครื่องได้แม้ปิดเว็บอยู่ ในต้นแบบนี้ทดสอบได้เฉพาะแจ้งเตือนที่เด้งในหน้าเว็บ (กระดิ่งและป๊อปอัป) ผู้ใช้เปิด/ปิดได้ที่สวิตช์ในกระดิ่ง</p></section>'+'</div>';
+    '<section class="card stack"><h2>แจ้งเตือนบนมือถือ (Push)</h2><p class="muted small">ตอนนี้แจ้งเตือนจะเด้งเฉพาะตอนเปิดเว็บหรือแอปค้างไว้ (กระดิ่ง ป๊อปอัป และแจ้งเตือนของเครื่องถ้าเปิดสวิตช์ไว้) ถ้าปิดแอปไปแล้วจะยังไม่ได้รับ เพราะยังไม่มีระบบส่ง Push เบื้องหลัง · ผู้ใช้เปิด/ปิดได้ที่สวิตช์ในกระดิ่ง</p></section>'+'</div>';
 }
 
 /* ---------- leave ---------- */
@@ -2964,6 +2967,11 @@ function viewLeaves(){
         '<div class="err" role="alert">'+esc(lvErr)+'</div><div class="row"><button class="btn" data-act="lv-approve" data-id="'+l.id+'">ยืนยันอนุมัติ</button><button class="btn sec" data-act="lv-close">ปิด</button></div></div>';
     }else if(l.status==='pending'&&lvReject===l.id){
       panel='<div class="stack" style="margin-top:8px"><div><label for="lvNote">เหตุผลที่ไม่อนุมัติ (ส่งให้พนักงาน)</label><input id="lvNote" maxlength="120" value="'+esc(lvNote)+'"></div><div class="row"><button class="btn danger" data-act="lv-reject-yes" data-id="'+l.id+'">ยืนยันไม่อนุมัติ</button><button class="btn sec" data-act="lv-close">ปิด</button></div></div>';
+    }
+    if(l.status==='approved'&&l.from>=bkk(now()).date&&!lvOpen&&!lvReject){
+      panel=armed==='lvc:'+l.id
+        ?'<div class="stack" style="margin-top:8px"><p class="alert-y small">ยกเลิกการลานี้? ผู้ทำแทนจะถูกเอาออกจากตาราง และ '+esc(fn(e))+' ต้องมาทำงานตามกะเดิม (ระบบแจ้งทั้งสองฝ่าย)</p><div class="row"><button class="btn danger sm" data-act="lv-adm-cancel-yes" data-id="'+l.id+'">ยืนยันยกเลิกการลา</button><button class="btn sec sm" data-act="del-no">ไม่ยกเลิก</button></div></div>'
+        :'<div class="row" style="margin-top:8px"><button class="btn sec sm" data-act="lv-adm-cancel" data-id="'+l.id+'">ยกเลิกการลา</button></div>';
     }
     var act=l.status==='pending'&&!lvOpen&&!lvReject?'<div class="row" style="margin-top:8px"><button class="btn sm" data-act="lv-open" data-id="'+l.id+'">อนุมัติ</button><button class="btn sec sm" data-act="lv-rej-open" data-id="'+l.id+'">ไม่อนุมัติ</button></div>':'';
     return '<article class="card lvcard">'+leaveRow(l,true)+act+panel+'</article>';
@@ -3150,6 +3158,11 @@ document.addEventListener('click',function(e){
     case 'del-emp':armed='del:'+D.id;renderView();break;
     case 'del-no':armed='';renderView();break;
     case 'del-yes':deleteEmp(D.id);break;
+    case 'lv-adm-cancel':armed='lvc:'+D.id;renderView();break;
+    case 'lv-adm-cancel-yes':
+      if(busy)break;busy=true;
+      rpc('admin_cancel_leave',{p_id:D.id,p_note:''}).then(function(){armed='';toast('ยกเลิกการลาแล้ว','เอาผู้ทำแทนออกจากตารางและแจ้งพนักงานแล้ว');return loadAll();}).then(function(){busy=false;renderAll();},function(er){busy=false;armed='';toast('ยกเลิกไม่สำเร็จ',errMsg(er),'warn');renderView();});
+      break;
     case 'hist':histMonth=addMonth(histMonth,Number(D.n));renderView();break;
     case 'read':
       var n=state.notifications.find(function(x){return x.id===D.id;});
