@@ -242,6 +242,10 @@ button.cell:hover{border-color:var(--brand-strong)}
 .demo .dfield{min-height:36px;padding:4px 10px;width:auto;min-width:0}
 .row .dfield{width:auto}
 #dpbox .overlay{z-index:50}
+/* slim: report sections + settings link */
+.seg.rsec{align-self:flex-start;max-width:100%;overflow-x:auto}
+.simgo{width:100%;text-align:left;border:0!important}
+
 /* notification links */
 .notego{display:block;margin-top:4px;font-size:12.5px;font-weight:600;color:var(--brand-strong)}
 .toast.tgo{cursor:pointer;text-align:left;font:inherit;color:inherit;width:100%}
@@ -643,7 +647,7 @@ var me=null,view='home',schedTeam='A',schedMode=window.innerWidth<720?'day':'wee
 var editSlot=null,editEmp=null,armed='',flash=null,modal=null,bellOpen=false,histMonth='',dp=null;
 var io={exp:'',csv:'',preview:null,msg:'',ruleMsg:'',ruleErr:''};
 var dv={};
-var rep={team:'',emp:'',csv:'',calMonth:'',calSel:''};
+var rep={team:'',emp:'',csv:'',calMonth:'',calSel:'',sec:'cal'};
 var dashDays=30;
 var lv={type:'vac',reason:'',err:'',ok:''},lvFilter='pending',lvOpen=null,lvReject=null,lvNote='',lvErr='';
 
@@ -827,7 +831,7 @@ function brandHtml(){return '<div class="brand"><div class="mark">'+ico(ICONS.wi
 function pendingLeaves(){return state.leaves.filter(function(l){return l.status==='pending';}).length;}
 function tabList(){
   return me.role==='admin'
-    ?[['today','ภาพรวม','grid'],['schedule','ตารางกะ','cal'],['people','พนักงาน','users'],['leaves','คำขอลา','bag'],['report','รายงาน','doc'],['sim','ทดสอบ','clock'],['settings','ตั้งค่า','sliders']]
+    ?[['today','ภาพรวม','grid'],['schedule','ตารางกะ','cal'],['people','พนักงาน','users'],['leaves','คำขอลา','bag'],['report','รายงาน','doc'],['settings','ตั้งค่า','sliders']]
     :[['home','ลงเวลา','clock'],['schedule','ตารางกะ','cal'],['leave','ขอลา','bag'],['history','ประวัติ','doc']];
 }
 function swRow(act,on,label){return '<button class="swrow" role="switch" aria-checked="'+on+'" data-act="'+act+'"><span>'+label+'</span><span class="sw'+(on?' on':'')+'"><i></i></span></button>';}
@@ -856,7 +860,7 @@ function renderChrome(){
   nav.hidden=!!me.mustChange;
   var pl=pendingLeaves();
   nav.innerHTML=tabList().map(function(x){
-    return '<button class="tab" data-act="tab" data-v="'+x[0]+'"'+(view===x[0]?' aria-current="page"':'')+'>'+ico(ICONS[x[2]])+'<span>'+x[1]+'</span>'+(x[0]==='leaves'&&pl?'<span class="count">'+pl+'</span>':'')+'</button>';
+    return '<button class="tab" data-act="tab" data-v="'+x[0]+'"'+(view===x[0]||(view==='sim'&&x[0]==='settings')?' aria-current="page"':'')+'>'+ico(ICONS[x[2]])+'<span>'+x[1]+'</span>'+(x[0]==='leaves'&&pl?'<span class="count">'+pl+'</span>':'')+'</button>';
   }).join('');
   demo.innerHTML='';
 }
@@ -1414,7 +1418,8 @@ function dcard(key,title,sub,bodyFn,w,legend,table,span2){
   return chartCard(title,sub,bodyFn(w),legend,table,span2,key);
 }
 function kpiB(k,label,val,cls,extra){return '<button class="kpi go'+(cls?' '+cls:'')+'"'+dk(k)+'><span class="muted small">'+label+'</span><b'+(cls==='heroK'?' class="heroN"':' class="tnum"')+'>'+val+'</b>'+(extra||'')+'</button>';}
-function viewDash(){
+function viewDash(){return dashParts('now');}
+function dashParts(part){
   var t=now(),today=bkk(t).date,idx=attIdx(),D=dashData(dashDays),B=liveBoard(t,today,idx),tot=D.tot;
   var w1=cardW(false),w2=cardW(true);DCB={};
   var mine=me.canWork?'<div class="grid2">'+checkCardHtml()+upcomingHtml()+'</div>':'';
@@ -1470,16 +1475,18 @@ function viewDash(){
 
   var heatCard=dashCalHtml(idx,t);
 
+  if(part==='cal')return heatCard;
+  if(part==='stats')return '<div class="stack">'+
+    '<div class="sech"><h2>สถิติย้อนหลัง</h2><div class="seg" role="group" aria-label="ช่วงเวลา">'+[7,30,90].map(function(n){return '<button data-act="dash" data-n="'+n+'" aria-pressed="'+(dashDays===n)+'">'+n+' วัน</button>';}).join('')+'</div></div>'+
+    '<div class="kpis">'+kpiB('st:ok','ตรงเวลา',pct(tot.ok,tot.fin)+'%','heroK','<span class="muted small">'+tot.ok+' จาก '+tot.fin+' กะ ใน '+dashDays+' วัน</span>')+
+    kpiB('st:late','สาย',tot.late)+kpiB('st:early','ออกก่อนเวลา',tot.early)+kpiB('st:miss','ไม่ครบ/ไม่ลงเวลา',tot.miss)+kpiB('st:hours','ชั่วโมงทำงานรวม',Math.round(tot.hours))+kpiB('st:cover','กะที่มีคนทำแทน',tot.cover)+'</div>'+
+    '<div class="cgrid">'+c1+c2+c3+c4+c5+c6+c7+c8+c9+c10+c11+'<section class="card"><h3>ควรติดตาม</h3><p class="muted small">คนที่สายหรือลงเวลาไม่ครบมากที่สุดในช่วงนี้</p><div class="list">'+attn+'</div></section></div></div>';
   return '<div class="stack">'+
     '<div class="row between"><div><h1>ภาพรวม</h1><p class="muted">'+esc(thDate(today,{weekday:'long',day:'numeric',month:'long',year:'numeric'}))+' · <span class="tnum" id="clk">'+bkk(t).hms+'</span></p></div><p class="muted small hint">กดที่ตัวเลข กราฟ หรือรายการ เพื่อดูรายละเอียด</p></div>'+mine+
     '<div class="sech"><h2>ตอนนี้</h2></div>'+
     '<div class="kpis">'+kpiB('now:working','กำลังทำงาน',B.working)+kpiB('now:waiting','รอเข้างาน',B.waiting)+kpiB('now:late','สาย / ยังไม่เข้า',B.late)+kpiB('now:off','วันนี้มีคนหยุด',B.off)+kpiB('now:pend','คำขอลารออนุมัติ',pend.length)+'</div>'+
     '<div class="pgrid">'+(B.cards.join('')||'<p class="muted">วันนี้ไม่มีกะ</p>')+'</div>'+
-    '<div class="cgrid">'+heatCard+'<section class="card"><h3>คำขอลาที่รออนุมัติ</h3><div class="list">'+pendHtml+'</div></section><section class="card"><h3>ใครหยุด ใครทำแทน (14 วันข้างหน้า)</h3><div class="list" style="max-height:300px;overflow:auto">'+(upc.join('')||'<p class="muted small" style="padding:10px 0">ไม่มีการหยุดล่วงหน้า</p>')+'</div></section></div>'+
-    '<div class="sech"><h2>สถิติย้อนหลัง</h2><div class="seg" role="group" aria-label="ช่วงเวลา">'+[7,30,90].map(function(n){return '<button data-act="dash" data-n="'+n+'" aria-pressed="'+(dashDays===n)+'">'+n+' วัน</button>';}).join('')+'</div></div>'+
-    '<div class="kpis">'+kpiB('st:ok','ตรงเวลา',pct(tot.ok,tot.fin)+'%','heroK','<span class="muted small">'+tot.ok+' จาก '+tot.fin+' กะ ใน '+dashDays+' วัน</span>')+
-    kpiB('st:late','สาย',tot.late)+kpiB('st:early','ออกก่อนเวลา',tot.early)+kpiB('st:miss','ไม่ครบ/ไม่ลงเวลา',tot.miss)+kpiB('st:hours','ชั่วโมงทำงานรวม',Math.round(tot.hours))+kpiB('st:cover','กะที่มีคนทำแทน',tot.cover)+'</div>'+
-    '<div class="cgrid">'+c1+c2+c3+c4+c5+c6+c7+c8+c9+c10+c11+'<section class="card"><h3>ควรติดตาม</h3><p class="muted small">คนที่สายหรือลงเวลาไม่ครบมากที่สุดในช่วงนี้</p><div class="list">'+attn+'</div></section></div></div>';
+    '<section class="card"><h3>ใครหยุด ใครทำแทน (14 วันข้างหน้า)</h3><div class="list" style="max-height:300px;overflow:auto">'+(upc.join('')||'<p class="muted small" style="padding:10px 0">ไม่มีการหยุดล่วงหน้า</p>')+'</div></section>'+'</div>';
 }
 
 /* ---------- dashboard drill-down (กดขยายดูรายละเอียด) ---------- */
@@ -1837,7 +1844,7 @@ function viewSim(){
       return '<tr><td>'+(r.kind==='in'?'เข้างาน':'ออกงาน')+'</td><td>'+esc(r.emp?r.emp.name:'—')+'</td><td class="tnum">'+esc(sd(r.d))+' · '+shiftLabel(r.s)+'</td><td class="tnum">'+(isNaN(r.when)?'—':esc(sd(bkk(r.when).date))+' '+fmtHM(r.when))+'</td><td>'+(r.err?'<span class="chip off">'+esc(r.err)+'</span>':'<span class="chip '+(r.flag?'late':'')+'">'+esc(r.msg.split(' · ')[1])+'</span>')+'</td></tr>';
     }).join('')+'</tbody></table></div><button class="btn sec sm" data-act="sim-clear" style="align-self:flex-start">ล้างประวัติการทดสอบ</button>':'<p class="muted small">ยังไม่มีการทดสอบ</p>';
   return '<div class="stack">'+
-    '<div><h1>ทดสอบเข้า-ออกงาน</h1><p class="muted">ลองเข้างานและออกงานแทนพนักงานคนไหนก็ได้ ในวันและเวลาที่ต้องการ ใช้กฎเดียวกับระบบจริง</p></div>'+
+    '<div><button class="btn sec sm" data-act="tab" data-v="settings" style="margin-bottom:8px">‹ กลับไปตั้งค่า</button><h1>ทดสอบเข้า-ออกงาน</h1><p class="muted">ลองเข้างานและออกงานแทนพนักงานคนไหนก็ได้ ในวันและเวลาที่ต้องการ ใช้กฎเดียวกับระบบจริง</p></div>'+
     '<p class="simbanner">โหมดทดสอบ · ไม่บันทึกข้อมูลจริง ไม่ส่งแจ้งเตือน และไม่กระทบรายงานหรือสถิติ</p>'+
     '<section class="card stack"><h2>1. เลือกสถานการณ์</h2>'+
       '<div class="fields"><div><label for="simEmp">พนักงาน</label><select id="simEmp">'+empOpts+'</select></div><div><label>วันที่ทำงาน (วันเริ่มกะ)</label>'+dateField('simDate',sim.date)+'</div><div style="grid-column:1/-1"><label for="simShift">กะ</label><select id="simShift">'+shOpts+'</select></div></div>'+
@@ -2745,8 +2752,11 @@ function viewReport(){
     return '<div class="li"><span><span class="when">'+esc(dayShort(r.d))+'</span> <span class="muted small tnum">'+TEAMS[r.s.team].name+' '+shiftLabel(r.s)+'</span><br><span class="small"><span class="strike">'+esc(fn(r.sl.regular))+'</span> → '+(r.sl.cover?'<b>'+esc(r.sl.cover.name)+'</b>'+tagFor(r.sl.cover):'<span class="chip off">ยังไม่มีผู้ทำแทน</span>')+'</span></span><span class="chip mute">'+esc(LEAVE_TH[r.sl.kind]||r.sl.note||'หยุด')+'</span></div>';
   }).join('')||'<p class="muted small" style="padding:10px 0">ไม่มีการหยุดในช่วงที่เลือก</p>';
   var empOpts='<option value="">ทุกคน</option>'+state.employees.filter(function(e){return canCover(e)||state.attendance.some(function(a){return a.emp===e.id;});}).map(function(e){return '<option value="'+e.id+'"'+(rep.emp===e.id?' selected':'')+'>'+esc(e.name)+'</option>';}).join('');
-  return '<div class="stack"><div><h1>รายงานเวลาเข้า–ออกงาน</h1><p class="muted">ดูออนไลน์ ปฏิทินสรุปสถานะ และส่งออกเป็น CSV</p></div>'+
-    calMonthHtml(idx,t)+
+  var secs=[['cal','ปฏิทิน'],['stats','สถิติ'],['table','ตารางละเอียด']];
+  var head='<div class="stack"><div><h1>รายงาน</h1><p class="muted">ปฏิทินสถานะ สถิติย้อนหลัง และตารางละเอียด (ส่งออก Excel ได้)</p></div>'+
+    '<div class="seg rsec" role="group" aria-label="ส่วนของรายงาน">'+secs.map(function(x){return '<button data-act="rsec" data-s="'+x[0]+'" aria-pressed="'+(rep.sec===x[0])+'">'+x[1]+'</button>';}).join('')+'</div>';
+  if(rep.sec!=='table'){return head+(rep.sec==='stats'?dashParts('stats'):'<div class="cgrid">'+dashParts('cal')+'</div>')+'</div>';}
+  return head+
     '<section class="card stack"><h2>รายงานตามช่วงวันที่</h2><div class="fields">'+
       '<div><label>ตั้งแต่วันที่</label>'+dateField('rpFrom',R.f)+'</div>'+
       '<div><label>ถึงวันที่</label>'+dateField('rpTo',R.t)+'</div>'+
@@ -2865,7 +2875,8 @@ function viewSettings(){
         '<div><button class="btn" data-act="apply-csv"'+(okN?'':' disabled')+'>นำเข้า '+okN+' แถวที่ถูกต้อง</button></div>';
     }
   }
-  return '<div class="stack"><div><h1>ตั้งค่า</h1><p class="muted">การหมุนกะ กฎเวลาลงเวลา และนำเข้า/ส่งออกตารางกะ</p></div>'+rotaCard()+rotaBCard()+
+  return '<div class="stack"><div><h1>ตั้งค่า</h1><p class="muted">การหมุนกะ กฎเวลาลงเวลา และนำเข้า/ส่งออกตารางกะ</p></div>'+
+    '<section class="card" style="padding:4px 14px"><button class="li lib simgo" data-act="tab" data-v="sim"><span class="grow"><b>ทดสอบเข้า-ออกงาน</b><br><span class="muted small">ลองลงเวลาแทนพนักงานในวันและเวลาที่ต้องการ (ไม่บันทึกจริง)</span></span><span class="go" aria-hidden="true">›</span></button></section>'+rotaCard()+rotaBCard()+
     '<section class="card stack"><h2>กฎการลงเวลา</h2><div class="fields">'+
       '<div><label for="setOpen">เปิดให้ลงเวลาก่อนเริ่มกะ (นาที)</label><input type="number" id="setOpen" min="0" max="240" inputmode="numeric" value="'+S.openBefore+'"></div>'+
       '<div><label for="setLate">ถือว่าสายเมื่อเข้างานเกิน (นาทีหลังเริ่มกะ)</label><input type="number" id="setLate" min="0" max="240" inputmode="numeric" value="'+S.lateAfter+'"></div></div>'+
@@ -3078,6 +3089,7 @@ document.addEventListener('click',function(e){
       break;
     case 'tab':view=D.v;resetUi();renderAll();window.scrollTo(0,0);break;
     case 'dash':dashDays=Number(D.n);renderView();break;
+    case 'rsec':rep.sec=D.s;renderView();break;
     case 'sim-in':var ri=simCheckIn();sim.rin=ri;sim.rout=null;sim.log.push(ri);renderView();break;
     case 'sim-out':var ro=simCheckOut();sim.rout=ro;sim.log.push(ro);renderView();break;
     case 'sim-set':sim[D.k]=D.v;if(D.k==='tin'){sim.rin=null;sim.rout=null;}else sim.rout=null;renderView();break;
@@ -3251,7 +3263,7 @@ document.addEventListener('keydown',function(e){
 });
 if(window.matchMedia){try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){if(!document.documentElement.getAttribute('data-theme'))renderAll();});}catch(e){}}
 var rzT=null;
-window.addEventListener('resize',function(){clearTimeout(rzT);rzT=setTimeout(function(){if(me&&view==='today'&&!dp&&!modal){renderView();renderDet();}},250);});
+window.addEventListener('resize',function(){clearTimeout(rzT);rzT=setTimeout(function(){if(me&&(view==='today'||view==='report')&&!dp&&!modal){renderView();renderDet();}},250);});
 
 setInterval(function(){var c=$('clk');if(c&&me)c.textContent=bkk(now()).hms;tickModal();},1000);
 setInterval(function(){
