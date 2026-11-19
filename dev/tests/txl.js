@@ -4,7 +4,7 @@ const ctx=await b.newContext({viewport:{width:1280,height:900},acceptDownloads:t
 p.on('pageerror',e=>errs.push(e.message));
 await p.goto('file://'+S+'preview_detail.html');await p.waitForTimeout(500);
 await p.fill('#lu','admin');await p.fill('#lp','Admin@2026');await p.click('#lbtn');await p.waitForTimeout(700);
-await p.click('[data-act=tab][data-v=report]');await p.waitForTimeout(300);
+await p.click('[data-act=tab][data-v=report]');await p.click('[data-act=rsec][data-s=table]');await p.waitForTimeout(300);
 for(const act of ['xl-rep','xl-forgot','xl-cover']){
   const [dl]=await Promise.all([p.waitForEvent('download'),p.click('[data-act='+act+']')]);
   const f=S+'xlout/'+dl.suggestedFilename();await dl.saveAs(f);console.log(act,'->',dl.suggestedFilename());}

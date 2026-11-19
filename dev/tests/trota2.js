@@ -24,6 +24,6 @@ console.log(tag,'after A save rows:',await p.$$eval('#main section.card:first-of
 await p.click('[data-act=rotab-edit]');await p.waitForTimeout(100);
 await p.selectOption('#rotaBStart',{index:0});await p.waitForTimeout(80);const o=await p.$$eval('#rotaBDay option',x=>x.map(y=>y.value));await p.selectOption('#rotaBDay',o[2]);await p.selectOption('#rotaBNight',o[1]);await p.click('[data-act=rotab-save]');await p.waitForTimeout(500);
 console.log(tag,'after B save:',await p.$$eval('#main section.card:nth-of-type(2) tbody tr',rs=>rs.slice(0,4).map(r=>r.innerText.replace(/\s+/g,' ')).join(' / ')));
-for(const v2 of ['today','report','sim','leaves','people','schedule']){await p.click('[data-act=tab][data-v='+v2+']');await p.waitForTimeout(120);}
+for(const v2 of ['today','report','settings','sim','leaves','people','schedule']){await p.click((v2==='sim'?'#main ':'#nav ')+'[data-act=tab][data-v='+v2+']');await p.waitForTimeout(120);}
 await p.close();}
 console.log(errs.length?errs.join('\n'):'NO ERRORS');await b.close();})();

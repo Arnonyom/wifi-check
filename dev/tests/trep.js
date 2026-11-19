@@ -4,7 +4,7 @@ for(const [vp,tag] of [[{width:1280,height:900},'d'],[{width:390,height:844},'m'
 const p=await b.newPage({viewport:vp});p.on('pageerror',e=>errs.push(e.message));
 await p.goto('file://'+S+'preview_detail.html');await p.waitForTimeout(500);
 await p.fill('#lu','admin');await p.fill('#lp','Admin@2026');await p.click('#lbtn');await p.waitForTimeout(700);
-await p.click('[data-act=tab][data-v=report]');await p.waitForTimeout(300);
+await p.click('[data-act=tab][data-v=report]');await p.click('[data-act=rsec][data-s=table]');await p.waitForTimeout(300);
 console.log(tag,'sum:',await p.$eval('.sum',e=>e.innerText.replace(/\s+/g,' ')));
 console.log(tag,'forgot:',await p.$$eval('section:has(h3:text("ใครลืมลงเวลามากที่สุด")) .lib',e=>e.slice(0,4).map(x=>x.innerText.replace(/\s+/g,' ')).join(' || ')));
 console.log(tag,'remark rows',await p.$$eval('table.rt td',e=>e.filter(x=>x.innerText.includes('ผู้ดูแลลงให้')).length));
