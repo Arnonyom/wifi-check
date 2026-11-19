@@ -50,6 +50,7 @@ var RPC={
    var ov=db.overrides.find(function(o){return o.work_date===a.p_date&&o.shift_id===a.p_shift;});
    var who=ov?ov.cover:(db.profiles.find(function(p){return p.shift_id===a.p_shift;})||{}).id;
    if(who!==me.id)throw new Error('คุณไม่ได้อยู่ในกะนี้');
+   if(db.attendance.some(function(x){return x.emp===me.id&&!x.check_out&&st(x.work_date,x.shift_id)+SH[x.shift_id][2]*6e4+12*36e5>Date.now();}))throw new Error('ยังมีกะที่ไม่ได้ออกงาน');
    var s=st(a.p_date,a.p_shift),late=Math.floor((Date.now()-s)/6e4);
    var r={id:uuid(),emp:me.id,work_date:a.p_date,shift_id:a.p_shift,check_in:new Date().toISOString(),check_out:null,late_min:Math.max(0,late),late_flag:late>db.settings[0].late_after,early_min:0,early_flag:false,is_cover:!!ov};
    db.attendance.push(r);if(r.late_flag)db.notifications.push({id:uuid(),ts:new Date().toISOString(),to_ids:[me.id],title:'เข้างานสาย',body:'สาย',kind:'warn'});return r;},
@@ -58,6 +59,7 @@ var RPC={
  set_override:function(a){db.overrides=db.overrides.filter(function(o){return !(o.work_date===a.p_date&&o.shift_id===a.p_shift);});if(a.p_cover)db.overrides.push({work_date:a.p_date,shift_id:a.p_shift,cover:a.p_cover,note:a.p_note,kind:'',leave_id:null,set_by:session.uid,set_at:new Date().toISOString()});return null;},
  request_leave:function(a){var me=db.profiles.find(function(p){return p.id===session.uid;});var n=0;for(var d=a.p_from;d<=a.p_to;d=addDays(d,1))if(DAYS[SH[me.shift_id][0]].indexOf(dow(d))>=0)n++;
    var l={id:uuid(),emp:me.id,type:a.p_type,from_date:a.p_from,to_date:a.p_to,days:n,reason:a.p_reason,status:'pending',note:'',decided_by:null,decided_at:null,created_at:new Date().toISOString()};db.leaves.push(l);return l;},
+ admin_cancel_leave:function(a){var l=db.leaves.find(function(x){return x.id===a.p_id&&x.status==='approved';});if(!l)throw new Error('ไม่พบการลาที่อนุมัติแล้ว');var td=new Date(Date.now()+7*36e5).toISOString().slice(0,10);if(l.from_date<td)throw new Error('เริ่มลาไปแล้ว ยกเลิกไม่ได้ ให้แก้ในตารางกะแทน');db.overrides=db.overrides.filter(function(o){return o.leave_id!==l.id;});l.status='cancelled';l.decided_by=session.uid;l.decided_at=new Date().toISOString();db.notifications.push({id:uuid(),ts:new Date().toISOString(),to_ids:[l.emp],title:'ยกเลิกการลา',body:'ผู้ดูแลยกเลิกการลา',kind:'warn'});return null;},
  cancel_leave:function(a){db.leaves.find(function(l){return l.id===a.p_id;}).status='cancelled';return null;},
  approve_leave:function(a){var l=db.leaves.find(function(x){return x.id===a.p_id;});a.p_covers.forEach(function(c){db.overrides.push({work_date:c.work_date,shift_id:c.shift_id,cover:c.cover,note:'ลา',kind:l.type,leave_id:l.id,set_by:session.uid,set_at:new Date().toISOString()});});l.status='approved';return null;},
  reject_leave:function(a){var l=db.leaves.find(function(x){return x.id===a.p_id;});l.status='rejected';l.note=a.p_note;return null;},
