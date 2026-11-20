@@ -130,10 +130,10 @@ textarea{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;line-h
 
 /* check-in */
 .clock{font-family:var(--font-display);font-weight:600;font-size:clamp(40px,12vw,60px);letter-spacing:1px;line-height:1.1;text-align:center}
-.ring{--p:0;width:min(250px,68vw);aspect-ratio:1;border-radius:50%;background:conic-gradient(var(--brand) calc(var(--p)*1%),var(--line) 0);display:grid;place-items:center;margin:18px auto}
+.ring{--p:0;--rw:min(340px,84vw);width:var(--rw);aspect-ratio:1;border-radius:50%;background:conic-gradient(var(--brand) calc(var(--p)*1%),var(--line) 0);display:grid;place-items:center;margin:18px auto}
 .ring button{width:calc(100% - 28px);aspect-ratio:1;border-radius:50%;border:0;cursor:pointer;background:var(--brand-strong);color:var(--on-strong);font-family:var(--font-display);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
-.ring button span{font-size:30px;font-weight:700}
-.ring button small{font-size:14px;opacity:.85}
+.ring button span{font-size:clamp(28px,calc(var(--rw)*.13),44px);font-weight:700}
+.ring button small{font-size:clamp(14px,calc(var(--rw)*.055),19px);opacity:.85}
 .ring button.out{background:var(--ink);color:var(--surface)}
 .ring button:disabled{opacity:.4;cursor:not-allowed}
 .center{text-align:center}
@@ -902,6 +902,7 @@ function renderView(){
   if(me.mustChange){if(!$('forceForm')){$('main').innerHTML=viewForcePw();pwLive();}return;}
   var fns={home:viewHome,today:viewDash,schedule:viewSchedule,people:viewPeople,report:viewReport,settings:viewSettings,sim:viewSim,history:viewHistory,leave:viewLeave,leaves:viewLeaves};
   $('main').innerHTML=(fns[view]||viewHome)();
+  if(view==='home')fitRing();
 }
 
 /* check-in card + my shifts (staff, Ops, and admins who can work) */
@@ -981,11 +982,20 @@ function checkCardHtml(){
     (f?'<p class="center '+(f.warn?'alert-y':'ok')+'" style="margin-top:8px" role="status">'+esc(f.t)+'</p>':'')+staleHtml+
     '<p class="center muted small" style="margin-top:8px">เปิดให้ลงเวลาก่อนเริ่มกะ '+O+' นาที · สายเมื่อเกิน '+L+' นาทีหลังเริ่มกะ</p></section>';
 }
+/* ปุ่มลงเวลาใหญ่ที่สุดเท่าที่การ์ดยังพอดีจอ (ไม่ต้องเลื่อน) */
+function fitRing(){
+  var ring=document.querySelector('#main .ring'),card=ring&&ring.closest('.card');if(!ring||!card)return;
+  ring.style.removeProperty('--rw');
+  var nav=$('nav'),nr=nav&&!nav.hidden?nav.getBoundingClientRect():null;
+  var bottom=nr&&nr.top>innerHeight/2?nr.top:innerHeight;
+  var cr=card.getBoundingClientRect(),rw=ring.getBoundingClientRect().width;
+  var top=cr.top+(window.scrollY||0);
+  var other=cr.height-rw,room=bottom-top-other-12;
+  var want=Math.max(180,Math.min(rw,room));
+  if(want<rw)ring.style.setProperty('--rw',Math.floor(want)+'px');
+}
 function viewHome(){
-  var hist=state.attendance.filter(function(a){return a.emp===me.id;}).sort(function(a,b){return b.in-a.in;}).slice(0,6).map(function(a){
-    return '<div class="li"><span><span class="when">'+esc(dayShort(a.date))+'</span> <span class="muted small tnum">'+shiftLabel(shiftById(a.shift))+'</span><br><span class="muted small tnum">เข้า '+fmtHM(a.in)+' · ออก '+(a.out?fmtHM(a.out):'—')+'</span></span><span>'+(a.cover?'<span class="chip mute">ทำแทน</span> ':'')+chipsFor(a)+'</span></div>';
-  }).join('')||'<p class="muted small" style="padding:10px 0">ยังไม่มีประวัติ</p>';
-  return '<div class="grid2">'+checkCardHtml()+'<div class="stack">'+upcomingHtml()+'<section class="card"><h2>ประวัติล่าสุด</h2><div class="list">'+hist+'</div></section></div></div>';
+  return '<div class="grid2">'+checkCardHtml()+'<div class="stack">'+upcomingHtml()+'</div></div>';
 }
 
 /* confirm dialog */
@@ -3276,7 +3286,7 @@ document.addEventListener('keydown',function(e){
 });
 if(window.matchMedia){try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){if(!document.documentElement.getAttribute('data-theme'))renderAll();});}catch(e){}}
 var rzT=null;
-window.addEventListener('resize',function(){clearTimeout(rzT);rzT=setTimeout(function(){if(me&&(view==='today'||view==='report')&&!dp&&!modal){renderView();renderDet();}},250);});
+window.addEventListener('resize',function(){clearTimeout(rzT);rzT=setTimeout(function(){if(me&&(view==='today'||view==='report')&&!dp&&!modal){renderView();renderDet();}else if(me&&view==='home')fitRing();},250);});
 
 setInterval(function(){var c=$('clk');if(c&&me)c.textContent=bkk(now()).hms;tickModal();},1000);
 setInterval(function(){
