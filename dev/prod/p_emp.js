@@ -1,7 +1,7 @@
 async function saveEmp(){
   if(busy)return;
   var g=$,isNew=editEmp==='new',cur=isNew?null:emp(editEmp);
-  var name=g('fName').value.trim(),username=isNew?g('fUser').value.trim().toLowerCase():cur.username,pin=isNew?g('fPin').value:'',pin2=isNew?g('fPin2').value:'',phone=isNew?'':(cur.phone||'');
+  var name=g('fName').value.trim(),username=isNew?g('fUser').value.trim().toLowerCase():cur.username,pin=isNew?g('fPin').value:'',pin2=isNew?g('fPin2').value:'';
   var role=g('fRole').value,active=g('fActive').checked,errs=[];
   var team=role==='admin'?null:g('fTeam').value;
   var shift=(role==='admin'||team==='OPS')?null:g('fShift').value;
@@ -25,7 +25,7 @@ async function saveEmp(){
   busy=true;g('fErr').textContent='';
   try{
     if(isNew){
-      var r=await adminFn({action:'create',username:username,password:pin,name:name,role:role,team:team,shift_id:shift,phone:phone,can_work:canWork});
+      var r=await adminFn({action:'create',username:username,password:pin,name:name,role:role,team:team,shift_id:shift,can_work:canWork});
       if(!active&&r&&r.id){var u0=await sb.from('profiles').update({active:false}).eq('id',r.id);if(u0.error)throw u0.error;}
     }else{
       var ch=[];
@@ -34,7 +34,7 @@ async function saveEmp(){
       if(cur.active!==active)ch.push(active?'เปิดใช้งานบัญชี':'ปิดใช้งานบัญชี');
       if(!!cur.canWork!==canWork)ch.push(canWork?'เปิดสิทธิ์ช่วยทำงานแทน':'ปิดสิทธิ์ช่วยทำงานแทน');
       if(cur.role!==role)ch.push('บทบาท');
-      var u=await sb.from('profiles').update({name:name,role:role,team:team,shift_id:shift,phone:phone,active:active,can_work:canWork}).eq('id',cur.id).select('id');
+      var u=await sb.from('profiles').update({name:name,role:role,team:team,shift_id:shift,active:active,can_work:canWork}).eq('id',cur.id).select('id');
       if(u.error)throw u.error;
       if(!u.data||!u.data.length)throw new Error('บันทึกไม่สำเร็จ (ไม่มีสิทธิ์แก้ไข)');
       if(ch.length)notify([cur.id,me.id],'แก้ไขโปรไฟล์','ผู้ดูแลแก้ไขข้อมูล '+name+': '+ch.join(', '));

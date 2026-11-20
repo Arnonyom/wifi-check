@@ -59,7 +59,7 @@ Deno.serve(async (req) => {
   if (me.role !== "admin") return json({ error: "เฉพาะผู้ดูแลระบบ" }, 403);
 
   if (action === "create") {
-    const { username, name, role, team, shift_id, phone, can_work } = b;
+    const { username, name, role, team, shift_id, can_work } = b;
     const password = b.password ?? b.pin;
     if (!validUser(username)) return json({ error: "ชื่อผู้ใช้ 3–20 ตัว ใช้ a-z 0-9 . _ - เท่านั้น" }, 400);
     if (!validPw(password)) return json({ error: PW_MSG }, 400);
@@ -77,7 +77,7 @@ Deno.serve(async (req) => {
       id: created.user.id, username, name: name.trim(), role,
       team: role === "admin" ? null : team,
       shift_id: role === "admin" || team === "OPS" ? null : shift_id,
-      phone: phone || "", can_work: role === "admin" && !!can_work,
+      can_work: role === "admin" && !!can_work,
       must_change_pw: true, // รหัสที่ผู้ดูแลตั้งให้เป็นรหัสชั่วคราว ผู้ใช้ต้องเปลี่ยนเองตอนล็อกอินครั้งแรก
     });
     if (pe) {
