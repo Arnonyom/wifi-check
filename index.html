@@ -2602,7 +2602,6 @@ function empForm(){
     '<div><label for="fName">ชื่อ-นามสกุล</label><input id="fName" value="'+esc(c.name)+'"></div>'+
     '<div><label for="fUser">ชื่อผู้ใช้</label><input id="fUser" autocapitalize="none" value="'+esc(c.username)+'"'+(isNew?'':' disabled')+'></div>'+
     (isNew?'<div><label for="fPin">รหัสผ่านเริ่มต้น (ชั่วคราว)</label><div class="pwrow"><input id="fPin" type="password" maxlength="72" autocomplete="new-password" autocapitalize="none" spellcheck="false"><button type="button" class="iconbtn pweye" data-act="pw-eye" data-id="fPin" aria-label="แสดงรหัสผ่าน">👁</button></div></div><div><label for="fPin2">ยืนยันรหัสผ่านเริ่มต้น</label><div class="pwrow"><input id="fPin2" type="password" maxlength="72" autocomplete="new-password" autocapitalize="none" spellcheck="false"><button type="button" class="iconbtn pweye" data-act="pw-eye" data-id="fPin2" aria-label="แสดงรหัสผ่าน">👁</button></div></div>':'')+
-    '<div><label for="fPhone">เบอร์โทร</label><input id="fPhone" inputmode="tel" value="'+esc(c.phone)+'"></div>'+
     '<div><label for="fRole">บทบาท</label><select id="fRole"><option value="staff"'+(!isAdm?' selected':'')+'>พนักงาน</option><option value="admin"'+(isAdm?' selected':'')+'>ผู้ดูแลระบบ</option></select></div>'+
     '<div id="fTeamRow"'+(isAdm?' hidden':'')+'><label for="fTeam">ทีม</label><select id="fTeam"><option value="A"'+(c.team==='A'?' selected':'')+'>ทีม A (จ–ศ)</option><option value="B"'+(c.team==='B'?' selected':'')+'>ทีม B (ศ–จ)</option><option value="OPS"'+(isOps?' selected':'')+'>Operation (Daytime) · สำรอง</option></select></div>'+
     '<div id="fShiftRow"'+(isAdm||isOps?' hidden':'')+'><label for="fShift">กะประจำ</label><select id="fShift">'+shiftOptions(c.team==='B'?'B':'A',c.shift)+'</select></div>'+
@@ -2622,7 +2621,7 @@ function pcard(e){
   if(e.role==='staff'&&e.shift)chips+='<span class="chip mute tnum">'+shiftTxt(e)+'</span>';
   if(e.team==='OPS')chips+='<span class="chip mute">ทำแทนได้</span>';
   if(e.role==='admin'&&e.canWork)chips+='<span class="chip mute">ช่วยทำงานได้</span>';
-  return '<article class="card pcard"><div><b>'+esc(e.name)+'</b><br><span class="muted small">'+esc(e.username)+(e.phone?' · '+esc(e.phone):'')+'</span></div><div class="row" style="gap:6px">'+chips+'</div><div class="row" style="gap:6px">'+del+'</div></article>';
+  return '<article class="card pcard"><div><b>'+esc(e.name)+'</b><br><span class="muted small">'+esc(e.username)+'</span></div><div class="row" style="gap:6px">'+chips+'</div><div class="row" style="gap:6px">'+del+'</div></article>';
 }
 function viewPeople(){
   var groups=[['A','ทีม A (จ–ศ)'],['B','ทีม B (ศ–จ)'],['OPS','Operation (Daytime) · สำรอง ทำแทนคนหยุด'],['ADMIN','ผู้ดูแลระบบ']];
@@ -2638,7 +2637,7 @@ function viewPeople(){
 async function saveEmp(){
   if(busy)return;
   var g=$,isNew=editEmp==='new',cur=isNew?null:emp(editEmp);
-  var name=g('fName').value.trim(),username=isNew?g('fUser').value.trim().toLowerCase():cur.username,pin=isNew?g('fPin').value:'',pin2=isNew?g('fPin2').value:'',phone=g('fPhone').value.trim();
+  var name=g('fName').value.trim(),username=isNew?g('fUser').value.trim().toLowerCase():cur.username,pin=isNew?g('fPin').value:'',pin2=isNew?g('fPin2').value:'',phone=isNew?'':(cur.phone||'');
   var role=g('fRole').value,active=g('fActive').checked,errs=[];
   var team=role==='admin'?null:g('fTeam').value;
   var shift=(role==='admin'||team==='OPS')?null:g('fShift').value;
