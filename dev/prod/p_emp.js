@@ -1,7 +1,7 @@
 async function saveEmp(){
   if(busy)return;
   var g=$,isNew=editEmp==='new',cur=isNew?null:emp(editEmp);
-  var name=g('fName').value.trim(),username=isNew?g('fUser').value.trim().toLowerCase():cur.username,pin=isNew?g('fPin').value:'',pin2=isNew?g('fPin2').value:'',phone=g('fPhone').value.trim();
+  var name=g('fName').value.trim(),username=isNew?g('fUser').value.trim().toLowerCase():cur.username,pin=isNew?g('fPin').value:'',pin2=isNew?g('fPin2').value:'',phone=isNew?'':(cur.phone||'');
   var role=g('fRole').value,active=g('fActive').checked,errs=[];
   var team=role==='admin'?null:g('fTeam').value;
   var shift=(role==='admin'||team==='OPS')?null:g('fShift').value;

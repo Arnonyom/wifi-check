@@ -15,6 +15,7 @@ python3 patch_logo.py >/dev/null
 python3 patch_slim.py >/dev/null
 python3 patch_fix.py >/dev/null
 python3 patch_home.py >/dev/null
+python3 patch_nophone.py >/dev/null
 python3 build_prod.py >/dev/null
 python3 make_preview.py >/dev/null
 if cmp -s index.html ../index.html; then echo "build ok · ตรงกับเว็บจริง (../index.html) ทุกไบต์"; else echo "build ok · ต่างจากเว็บจริง (มีการแก้ไข) → ตรวจ + ทดสอบ + ขออนุมัติก่อน deploy"; fi
