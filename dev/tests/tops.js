@@ -34,7 +34,7 @@ await p.click('[data-act=save-days]');await p.waitForTimeout(500);
 await p.click('[data-act=sched-nav][data-n="-1"]');await p.waitForTimeout(150);
 await (await p.$$('table.wk tbody tr:nth-child(1) [data-act=edit-slot]'))[0].click();await p.waitForTimeout(150);
 console.log(tag,'att section:',await p.$eval('#attEd',e=>e.innerText.split('\n').slice(0,3).join(' | ')));
-await p.fill('#atIn',(await p.inputValue('#atIn')).slice(0,11)+'09:15');await p.fill('#atNote','ลืมเช็กอิน');await p.click('[data-act=save-att]');await p.waitForTimeout(500);
+if(await p.$('[data-act=att-mode][data-m=both]:not([disabled])'))await p.click('[data-act=att-mode][data-m=both]');await p.waitForTimeout(100);await p.fill('#atInT','09:15');await p.fill('#atNote','ลืมเช็กอิน');await p.click('[data-act=save-att]');await p.waitForTimeout(500);
 console.log(tag,'cell after att:',(await grid())[0]);
 if(tag==='d')await p.screenshot({path:S+'ops_att.png',fullPage:false});
 // detail -> go-edit

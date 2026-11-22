@@ -66,21 +66,57 @@ function slotEditor2(d,s,sl){
     '<div><p class="small muted" style="margin-bottom:6px">'+(E.mode==='work'?'วันที่จะกลับเป็นตามปกติ':'วันที่จะมีผล')+' ('+plan.ok.length+' วัน)</p><div class="row" style="gap:6px;flex-wrap:wrap">'+(chips||'<span class="muted small">ไม่มีวันที่ต้องเปลี่ยน</span>')+'</div></div>'+
     '<div class="err" id="slotErr" role="alert"></div>'+
     '<div class="row"><button class="btn" data-act="save-days"'+(plan.ok.length&&(E.mode==='work'||E.other)?'':' disabled')+'>บันทึก '+plan.ok.length+' วัน</button><button class="btn sec" data-act="cancel-slot">ปิด</button></div></section>';
-  return sec1+attEditor(d,s,sl);
+  return d<=bkk(now()).date?attEditor(d,s,sl)+sec1:sec1+attEditor(d,s,sl);
+}
+/* ลงเวลาแทน: เลือกได้ว่าจะลงเวลาเข้างาน ออกงาน หรือทั้งสองอย่าง · ใส่แค่เวลา (ระบบเลือกวันที่ให้ตามกะ) */
+function attTs(d,s,hhmm,anchor){
+  if(!/^\d\d:\d\d$/.test(hhmm||''))return null;
+  var best=null;[-1,0,1].forEach(function(k){var t=Date.parse(addDays(d,k)+'T'+hhmm+':00+07:00');if(best===null||Math.abs(t-anchor)<Math.abs(best-anchor))best=t;});
+  return best;
+}
+function attState(d,s,sl){
+  var E=editSlot,rec=state.attendance.find(function(a){return a.date===d&&a.shift===s.id;}),t=now(),st=startTs(d,s),en=endTs(d,s);
+  var mode=E.attMode||(rec?(rec.out?'both':'out'):(t<en?'in':'both'));
+  if(mode==='out'&&!rec)mode='both';
+  var tin=E.tinT!=null?E.tinT:(rec?fmtHM(rec.in):fmtHM(t>st&&t<en?t:st));
+  var tout=E.toutT!=null?E.toutT:(rec&&rec.out?fmtHM(rec.out):fmtHM(t>st&&t<en?t:en));
+  var inTs=mode==='out'?(rec?rec.in:null):attTs(d,s,tin,st),outTs=mode==='in'?(rec&&rec.out?rec.out:null):attTs(d,s,tout,en);
+  return {rec:rec,mode:mode,tin:tin,tout:tout,inTs:inTs,outTs:outTs,st:st,en:en};
+}
+function attPreviewTxt(d,s,A){
+  if(!A.inTs)return 'ใส่เวลาเข้างาน';
+  if(A.outTs&&A.outTs<=A.inTs)return '⚠ เวลาออกงานต้องอยู่หลังเวลาเข้างาน';
+  var L=ST().lateAfter,late=Math.floor((A.inTs-A.st)/60000),early=A.outTs?Math.floor((A.en-A.outTs)/60000):0;
+  var dl=function(ts){var x=bkk(ts).date;return x!==d?' ('+sd(x)+')':'';};
+  return 'จะบันทึก: เข้า '+fmtHM(A.inTs)+dl(A.inTs)+(A.outTs?' · ออก '+fmtHM(A.outTs)+dl(A.outTs):' · ยังไม่ออกงาน')+' → '+
+    (late>L?'สาย '+late+' นาที':'เข้าตรงเวลา')+(A.outTs?(early>0?' · ออกก่อน '+early+' นาที':' · ออกตรงเวลา'):'');
 }
 function attEditor(d,s,sl){
-  var w=sl.working,E=editSlot;
-  var rec=state.attendance.find(function(a){return a.date===d&&a.shift===s.id;});
+  var w=sl.working,E=editSlot,A=attState(d,s,sl),rec=A.rec;
   var head='<h2>ลงเวลาแทน</h2>';
-  if(!w&&!rec)return '<section class="card stack">'+head+'<p class="muted">กะนี้ยังไม่มีผู้ทำงาน ตั้งผู้ทำงานด้านบนก่อน</p></section>';
-  var pe=rec?emp(rec.emp):w;
-  var tin=E.tin||(rec?dtl(rec.in):dtl(startTs(d,s))),tout=E.tout!=null?E.tout:(rec&&rec.out?dtl(rec.out):(rec?'':dtl(endTs(d,s))));
-  var status=rec?'มีบันทึกแล้ว: เข้า '+fmtHM(rec.in)+(rec.out?' · ออก '+fmtHM(rec.out):' · ยังไม่ออกงาน')+(rec.byAdmin?' · ผู้ดูแลลงให้':' · พนักงานลงเอง'):'ยังไม่มีบันทึกเวลา';
-  return '<section class="card stack" id="attEd">'+head+'<p>พนักงาน: <b>'+esc(pe?pe.name:'—')+'</b>'+(rec&&w&&rec.emp!==w.id?' <span class="chip late">บันทึกเป็นชื่อคนอื่น ผู้ทำงานตอนนี้คือ '+esc(w.name)+'</span>':'')+'</p><p class="muted small">'+esc(status)+'</p>'+
-    '<div class="fields"><div><label for="atIn">เวลาเข้างาน</label><input id="atIn" type="datetime-local" value="'+esc(tin)+'"></div><div><label for="atOut">เวลาออกงาน (เว้นว่างถ้ายังไม่ออก)</label><input id="atOut" type="datetime-local" value="'+esc(tout)+'"></div>'+
-    '<div style="grid-column:1/-1"><label for="atNote">เหตุผล (ไม่บังคับ)</label><input id="atNote" maxlength="120" value="'+esc(E.atNote!=null?E.atNote:(rec?rec.adminNote||'':''))+'" placeholder="เช่น ลืมเช็กอิน โทรศัพท์แบตหมด"></div></div>'+
-    '<p class="muted small">ระบบคำนวณสาย/ออกก่อนจากเวลาที่ใส่ ตามกฎเดียวกับการลงเวลาปกติ และแจ้งเตือนพนักงาน</p>'+
-    '<div class="err" id="attErr" role="alert"></div><div class="row"><button class="btn" data-act="save-att">บันทึกเวลา</button>'+(rec?'<button class="btn sec" data-act="del-att">ลบบันทึกเวลา</button>':'')+'</div></section>';
+  if(!w&&!rec)return '<section class="card stack" id="attEd">'+head+'<p class="muted">กะนี้ยังไม่มีผู้ทำงาน ตั้งผู้ทำงานในส่วน "ใครทำงานกะนี้" ก่อน</p></section>';
+  var pe=rec?emp(rec.emp):w,t=now();
+  var box=function(lbl,ts,sub){return '<span><small>'+lbl+'</small><b class="tnum">'+(ts?fmtHM(ts):'—')+'</b><small>'+sub+'</small></span>';};
+  var cur='<div class="iotimes attcur">'+box('เข้างาน',rec&&rec.in,rec?(rec.byAdmin?'ผู้ดูแลลงให้':'ลงเอง'):'ยังไม่ลง')+box('ออกงาน',rec&&rec.out,rec&&rec.out?(rec.byAdmin?'ผู้ดูแลลงให้':'ลงเอง'):'ยังไม่ลง')+'</div>';
+  var modes=[['in','เข้างาน'],['out','ออกงาน'],['both','เข้า + ออก']];
+  var seg='<div class="seg attmode" role="radiogroup" aria-label="ลงเวลาอะไร">'+modes.map(function(m){var dis=m[0]==='out'&&!rec;return '<button type="button" role="radio" data-act="att-mode" data-m="'+m[0]+'" aria-checked="'+(A.mode===m[0])+'" aria-pressed="'+(A.mode===m[0])+'"'+(dis?' disabled title="ยังไม่มีเวลาเข้างาน"':'')+'>'+m[1]+'</button>';}).join('')+'</div>'+
+    (!rec?'<p class="muted small">ยังไม่มีเวลาเข้างาน จึงลงเฉพาะออกงานไม่ได้</p>':'');
+  var nowHM=fmtHM(t);
+  var field=function(k,lbl,val,qs){return '<div class="attf"><label for="at'+k+'T">'+lbl+'</label><div class="row attrow"><input id="at'+k+'T" type="time" value="'+esc(val)+'">'+
+    qs.map(function(q){return '<button type="button" class="btn sec sm" data-act="att-set" data-k="'+k+'" data-v="'+q[1]+'">'+q[0]+'</button>';}).join('')+'</div></div>';};
+  var fields=(A.mode!=='out'?field('In','เวลาเข้างาน',A.tin,[['เริ่มกะ '+fmtHM(A.st),fmtHM(A.st)],['ตอนนี้',nowHM]]):'')+
+    (A.mode!=='in'?field('Out','เวลาออกงาน',A.tout,[['เลิกกะ '+fmtHM(A.en),fmtHM(A.en)],['ตอนนี้',nowHM]]):'');
+  return '<section class="card stack" id="attEd">'+head+
+    '<p>พนักงาน: <b>'+esc(pe?pe.name:'—')+'</b> · กะ '+shiftLabel(s)+' · '+esc(dayShort(d))+(rec&&w&&rec.emp!==w.id?' <span class="chip late">บันทึกเป็นชื่อคนอื่น ผู้ทำงานตอนนี้คือ '+esc(w.name)+'</span>':'')+'</p>'+
+    cur+'<p class="small" style="margin-bottom:-4px"><b>ต้องการลงเวลาอะไร</b></p>'+seg+fields+
+    '<div><label for="atNote">เหตุผล (ไม่บังคับ)</label><input id="atNote" maxlength="120" value="'+esc(E.atNote!=null?E.atNote:(rec?rec.adminNote||'':''))+'" placeholder="เช่น ลืมเช็กอิน โทรศัพท์แบตหมด"></div>'+
+    '<p class="attprev small" id="attPrev" role="status">'+esc(attPreviewTxt(d,s,A))+'</p>'+
+    '<div class="err" id="attErr" role="alert"></div><div class="row"><button class="btn" data-act="save-att">บันทึกเวลา'+(A.mode==='in'?'เข้างาน':A.mode==='out'?'ออกงาน':'')+'</button>'+(rec?'<button class="btn sec" data-act="del-att">ลบบันทึกเวลา</button>':'')+'</div>'+
+    '<p class="muted small">ระบบคิดสาย/ออกก่อนตามกฎเดียวกับการลงเวลาปกติ และแจ้งเตือนพนักงาน</p></section>';
+}
+function attRefresh(){
+  if(!editSlot)return;var s=shiftById(editSlot.s),d=editSlot.d,sl=slot(d,s),el=$('attPrev');if(!el||!sl&&!s)return;
+  el.textContent=attPreviewTxt(d,s,attState(d,s,sl||{}));
 }
 async function saveDays(){
   if(busy||!editSlot)return;
@@ -98,30 +134,36 @@ async function saveDays(){
 async function saveAtt(del){
   if(busy||!editSlot)return;
   var E=editSlot,s=shiftById(E.s),d=E.d,sl=slot(d,s),er=$('attErr');
-  var rec=state.attendance.find(function(a){return a.date===d&&a.shift===s.id;});
-  var who=sl&&sl.working?sl.working.id:(rec?rec.emp:null);
-  var tin=$('atIn').value,tout=$('atOut').value;
+  var A=attState(d,s,sl||{}),rec=A.rec;
+  var who=A.mode==='out'&&rec?rec.emp:(sl&&sl.working?sl.working.id:(rec?rec.emp:null));
   if(!del){
     if(!who){er.textContent='ยังไม่มีผู้ทำงานในกะนี้';return;}
-    if(!tin){er.textContent='ใส่เวลาเข้างาน';return;}
-    if(tout&&dtlParse(tout)<=dtlParse(tin)){er.textContent='เวลาออกงานต้องอยู่หลังเวลาเข้างาน';return;}
+    if(!A.inTs){er.textContent='ใส่เวลาเข้างาน';return;}
+    if(A.mode!=='in'&&!A.outTs){er.textContent='ใส่เวลาออกงาน';return;}
+    if(A.outTs&&A.outTs<=A.inTs){er.textContent='เวลาออกงานต้องอยู่หลังเวลาเข้างาน';return;}
   }
   busy=true;er.textContent='';
   try{
-    await rpc('admin_attendance',{p_date:d,p_shift:s.id,p_emp:del?null:who,p_in:del?null:new Date(dtlParse(tin)).toISOString(),p_out:del||!tout?null:new Date(dtlParse(tout)).toISOString(),p_note:$('atNote').value.trim()});
+    await rpc('admin_attendance',{p_date:d,p_shift:s.id,p_emp:del?null:who,p_in:del?null:new Date(A.inTs).toISOString(),p_out:del||!A.outTs?null:new Date(A.outTs).toISOString(),p_note:$('atNote').value.trim()});
     editSlot=null;await loadAll();busy=false;renderAll();
-    toast(del?'ลบบันทึกเวลาแล้ว':'บันทึกเวลาแทนแล้ว',dayShort(d)+' กะ '+shiftLabel(s));
+    toast(del?'ลบบันทึกเวลาแล้ว':'บันทึกเวลาแทนแล้ว',dayShort(d)+' กะ '+shiftLabel(s)+(del?'':' · เข้า '+fmtHM(A.inTs)+(A.outTs?' ออก '+fmtHM(A.outTs):'')));
   }catch(e){busy=false;er=$('attErr');if(er)er.textContent=errMsg(e);}
 }
+document.addEventListener('click',function(e){
+  var b=e.target.closest&&e.target.closest('[data-act=att-mode],[data-act=att-set]');if(!b||!editSlot||b.disabled)return;
+  if(b.dataset.act==='att-mode')editSlot.attMode=b.dataset.m;
+  else editSlot[b.dataset.k==='In'?'tinT':'toutT']=b.dataset.v;
+  renderView();var ed=$('attEd');if(ed&&ed.scrollIntoView&&ed.getBoundingClientRect().top<0)ed.scrollIntoView({block:'start'});
+});
 document.addEventListener('change',function(e){
   var t=e.target;if(!t||!editSlot||view!=='schedule')return;
   if(t.name==='edMode'){editSlot.mode=t.value;editSlot.other='';renderView();}
   else if(t.id==='edOther'){editSlot.other=t.value;renderView();}
   else if(t.id==='edRange'){editSlot.range=t.value;renderView();}
-  else if(t.id==='atIn'){editSlot.tin=t.value;}
-  else if(t.id==='atOut'){editSlot.tout=t.value;}
+  else if(t.id==='atInT'){editSlot.tinT=t.value;attRefresh();}
+  else if(t.id==='atOutT'){editSlot.toutT=t.value;attRefresh();}
 });
-document.addEventListener('input',function(e){var t=e.target;if(!t||!editSlot)return;if(t.id==='edNote')editSlot.note=t.value;else if(t.id==='atNote')editSlot.atNote=t.value;});
+document.addEventListener('input',function(e){var t=e.target;if(!t||!editSlot)return;if(t.id==='edNote')editSlot.note=t.value;else if(t.id==='atNote')editSlot.atNote=t.value;else if(t.id==='atInT'){editSlot.tinT=t.value;attRefresh();}else if(t.id==='atOutT'){editSlot.toutT=t.value;attRefresh();}});
 
 /* ---------- ธีม: สว่าง / มืด / Liquid Glass ---------- */
 var themeOpen=false,GLASS_KEY='wc-glass';
