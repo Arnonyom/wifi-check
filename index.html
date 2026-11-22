@@ -2156,6 +2156,8 @@ function attState(d,s,sl){
 function attPreviewTxt(d,s,A){
   if(!A.inTs)return 'ใส่เวลาเข้างาน';
   if(A.outTs&&A.outTs<=A.inTs)return '⚠ เวลาออกงานต้องอยู่หลังเวลาเข้างาน';
+  if(A.inTs>now()+5*60000)return '⚠ เวลาเข้างานยังมาไม่ถึง';
+  if(A.mode!=='in'&&A.outTs&&A.outTs>now()+5*60000)return '⚠ เวลาออกงานยังมาไม่ถึง ถ้าพนักงานยังทำงานอยู่ ให้เลือก "เข้างาน" อย่างเดียว';
   var L=ST().lateAfter,late=Math.floor((A.inTs-A.st)/60000),early=A.outTs?Math.floor((A.en-A.outTs)/60000):0;
   var dl=function(ts){var x=bkk(ts).date;return x!==d?' ('+sd(x)+')':'';};
   return 'จะบันทึก: เข้า '+fmtHM(A.inTs)+dl(A.inTs)+(A.outTs?' · ออก '+fmtHM(A.outTs)+dl(A.outTs):' · ยังไม่ออกงาน')+' → '+
@@ -2211,6 +2213,8 @@ async function saveAtt(del){
     if(!A.inTs){er.textContent='ใส่เวลาเข้างาน';return;}
     if(A.mode!=='in'&&!A.outTs){er.textContent='ใส่เวลาออกงาน';return;}
     if(A.outTs&&A.outTs<=A.inTs){er.textContent='เวลาออกงานต้องอยู่หลังเวลาเข้างาน';return;}
+    if(A.inTs>now()+5*60000){er.textContent='เวลาเข้างานยังมาไม่ถึง';return;}
+    if(A.mode!=='in'&&A.outTs&&A.outTs>now()+5*60000){er.textContent='เวลาออกงานยังมาไม่ถึง ถ้าพนักงานยังทำงานอยู่ ให้เลือก "เข้างาน" อย่างเดียว';return;}
   }
   busy=true;er.textContent='';
   try{
