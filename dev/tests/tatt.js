@@ -50,6 +50,19 @@ for(const vp of [{width:1280,height:900},{width:360,height:760}]){
  await openSlot(prep.dIn,'B1');await p.click('#attEd [data-act=att-mode][data-m=both]');await p.waitForTimeout(150);
  await p.fill('#atInT','10:00');await p.fill('#atOutT','09:00');await p.waitForTimeout(100);
  ok((await p.textContent('#attPrev')).includes('⚠'),tag+' warns out before in');
+ // 4) กะที่กำลังทำงาน: ใส่เวลาออกงานล่วงหน้าไม่ได้ (เดิมทำให้ไม่ถูกนับว่า "กำลังทำงาน")
+ const live=await p.evaluate(()=>{const today=new Date(Date.now()+7*36e5).toISOString().slice(0,10);const r=window.__mockdb.attendance.find(a=>a.work_date===today&&!a.check_out);return r?{d:r.work_date,s:r.shift_id,team:r.shift_id[0]}:null;});
+ if(live){
+   await p.click('#nav [data-act=tab][data-v=today]');await p.waitForTimeout(200);
+   await p.click('[data-k="now:working"]');await p.waitForTimeout(200);await p.click('#detbox .lib >> nth=0');await p.waitForTimeout(200);
+   await p.click('[data-act=go-edit]');await p.waitForTimeout(400);
+   ok(await modeOn()==='out',tag+' working shift: default mode out');
+   await p.fill('#atOutT','23:59');await p.waitForTimeout(100);
+   ok((await p.textContent('#attPrev')).includes('ยังมาไม่ถึง'),tag+' future check-out warned');
+   await p.click('#attEd [data-act=save-att]');await p.waitForTimeout(300);
+   const still=await p.evaluate(l=>window.__mockdb.attendance.find(a=>a.work_date===l.d&&a.shift_id===l.s).check_out,live);
+   ok(!still&&(await p.textContent('#attErr')).includes('ยังมาไม่ถึง'),tag+' future check-out not saved');
+ }else console.log('      (no live shift in mock now; future-time check skipped)');
  if(tag==='m'){const ed=await p.$('#attEd');await ed.scrollIntoViewIfNeeded();await p.screenshot({path:S+'att_m.png'});}
  await p.close();}
 console.log(errs.length?errs.join('\n'):'NO ERRORS');await b.close();})();
