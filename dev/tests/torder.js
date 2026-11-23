@@ -57,7 +57,16 @@ for(const vp of [{width:1280,height:900},{width:360,height:760,hasTouch:true}]){
   for(let i=1;i<=12;i++)await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:pt(hh.x+hh.width/2+(tt.x+tt.width/2-hh.x-hh.width/2)*i/12,hh.y+hh.height/2+(tt.y+tt.height*0.6-hh.y-hh.height/2)*i/12)});
   await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});await p.waitForTimeout(250);
   const a3=await ids('A');
-  ok(a3.indexOf(a2[0])>0,tag+' touch drag moves card ('+a3.join(',')+')');
+  ok(a3.indexOf(a2[0])===2,tag+' touch drag moves card ('+a3.join(',')+')');
+  const lastSave=await p.evaluate(()=>window.__calls.filter(c=>c[1]==='set_profile_order').pop()[2].p_ids);
+  ok(JSON.stringify(lastSave)===JSON.stringify(a3),tag+' touch drag saved');
+  ok(await p.$('.pcard.dragging')===null&&!(await p.evaluate(()=>document.body.classList.contains('pdragging'))),tag+' touch drag cleaned up');
+  // ปัดนิ้วบนการ์ด (ไม่ใช่ที่ปุ่ม ⠿) ต้องเลื่อนหน้าจอได้ตามปกติ และไม่ย้ายการ์ด
+  await p.evaluate(()=>scrollTo(0,0));await p.waitForTimeout(100);
+  const cb=await box('.pgrid[data-grp=A] .pcard b');
+  {const X=Math.round(cb.x+20),Y=Math.round(cb.y+10)+300;await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:X,y:Y}]});for(let i=1;i<=15;i++){await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:X,y:Y-i*20}]});await p.waitForTimeout(16);}await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});await p.waitForTimeout(400);}
+  ok(await p.evaluate(()=>scrollY)>100,tag+' finger swipe on card scrolls page (scrollY '+await p.evaluate(()=>Math.round(scrollY))+')');
+  ok(JSON.stringify(await ids('A'))===JSON.stringify(a3),tag+' swipe does not reorder');
   ok(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),tag+' no horizontal scroll');
  }
  await p.close();

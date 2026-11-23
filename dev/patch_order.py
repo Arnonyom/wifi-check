@@ -20,11 +20,11 @@ rep("function viewPeople(){",open(S+'prod/p_order.js',encoding='utf-8').read()+"
 css="""
 /* จัดลำดับการ์ดพนักงาน */
 .pchd{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
-.dragh{flex:none;width:36px;height:36px;margin:-8px -8px 0 0;display:grid;place-items:center;border:0;border-radius:10px;background:transparent;color:var(--muted);cursor:grab;touch-action:none;-webkit-user-select:none;user-select:none}
+.dragh{flex:none;width:36px;height:36px;margin:-8px -8px 0 0;display:grid;place-items:center;border:0;border-radius:10px;background:transparent;color:var(--muted);cursor:grab;touch-action:none;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
 .dragh:hover{background:var(--surface-2);color:var(--ink)}
 .dragh:focus-visible{outline:2px solid var(--brand);outline-offset:1px}
 .pgrid>.pcard:only-child .dragh{display:none}
-.pcard.dragging{position:fixed;z-index:60;margin:0;pointer-events:none;box-shadow:0 14px 34px rgba(0,0,0,.35);transform:rotate(1.5deg);opacity:.96}
+.pcard.dragging{position:fixed;z-index:60;margin:0;box-shadow:0 14px 34px rgba(0,0,0,.35);transform:rotate(1.5deg);opacity:.96}
 .pcard-ph{border:2px dashed var(--brand);border-radius:14px;background:var(--brand-soft);opacity:.5}
 body.pdragging,body.pdragging *{cursor:grabbing!important;-webkit-user-select:none;user-select:none}
 @media (max-width:720px){.dragh{width:44px;height:44px;margin:-12px -12px 0 0}}
