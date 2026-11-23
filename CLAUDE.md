@@ -1,7 +1,7 @@
 # WiFi-Check — คู่มือสำหรับ Claude
 
 ระบบลงเวลาเข้า–ออกงาน ตารางกะ และคำขอลา ของทีม WiFi
-เว็บจริง: https://arnonyom.github.io/wifi-check/ (GitHub Pages จาก branch `main` โฟลเดอร์ราก)
+เว็บจริง: https://wifiworkload.github.io/wifi-check/ (repo `wifiworkload/wifi-check` ย้ายจาก `Arnonyom/wifi-check` เมื่อ 23 พ.ย. 2569 · ลิงก์เดิมใช้ไม่ได้แล้ว) (GitHub Pages จาก branch `main` โฟลเดอร์ราก)
 ฐานข้อมูล: Supabase project `hbobreapsefiudnlmtyu`
 
 เจ้าของเป็นมือใหม่ **ตอบเป็นภาษาไทย** ใช้คำง่าย ๆ
