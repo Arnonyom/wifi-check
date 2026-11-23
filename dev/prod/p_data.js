@@ -30,7 +30,7 @@ async function rpc(name,args){
   return Array.isArray(r.data)?r.data[0]:r.data;
 }
 function mapEmp(p){
-  return {id:p.id,username:p.username,name:p.name,role:p.role,team:p.team,shift:p.shift_id,active:p.active,canWork:p.can_work,notify:p.notify,mustChange:!!p.must_change_pw,push:lsGet('wc-push-'+p.id)==='1'};
+  return {id:p.id,username:p.username,name:p.name,role:p.role,team:p.team,shift:p.shift_id,active:p.active,canWork:p.can_work,notify:p.notify,mustChange:!!p.must_change_pw,sortOrder:p.sort_order==null?null:p.sort_order,push:lsGet('wc-push-'+p.id)==='1'};
 }
 async function loadAll(){
   var today=bkk(Date.now()).date,since=addDays(today,-130);

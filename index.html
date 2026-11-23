@@ -242,6 +242,17 @@ button.cell:hover{border-color:var(--brand-strong)}
 .demo .dfield{min-height:36px;padding:4px 10px;width:auto;min-width:0}
 .row .dfield{width:auto}
 #dpbox .overlay{z-index:50}
+/* จัดลำดับการ์ดพนักงาน */
+.pchd{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.dragh{flex:none;width:36px;height:36px;margin:-8px -8px 0 0;display:grid;place-items:center;border:0;border-radius:10px;background:transparent;color:var(--muted);cursor:grab;touch-action:none;-webkit-user-select:none;user-select:none}
+.dragh:hover{background:var(--surface-2);color:var(--ink)}
+.dragh:focus-visible{outline:2px solid var(--brand);outline-offset:1px}
+.pgrid>.pcard:only-child .dragh{display:none}
+.pcard.dragging{position:fixed;z-index:60;margin:0;pointer-events:none;box-shadow:0 14px 34px rgba(0,0,0,.35);transform:rotate(1.5deg);opacity:.96}
+.pcard-ph{border:2px dashed var(--brand);border-radius:14px;background:var(--brand-soft);opacity:.5}
+body.pdragging,body.pdragging *{cursor:grabbing!important;-webkit-user-select:none;user-select:none}
+@media (max-width:720px){.dragh{width:44px;height:44px;margin:-12px -12px 0 0}}
+
 /* ลงเวลาแทน */
 #attEd .attcur span{min-width:120px}
 #attEd .attmode{display:grid;grid-template-columns:repeat(3,1fr);width:100%}#attEd .attmode button{white-space:nowrap;padding-inline:6px}
@@ -722,7 +733,7 @@ async function rpc(name,args){
   return Array.isArray(r.data)?r.data[0]:r.data;
 }
 function mapEmp(p){
-  return {id:p.id,username:p.username,name:p.name,role:p.role,team:p.team,shift:p.shift_id,active:p.active,canWork:p.can_work,notify:p.notify,mustChange:!!p.must_change_pw,push:lsGet('wc-push-'+p.id)==='1'};
+  return {id:p.id,username:p.username,name:p.name,role:p.role,team:p.team,shift:p.shift_id,active:p.active,canWork:p.can_work,notify:p.notify,mustChange:!!p.must_change_pw,sortOrder:p.sort_order==null?null:p.sort_order,push:lsGet('wc-push-'+p.id)==='1'};
 }
 async function loadAll(){
   var today=bkk(Date.now()).date,since=addDays(today,-130);
@@ -2696,17 +2707,70 @@ function pcard(e){
   if(e.role==='staff'&&e.shift)chips+='<span class="chip mute tnum">'+shiftTxt(e)+'</span>';
   if(e.team==='OPS')chips+='<span class="chip mute">ทำแทนได้</span>';
   if(e.role==='admin'&&e.canWork)chips+='<span class="chip mute">ช่วยทำงานได้</span>';
-  return '<article class="card pcard"><div><b>'+esc(e.name)+'</b><br><span class="muted small">'+esc(e.username)+'</span></div><div class="row" style="gap:6px">'+chips+'</div><div class="row" style="gap:6px">'+del+'</div></article>';
+  return '<article class="card pcard" data-eid="'+e.id+'"><div class="pchd"><div><b>'+esc(e.name)+'</b><br><span class="muted small">'+esc(e.username)+'</span></div><button type="button" class="dragh" data-drag title="ลากเพื่อย้ายตำแหน่ง" aria-label="ย้ายตำแหน่ง '+esc(e.name)+' (ลาก หรือกดลูกศร)"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" fill="currentColor"><circle cx="5.5" cy="3" r="1.5"/><circle cx="10.5" cy="3" r="1.5"/><circle cx="5.5" cy="8" r="1.5"/><circle cx="10.5" cy="8" r="1.5"/><circle cx="5.5" cy="13" r="1.5"/><circle cx="10.5" cy="13" r="1.5"/></svg></button></div><div class="row" style="gap:6px">'+chips+'</div><div class="row" style="gap:6px">'+del+'</div></article>';
 }
+/* จัดลำดับการ์ดพนักงาน (หน้าพนักงานเท่านั้น): ลากที่ขีดจับมุมขวาบน (เมาส์/นิ้ว) หรือกดลูกศรบนคีย์บอร์ด
+   ย้ายได้เฉพาะในกลุ่มเดียวกัน · บันทึกลง profiles.sort_order ผ่าน set_profile_order (ผู้ดูแลทุกคนเห็นลำดับเดียวกัน) */
+function byOrder(list){
+  return list.map(function(e,i){return [e,i];}).sort(function(a,b){
+    var x=a[0].sortOrder==null?1e9:a[0].sortOrder,y=b[0].sortOrder==null?1e9:b[0].sortOrder;return x-y||a[1]-b[1];
+  }).map(function(p){return p[0];});
+}
+async function saveOrder(ids){
+  var old={};state.employees.forEach(function(e){old[e.id]=e.sortOrder;});
+  ids.forEach(function(id,i){var e=emp(id);if(e)e.sortOrder=i+1;});
+  busy=true;
+  try{var r=await sb.rpc('set_profile_order',{p_ids:ids});if(r.error)throw r.error;}
+  catch(err){state.employees.forEach(function(e){e.sortOrder=old[e.id];});if(view==='people')renderView();toast('บันทึกลำดับไม่สำเร็จ',errMsg(err),'warn');}
+  finally{busy=false;}
+}
+function gridIds(g){return [].map.call(g.querySelectorAll('.pcard[data-eid]'),function(c){return c.getAttribute('data-eid');});}
+var pdrag=null;
+document.addEventListener('pointerdown',function(e){
+  var h=e.target.closest&&e.target.closest('[data-drag]');if(!h||busy||pdrag||e.button>0)return;
+  var card=h.closest('.pcard'),grid=card&&card.parentNode;if(!grid)return;
+  e.preventDefault();
+  var r=card.getBoundingClientRect(),ph=document.createElement('div');
+  ph.className='pcard-ph';ph.style.height=r.height+'px';grid.insertBefore(ph,card);
+  card.classList.add('dragging');card.style.width=r.width+'px';card.style.height=r.height+'px';card.style.left=r.left+'px';card.style.top=r.top+'px';
+  document.body.classList.add('pdragging');
+  pdrag={card:card,grid:grid,ph:ph,dx:e.clientX-r.left,dy:e.clientY-r.top,before:gridIds(grid).join()};
+  try{h.setPointerCapture(e.pointerId);}catch(_){}
+});
+document.addEventListener('pointermove',function(e){
+  if(!pdrag)return;e.preventDefault();
+  var d=pdrag,c=d.card;c.style.left=(e.clientX-d.dx)+'px';c.style.top=(e.clientY-d.dy)+'px';
+  if(e.clientY<70)scrollBy(0,-14);else if(e.clientY>innerHeight-70)scrollBy(0,14);
+  var t=document.elementsFromPoint(e.clientX,e.clientY).find(function(el){return el!==c&&el.classList&&el.classList.contains('pcard')&&el.parentNode===d.grid;});
+  if(!t)return;
+  var kids=[].slice.call(d.grid.children);
+  d.grid.insertBefore(d.ph,kids.indexOf(d.ph)<kids.indexOf(t)?t.nextSibling:t);
+});
+function endPdrag(){
+  if(!pdrag)return;var d=pdrag;pdrag=null;
+  d.grid.insertBefore(d.card,d.ph);d.ph.remove();d.card.classList.remove('dragging');
+  ['width','height','left','top'].forEach(function(k){d.card.style[k]='';});
+  document.body.classList.remove('pdragging');
+  var ids=gridIds(d.grid);if(ids.join()!==d.before)saveOrder(ids);
+}
+document.addEventListener('pointerup',endPdrag);
+document.addEventListener('pointercancel',endPdrag);
+document.addEventListener('keydown',function(e){
+  var h=e.target.closest&&e.target.closest('[data-drag]');if(!h||busy)return;
+  var k=e.key,dir=(k==='ArrowUp'||k==='ArrowLeft')?-1:(k==='ArrowDown'||k==='ArrowRight')?1:0;if(!dir)return;
+  e.preventDefault();
+  var card=h.closest('.pcard'),grid=card.parentNode,sib=dir<0?card.previousElementSibling:card.nextElementSibling;if(!sib)return;
+  grid.insertBefore(card,dir<0?sib:sib.nextSibling);h.focus();saveOrder(gridIds(grid));
+});
 function viewPeople(){
   var groups=[['A','ทีม A (จ–ศ)'],['B','ทีม B (ศ–จ)'],['OPS','Operation (Daytime) · สำรอง ทำแทนคนหยุด'],['ADMIN','ผู้ดูแลระบบ']];
   var html=groups.map(function(g){
     var list=state.employees.filter(function(e){return g[0]==='ADMIN'?e.role==='admin':(e.role==='staff'&&e.team===g[0]);});
     if(!list.length&&g[0]!=='OPS')return '';
     return '<section class="stack" style="gap:8px"><h2>'+g[1]+' <span class="muted small">'+list.length+' คน</span></h2>'+
-      (list.length?'<div class="pgrid">'+list.map(pcard).join('')+'</div>':'<p class="muted small">ยังไม่มีพนักงานสำรอง กด "+ เพิ่มพนักงาน" แล้วเลือกทีม Operation (Daytime)</p>')+'</section>';
+      (list.length?'<div class="pgrid" data-grp="'+g[0]+'">'+byOrder(list).map(pcard).join('')+'</div>':'<p class="muted small">ยังไม่มีพนักงานสำรอง กด "+ เพิ่มพนักงาน" แล้วเลือกทีม Operation (Daytime)</p>')+'</section>';
   }).join('');
-  return '<div class="stack"><div class="row between"><div><h1>พนักงาน</h1><p class="muted">ผู้ดูแลสร้างและแก้ไขโปรไฟล์ · รหัสผ่านที่ผู้ดูแลตั้งเป็นรหัสชั่วคราว ผู้ใช้ต้องตั้งรหัสใหม่เองเมื่อล็อกอินครั้งแรก</p></div>'+
+  return '<div class="stack"><div class="row between"><div><h1>พนักงาน</h1><p class="muted">ผู้ดูแลสร้างและแก้ไขโปรไฟล์ · รหัสผ่านที่ผู้ดูแลตั้งเป็นรหัสชั่วคราว ผู้ใช้ต้องตั้งรหัสใหม่เองเมื่อล็อกอินครั้งแรก</p><p class="muted small" style="margin-top:4px">ลากที่ปุ่มจุด ⠿ มุมการ์ดเพื่อสลับตำแหน่ง (ย้ายได้ในกลุ่มเดียวกัน)</p></div>'+
     '<button class="btn" data-act="new-emp">+ เพิ่มพนักงาน</button></div>'+(editEmp?empForm():'')+html+'</div>';
 }
 async function saveEmp(){

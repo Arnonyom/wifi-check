@@ -79,6 +79,7 @@ Q.prototype.then=function(res,rej){
   return Promise.resolve({data:data,error:null}).then(res,rej);};
 function fail(m){return {data:null,error:{message:m}};}
 var RPC={
+ set_profile_order:function(a){if(session.role!=='admin')throw new Error('เฉพาะผู้ดูแลระบบ');(a.p_ids||[]).forEach(function(id,i){var p=db.profiles.find(function(x){return x.id===id;});if(p)p.sort_order=i+1;});return null;},
  server_now:function(){return new Date().toISOString();},
  check_in:function(a){var me=db.profiles.find(function(p){return p.id===session.uid;});
    var ov=db.overrides.find(function(o){return o.work_date===a.p_date&&o.shift_id===a.p_shift;});

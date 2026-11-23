@@ -31,7 +31,7 @@ dev/                                            ← ต้นฉบับ + เ�
   supabase/                    SQL ที่เคยใช้ + Edge Function admin-users
 ```
 
-ลำดับ build: `patch_detail → patch_pw → patch_sim → patch_rota → patch_ops → patch_xl → patch_nl → patch_logo → build_prod → make_preview`
+ลำดับ build: ดูใน `build_all.sh` (patch_detail → … → patch_att → patch_order → build_prod → make_preview)
 (`patch_detail.py` สร้าง `app_src.html` ใหม่จาก `app_src_before_detail.html` ทุกครั้ง)
 
 ## ขั้นตอนทำงาน
@@ -70,5 +70,5 @@ dev/                                            ← ต้นฉบับ + เ�
 - Supabase: RLS + ฟังก์ชัน SECURITY DEFINER, ผู้ใช้ล็อกอินด้วย `username@wifi-check.app`
 - Excel: เขียน/อ่าน .xlsx เองใน `prod/p_xlsx.js` (ไม่ใช้ CDN)
 - ธีม: สว่าง / มืด / Liquid Glass (ปรับความใส–ขุ่นได้)
-- Migration ที่ใช้ไปแล้ว: fix_function_search_path, add_must_change_pw, team_a_rotation_and_flex_shift, rotation_4_shifts_and_team_b_cycle, admin_attendance_and_multi_day_override (+ schema.sql ตั้งต้น)
+- Migration ที่ใช้ไปแล้ว: fix_function_search_path, add_must_change_pw, team_a_rotation_and_flex_shift, rotation_4_shifts_and_team_b_cycle, admin_attendance_and_multi_day_override, fix_forgot_checkout_and_admin_cancel_leave, drop_profiles_phone, admin_attendance_no_future, check_in_duplicate_message, profile_sort_order (+ schema.sql ตั้งต้น)
 - repo เป็นสาธารณะ: ห้ามใส่รหัสผ่านจริง, service key หรือข้อมูลส่วนตัวพนักงานลงไฟล์ใด ๆ
