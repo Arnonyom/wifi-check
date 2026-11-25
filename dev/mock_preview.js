@@ -50,11 +50,11 @@ function build(){
     if(sid==='A5'||DAYS[SH[sid][0]].indexOf(dow(dd))<0)return;var s0=st(dd,sid),e0=s0+SH[sid][2]*60000;if(!(s0<now&&now<e0))return;
     var ov=db.overrides.find(function(o){return o.work_date===dd&&o.shift_id===sid;}),who=ov?ov.cover:regOf(db,dd,sid);if(!who)return;
     db.attendance.push({id:uuid(),emp:who,work_date:dd,shift_id:sid,check_in:new Date(s0+(sid==='B1'?42:-6)*6e4).toISOString(),check_out:null,late_min:sid==='B1'?42:0,late_flag:sid==='B1',early_min:0,early_flag:false,is_cover:!!ov});});});
-  [['คำขอลาใหม่',"'มาลี ขอลากิจ '+(function(x){return x.slice(8,10)+'/'+x.slice(5,7);})(addDays(today,5))+' · ไปทำธุระที่อำเภอ'",[],'',1.5],
-   ['เข้างานสาย',"'สมชาย เข้างาน '+(function(x){return x.slice(8,10)+'/'+x.slice(5,7);})(addDays(today,-1))+' สาย 42 นาที'",['e1'],'warn',3],
-   ['มอบหมายให้ทำแทน',"'วิชัย ทำแทน 3 วัน (กะ 18.00) เริ่ม '+(function(x){return x.slice(8,10)+'/'+x.slice(5,7);})(addDays(today,2))",['e7'],'',5],
+  [['คำขอลาใหม่',"'มาลี ขอลา รออนุมัติ (1 วัน)'",[],'',1.5],
+   ['เข้างานสาย',"'สมชาย เข้างานสาย 42 นาที (กะ 08.30 · '+(function(x){return x.slice(8,10)+'/'+x.slice(5,7);})(addDays(today,-1))+')'",['e1'],'warn',3],
+   ['มอบหมายให้ทำแทน',"'ทำแทน วิชัย วันที่ '+(function(x){return x.slice(8,10)+'/'+x.slice(5,7);})(addDays(today,2))",['e7'],'',5],
    ['ผู้ดูแลลงเวลาแทน',"'บันทึกเวลา '+(function(x){return x.slice(8,10)+'/'+x.slice(5,7);})(addDays(today,-2))+' เข้า 10:02 ออก 19:00'",['e2'],'',8],
-   ['สร้างบัญชีใหม่',"'เพิ่มบัญชี best (ทีม A)'",[],'',30]].forEach(function(r,i){
+   ['สร้างบัญชีใหม่',"'ผู้ดูแลสร้างบัญชีให้ best'",[],'',30]].forEach(function(r,i){
     db.notifications.push({id:'nl'+i,ts:new Date(now-r[4]*36e5).toISOString(),to_ids:r[2],title:r[0],body:eval(r[1]),kind:r[3]});});
   return db;
 }

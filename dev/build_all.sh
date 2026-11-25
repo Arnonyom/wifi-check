@@ -20,5 +20,6 @@ python3 patch_mobile.py >/dev/null
 python3 patch_att.py >/dev/null
 python3 patch_order.py >/dev/null
 python3 build_prod.py >/dev/null
+python3 i18n.py
 python3 make_preview.py >/dev/null
 if cmp -s index.html ../index.html; then echo "build ok · ตรงกับเว็บจริง (../index.html) ทุกไบต์"; else echo "build ok · ต่างจากเว็บจริง (มีการแก้ไข) → ตรวจ + ทดสอบ + ขออนุมัติก่อน deploy"; fi
