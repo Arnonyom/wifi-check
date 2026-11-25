@@ -72,14 +72,46 @@ def classify(js,lits):
         (keep if why else wrap).append((a,b,q,t,why))
     return keep,wrap
 
-# ปุ่ม/เมนูภาษา (อยู่นอกส่วนที่ถูกแปล จึงแสดงชื่อภาษาตามจริงเสมอ) · เปลี่ยนแล้วโหลดหน้าใหม่ (ยังล็อกอินอยู่)
-LANGJS=r"""function setLang(l){try{localStorage.setItem('wc-lang',l);}catch(e){}location.reload();}
+# ปุ่ม/เมนูภาษา (อยู่นอกส่วนที่ถูกแปล จึงแสดงชื่อภาษาตามจริงเสมอ)
+# เปลี่ยนภาษาทันที ไม่โหลดหน้าใหม่ (ไม่หลุดล็อกอิน): แปลค่าคงที่ที่คำนวณไว้ตอนเปิดแอปใหม่ (relocalize) แล้ววาดหน้าจอใหม่
+LANGJS=r"""function setLang(l){if(l===LANG)return;LANG=l;try{localStorage.setItem('wc-lang',l);}catch(e){}
+  document.documentElement.lang=l;var nv=document.getElementById('nav');if(nv)nv.setAttribute('aria-label',l==='en'?'Menu':'เมนู');
+  var keep={};document.querySelectorAll('input[id],select[id],textarea[id]').forEach(function(x){if(x.type!=='file')keep[x.id]=[x.type,x.type==='checkbox'||x.type==='radio'?x.checked:x.value];});
+  relocalize();themeOpen=false;bellOpen=false;renderAll();
+  Object.keys(keep).forEach(function(id){var x=document.getElementById(id);if(!x||x.type!==keep[id][0])return;if(x.type==='checkbox'||x.type==='radio')x.checked=keep[id][1];else if(x.value!==keep[id][1]){x.value=keep[id][1];}});
+  var f=document.querySelector('[data-act="lang-set"]');if(f&&f.focus)try{f.focus({preventScroll:true});}catch(e){}}
 function langBtn(){var en=LANG==='en';return '<button class="iconbtn langbtn" data-act="lang-set" data-l="'+(en?'th':'en')+'" lang="'+(en?'th':'en')+'" aria-label="'+(en?'เปลี่ยนเป็นภาษาไทย':'Switch to English')+'" title="'+(en?'ภาษาไทย':'English')+'">'+(en?'ไทย':'EN')+'</button>';}
 function langRow(){return '<p class="small muted">'+(LANG==='en'?'Language · ภาษา':'ภาษา · Language')+'</p><div class="thopts langopts" role="group">'+[['th','ไทย'],['en','English']].map(function(o){var on=LANG===o[0];return '<button class="thopt'+(on?' on':'')+'" data-act="lang-set" data-l="'+o[0]+'" lang="'+o[0]+'" aria-pressed="'+on+'">'+o[1]+'</button>';}).join('')+'</div>';}
 document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-act="lang-set"]');if(b){e.stopPropagation();if(b.getAttribute('data-l')!==LANG)setLang(b.getAttribute('data-l'));}},true);
-if(LANG==='en'){var nv=document.getElementById('nav');if(nv)nv.setAttribute('aria-label','Menu');}
+if(LANG==='en'){var nv0=document.getElementById('nav');if(nv0)nv0.setAttribute('aria-label','Menu');}
 """
 CSS=".langopts{grid-template-columns:1fr 1fr}.langbtn{font-weight:700;font-size:13px;width:auto;min-width:40px;padding:0 10px}\n"
+def rhs(js,name):
+    """ข้อความด้านขวาของ var NAME=... (จนถึง , หรือ ; ที่ระดับนอกสุด)"""
+    m=re.search(r'\bvar '+name+'=',js);assert m,name
+    i=m.end();d=0;q=None;j=i
+    while True:
+        c=js[j]
+        if q:
+            if c=='\\':j+=1
+            elif c==q:q=None
+        elif c in '\'"':q=c
+        elif c in '([{':d+=1
+        elif c in ')]}':d-=1
+        elif c in ',;\n' and d==0:break
+        j+=1
+    return js[i:j]
+def reloc(js):
+    """ค่าคงที่ที่แปลครั้งเดียวตอนเปิดแอป → ฟังก์ชันแปลใหม่ตอนเปลี่ยนภาษา (คงตัวแปรเดิม ไม่สร้างใหม่)"""
+    out=['function relocalize(){']
+    for a in ['DOW_TH','DOW_S']:
+        r=rhs(js,a);assert r.startswith('[') and r.endswith(']');out.append(a+'.splice.apply('+a+',[0,'+a+'.length].concat('+r+'));')
+    for o in ['LEAVE_TH','LEAVE_ST','DSTATE']:
+        r=rhs(js,o);assert r.startswith('{') and r.endswith('}');out.append('Object.assign('+o+','+r+');')
+    out.append('PW_RULE='+rhs(js,'PW_RULE')+';')
+    out.append("(function(t){Object.keys(t).forEach(function(k){TEAMS[k].name=t[k].name;TEAMS[k].dayText=t[k].dayText;});})("+rhs(js,'TEAMS')+");")
+    out.append('}')
+    return '\n'.join(out)+'\n'
 def main():
     h=open(S+'index.html',encoding='utf-8').read()
     i=h.index("<script>\n(function(){\n'use strict';\n")+len("<script>\n(function(){\n'use strict';\n")
@@ -118,12 +150,12 @@ def main():
     EN={k:v for k,v in D.items() if not k.startswith('__')}
     frag=D.get('__data__',{})  # แจ้งเตือน/ข้อความผิดพลาดที่มาจากฐานข้อมูล
     head=("var LANG=(function(){try{return localStorage.getItem('wc-lang')==='en'?'en':'th';}catch(e){return 'th';}})();\n"
-          "var EN=LANG==='en'?"+json.dumps(EN,ensure_ascii=False)+":{};\n"
-          "var EN_D=LANG==='en'?"+json.dumps(frag,ensure_ascii=False)+":{};\n"
+          "var EN="+json.dumps(EN,ensure_ascii=False)+";\n"
+          "var EN_D="+json.dumps(frag,ensure_ascii=False)+";\n"
           "var EN_DK=Object.keys(EN_D).sort(function(a,b){return b.length-a.length;});\n"
           "function _tx(s){return LANG==='en'&&Object.prototype.hasOwnProperty.call(EN,s)?EN[s]:s;}\n"
           "function _td(s){if(LANG!=='en'||!s)return s;s=String(s);EN_DK.forEach(function(k){if(s.indexOf(k)>=0)s=s.split(k).join(EN_D[k]);});return s;}\n"
-          "if(LANG==='en')document.documentElement.lang='en';\n"+LANGJS)
+          "if(LANG==='en')document.documentElement.lang='en';\n"+LANGJS+reloc(js))
     h=h[:i]+head+js+h[j:]
     assert h.count('</style>')>=1;h=h.replace('</style>',CSS+'</style>',1)
     open(S+'index.html','w',encoding='utf-8').write(h)
