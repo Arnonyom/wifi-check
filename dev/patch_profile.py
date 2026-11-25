@@ -37,6 +37,7 @@ css="""
 .pmem{flex-wrap:nowrap}
 .plang{display:flex;flex-direction:column;gap:8px}.plang p{margin:0}
 @media (max-width:400px){.topbar.in .langbtn{min-width:34px;padding:0 6px}}
+@media (max-width:640px){.topbar.in .uname{display:none}}
 @media (max-width:370px){.topbar.in .brand>div:not(.mark){display:none}.topbar.in .top-right{gap:5px}}
 """
 rep('#dpbox .overlay{z-index:50}','#dpbox .overlay{z-index:50}'+css)

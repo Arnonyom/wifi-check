@@ -59,5 +59,16 @@ for(const vp of [{width:1280,height:900},{width:390,height:844},{width:320,heigh
  await login('somchai','Temp1234!');ok(await p.$(PB)===null,tag+' no profile button while forced to change password');
  await ctx.close();
 }
+// แถบด้านบนต้องไม่ล้นทุกความกว้าง (ทั้งไทยและอังกฤษ)
+for(const lang of ['th','en']){
+ const ctx=await b.newContext();if(lang==='en')await ctx.addInitScript(()=>{try{localStorage.setItem('wc-lang','en')}catch(e){}});
+ const p=await ctx.newPage();await p.goto('file://'+S+'preview_detail.html');await p.waitForTimeout(300);
+ await p.fill('#lu','admin');await p.fill('#lp','Admin@2026');await p.click('#lbtn');await p.waitForTimeout(800);
+ const bad=[];
+ for(let w=320;w<=1000;w+=20){await p.setViewportSize({width:w,height:800});await p.waitForTimeout(60);
+  if(!(await p.evaluate(()=>{const t=document.getElementById('top');return t.scrollWidth<=t.clientWidth+1&&document.documentElement.scrollWidth<=innerWidth;})))bad.push(w);}
+ ok(!bad.length,lang+' top bar fits at every width 320–1000 '+(bad.length?'(overflow at '+bad.join(',')+')':''));
+ await ctx.close();
+}
 await b.close();
 console.log(errs.length?errs.join('\n'):'NO ERRORS');process.exit(errs.length?1:0);})();

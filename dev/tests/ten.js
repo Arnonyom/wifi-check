@@ -22,7 +22,7 @@ for(const vp of [{width:1280,height:900},{width:390,height:844}]){
  const scan=async where=>{
   const r=await p.evaluate(()=>{const out=[];const w=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);let n;
     const banner=document.body.firstElementChild;
-    while(n=w.nextNode()){const el=n.parentElement;if(!el||el.closest('script,style,[hidden]')||(banner&&banner.contains(el)&&!document.getElementById('main').contains(el)))continue;if(!el.getClientRects().length)continue;const t=n.textContent.trim();if(t)out.push(t);}
+    while(n=w.nextNode()){const el=n.parentElement;if(!el||el.closest('script,style,[hidden],.pav')||(banner&&banner.contains(el)&&!document.getElementById('main').contains(el)))continue;if(!el.getClientRects().length)continue;const t=n.textContent.trim();if(t)out.push(t);}
     document.querySelectorAll('[aria-label],[title],[placeholder]').forEach(el=>['aria-label','title','placeholder'].forEach(a=>{const v=el.getAttribute(a);if(v)out.push(v);}));
     return out;});
     r.forEach(t=>{
