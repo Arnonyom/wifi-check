@@ -31,7 +31,7 @@ dev/                                            ← ต้นฉบับ + เ�
   supabase/                    SQL ที่เคยใช้ + Edge Function admin-users
 ```
 
-ลำดับ build: ดูใน `build_all.sh` (patch_detail → … → patch_att → patch_order → build_prod → make_preview)
+ลำดับ build: ดูใน `build_all.sh` (patch_detail → … → patch_order → patch_profile → build_prod → i18n → make_preview)
 (`patch_detail.py` สร้าง `app_src.html` ใหม่จาก `app_src_before_detail.html` ทุกครั้ง)
 
 ## ขั้นตอนทำงาน
@@ -70,5 +70,11 @@ dev/                                            ← ต้นฉบับ + เ�
 - Supabase: RLS + ฟังก์ชัน SECURITY DEFINER, ผู้ใช้ล็อกอินด้วย `username@wifi-check.app`
 - Excel: เขียน/อ่าน .xlsx เองใน `prod/p_xlsx.js` (ไม่ใช้ CDN)
 - ธีม: สว่าง / มืด / Liquid Glass (ปรับความใส–ขุ่นได้)
+- ภาษา ไทย/อังกฤษ: `dev/i18n.py` (รันหลัง build_prod) หุ้มข้อความไทยในโค้ดด้วย `_tx()` คำแปลอยู่ใน `dev/i18n_en.json`
+  - **เพิ่มข้อความไทยใหม่ ต้องเพิ่มคำแปลใน `i18n_en.json`** ไม่งั้น build จะหยุดและบอกว่าขาดคำไหน (`python3 dev/i18n.py --list` ดูรายการ)
+  - ข้อความที่เก็บลงฐานข้อมูล (notify, ข้อความจาก SQL) เก็บเป็นไทยเสมอ แล้วแปลตอนแสดงด้วย `_td()` ผ่าน `__data__` ใน i18n_en.json
+  - เปลี่ยนภาษาทันทีไม่โหลดหน้าใหม่ · ค่าคงที่ที่แปลตอนเปิดแอป (TEAMS, DOW_TH, LEAVE_TH ฯลฯ) ถูกแปลใหม่ใน `relocalize()` ที่ i18n.py สร้างให้
+  - เทสต์: `ten` (ไม่มีคำไทยหลงในโหมดอังกฤษ), `tlang` (สลับไป-กลับแล้วเหมือนเดิม)
+- เมนูโปรไฟล์ (ปุ่มรูปคนมุมขวาบน): ข้อมูลของฉัน สมาชิกในทีม เปลี่ยนรหัสผ่าน ภาษา · ตั้งค่าระบบของผู้ดูแลอยู่ในนี้ (ไม่มีแท็บตั้งค่าแล้ว)
 - Migration ที่ใช้ไปแล้ว: fix_function_search_path, add_must_change_pw, team_a_rotation_and_flex_shift, rotation_4_shifts_and_team_b_cycle, admin_attendance_and_multi_day_override, fix_forgot_checkout_and_admin_cancel_leave, drop_profiles_phone, admin_attendance_no_future, check_in_duplicate_message, profile_sort_order (+ schema.sql ตั้งต้น)
 - repo เป็นสาธารณะ: ห้ามใส่รหัสผ่านจริง, service key หรือข้อมูลส่วนตัวพนักงานลงไฟล์ใด ๆ
