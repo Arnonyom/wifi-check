@@ -31,7 +31,7 @@ await p.fill('#fName','ทดสอบ ระบบ');await p.fill('#fUser','tes
 await p.click('[data-act=save-emp]');await p.waitForTimeout(500);
 console.log('people has tester:',(await p.textContent('#main')).includes('ทดสอบ ระบบ'),'fn calls:',JSON.stringify(await p.evaluate(()=>window.__calls.filter(c=>c[0]==='fn').map(c=>c[2].action))));
 // settings rules
-await p.click('[data-act=tab][data-v=settings]');await p.fill('#setLate','20');await p.click('[data-act=save-rules]');await p.waitForTimeout(500);
+await p.click('.top-right .iconbtn[data-act=profile]');await p.click('#main [data-act=tab][data-v=settings]');await p.fill('#setLate','20');await p.click('[data-act=save-rules]');await p.waitForTimeout(500);
 console.log('rules msg:',(await p.textContent('#main')).includes('บันทึกกฎแล้ว'));
 await p.screenshot({path:S+'p_set.png'});
 // logout

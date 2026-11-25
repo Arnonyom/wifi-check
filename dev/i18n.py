@@ -95,8 +95,7 @@ def main():
     rep("esc(n.title)+'</b><span class=\"pre\">'+esc(n.body)","esc(_td(n.title))+'</b><span class=\"pre\">'+esc(_td(n.body))")
     rep("toast(n.title,n.body,n.kind,n.id);","toast(_td(n.title),_td(n.body),n.kind,n.id);")
     rep("new Notification(n.title,{body:n.body})","new Notification(_td(n.title),{body:_td(n.body)})")
-    # เมนูภาษา: ในหน้าต่างธีม (หลังล็อกอิน) + ปุ่มบนหน้าล็อกอิน
-    rep("<span>ใส</span><span>ขุ่น</span></div>':'')+'</div>';","<span>ใส</span><span>ขุ่น</span></div>':'')+langRow()+'</div>';")
+    # ปุ่มภาษาบนหน้าล็อกอิน (หลังล็อกอิน: patch_profile ใส่ปุ่มบนแถบด้านบน + ในหน้าโปรไฟล์)
     rep("top.innerHTML=brandHtml()+'<div class=\"top-right\">'+themeBtn()+'</div>';","top.innerHTML=brandHtml()+'<div class=\"top-right\">'+langBtn()+themeBtn()+'</div>';")
     lits=scan(js)
     keep,wrap=classify(js,lits)

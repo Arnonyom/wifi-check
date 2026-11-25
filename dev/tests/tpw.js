@@ -24,7 +24,7 @@ await p.click('[data-act=logout]');await p.waitForTimeout(300);
 await login('somchai','Temp1234!');console.log(tag,'old pw ->',await p.textContent('#lerr'));
 await login('somchai','NewPass#2026');console.log(tag,'new pw -> tabs',await p.$$eval('.tab',e=>e.length),'force?',await p.$('#forceForm')!==null);
 // self change from topbar
-await p.click('[data-act=pw-self]');await p.waitForTimeout(150);
+await p.click('.top-right .iconbtn[data-act=profile]');await p.waitForTimeout(150);await p.click('#main [data-act=pw-self]');await p.waitForTimeout(150);
 if(tag==='m')await p.screenshot({path:S+'pw_m_self.png'});
 await p.fill('#pwCur','wrongpass');await p.fill('#pwNew','Another#99');await p.fill('#pwNew2','Another#99');await p.click('#pwOk');await p.waitForTimeout(300);console.log(tag,'self wrong current ->',await err());
 await p.fill('#pwCur','NewPass#2026');await p.click('#pwOk');await p.waitForTimeout(500);console.log(tag,'self ok -> modal closed',await p.$('#pwForm')===null);

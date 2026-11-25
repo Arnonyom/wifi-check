@@ -1120,5 +1120,22 @@
 "ผู้ดูแลอนุมัติลาพักร้อน ": "Admin approved vacation leave ",
 "ผู้ดูแลอนุมัติลากิจ ": "Admin approved personal leave ",
 "ผู้ดูแลอนุมัติลาป่วย ": "Admin approved sick leave "
-}
+},
+"<button class=\"uname ubtn\" data-act=\"profile\" title=\"โปรไฟล์\">": "<button class=\"uname ubtn\" data-act=\"profile\" title=\"Profile\">",
+"<button class=\"iconbtn\" data-act=\"profile\" aria-label=\"โปรไฟล์\" title=\"โปรไฟล์\"": "<button class=\"iconbtn\" data-act=\"profile\" aria-label=\"Profile\" title=\"Profile\"",
+"<span class=\"chip\">คุณ</span>": "<span class=\"chip\">You</span>",
+"<p class=\"muted small\" style=\"padding:10px 0\">ยังไม่มีสมาชิกคนอื่น</p>": "<p class=\"muted small\" style=\"padding:10px 0\">No other members yet</p>",
+"<div class=\"stack\"><h1>โปรไฟล์</h1>": "<div class=\"stack\"><h1>Profile</h1>",
+"<div><dt>บทบาท</dt><dd>": "<div><dt>Role</dt><dd>",
+"<div><dt>ทีม</dt><dd>": "<div><dt>Team</dt><dd>",
+"<div><dt>ช่วยทำงานแทน</dt><dd>": "<div><dt>Can work as cover</dt><dd>",
+"ได้": "Yes",
+"ไม่ได้": "No",
+"<div><dt>สถานะบัญชี</dt><dd>ใช้งาน</dd></div>": "<div><dt>Account status</dt><dd>Active</dd></div>",
+"สมาชิกในทีม": "Team members",
+" คน</span></h2><div class=\"list\">": " people</span></h2><div class=\"list\">",
+"<section class=\"card stack\"><h2>ตั้งค่า</h2><div class=\"list\">": "<section class=\"card stack\"><h2>Settings</h2><div class=\"list\">",
+"<button class=\"li lib\" data-act=\"pw-self\"><span class=\"grow\"><b>เปลี่ยนรหัสผ่าน</b><br><span class=\"muted small\">ตั้งรหัสผ่านใหม่สำหรับเข้าสู่ระบบ</span></span>": "<button class=\"li lib\" data-act=\"pw-self\"><span class=\"grow\"><b>Change password</b><br><span class=\"muted small\">Set a new password for signing in</span></span>",
+"<button class=\"li lib\" data-act=\"tab\" data-v=\"settings\"><span class=\"grow\"><b>ตั้งค่าระบบ</b><br><span class=\"muted small\">การหมุนกะ กฎการลงเวลา นำเข้า/ส่งออกตารางกะ และทดสอบเข้า-ออกงาน</span></span>": "<button class=\"li lib\" data-act=\"tab\" data-v=\"settings\"><span class=\"grow\"><b>System settings</b><br><span class=\"muted small\">Rotation, check-in rules, schedule import/export, and check-in/out test</span></span>",
+"<div class=\"stack\"><div><button class=\"btn sec sm\" data-act=\"profile\" style=\"margin-bottom:8px\">‹ โปรไฟล์</button><h1>ตั้งค่า</h1><p class=\"muted\">การหมุนกะ กฎเวลาลงเวลา และนำเข้า/ส่งออกตารางกะ</p></div>": "<div class=\"stack\"><div><button class=\"btn sec sm\" data-act=\"profile\" style=\"margin-bottom:8px\">‹ Profile</button><h1>Settings</h1><p class=\"muted\">Rotation, check-in rules, and schedule import/export</p></div>"
 }

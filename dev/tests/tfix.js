@@ -40,7 +40,7 @@ for(const vp of [{width:1280,height:900},{width:390,height:844}]){
  if(delBtn){await delBtn.click();await p.waitForTimeout(100);ok((await p.$eval('#main',e=>e.innerText)).includes('จะหายถาวร'),tag+' delete warns history is lost');await p.click('[data-act=del-no]');}
  else{await p.click('[data-act=edit-emp] >> nth=1');await p.waitForTimeout(150);const d2=await p.$('[data-act=del-emp]');ok(!!d2,tag+' delete button found in editor');if(d2){await d2.click();await p.waitForTimeout(100);ok((await p.$eval('#main',e=>e.innerText)).includes('จะหายถาวร'),tag+' delete warns history is lost');}}
  // 4) ข้อความ Push
- await p.click('#nav [data-act=tab][data-v=settings]');await p.waitForTimeout(150);
+ await p.click('.top-right .iconbtn[data-act=profile]');await p.click('#main [data-act=tab][data-v=settings]');await p.waitForTimeout(150);
  ok((await p.$eval('#main',e=>e.innerText)).includes('ยังไม่มีระบบส่ง Push'),tag+' push text is honest');
  // 5) อนุมัติแล้วยกเลิกการลา lv2 (5 วันข้างหน้า)
  await p.click('#nav [data-act=tab][data-v=leaves]');await p.waitForTimeout(150);

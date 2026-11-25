@@ -35,9 +35,12 @@ for(const vp of [{width:1280,height:900},{width:390,height:844}]){
  await scan('login');
  const login=async(u,pw)=>{await p.fill('#lu',u);await p.fill('#lp',pw);await p.click('#lbtn');await p.waitForTimeout(800);};
  await login('admin','Admin@2026');
- const tabs=['today','schedule','people','leaves','report','settings'];
+ const tabs=['today','schedule','people','leaves','report'];
  for(const t of tabs){const el=await p.$('#nav [data-act=tab][data-v='+t+']');if(!el){ok(false,tag+' tab '+t);continue;}await el.click();await p.waitForTimeout(350);await scan('tab '+t);}
  ok((await p.textContent('#nav')).includes('Schedule'),tag+' menu in English');
+ ok((await p.textContent('.top-right [data-act=lang-set]')).trim()==='ไทย',tag+' language button on top bar after login');
+ await p.click('.top-right .iconbtn[data-act=profile]');await p.waitForTimeout(150);await scan('profile');
+ ok(await p.$('#main .plang [data-act=lang-set][data-l=en].on')!==null,tag+' language choice in profile (English selected)');
  // ตารางกะ ทีม B + มุมมองต่าง ๆ
  await p.click('#nav [data-act=tab][data-v=schedule]');await p.waitForTimeout(200);
  {const n=(await p.$$('#main .seg button')).length;for(let i=0;i<n;i++){const bs=await p.$$('#main .seg button');if(bs[i]){await bs[i].click();await p.waitForTimeout(200);await scan('schedule views '+i);}}}
@@ -54,12 +57,11 @@ for(const vp of [{width:1280,height:900},{width:390,height:844}]){
  await p.click('#nav [data-act=tab][data-v=people]');await p.waitForTimeout(200);
  await p.click('[data-act=new-emp]');await p.waitForTimeout(200);await scan('new employee form');
  // ตั้งค่า → ทดสอบเข้า-ออกงาน
- await p.click('#nav [data-act=tab][data-v=settings]');await p.waitForTimeout(200);
+ await p.click('.top-right .iconbtn[data-act=profile]');await p.click('#main [data-act=tab][data-v=settings]');await p.waitForTimeout(200);
  const sim=await p.$('[data-v=sim]');if(sim){await sim.click();await p.waitForTimeout(300);await scan('sim');}
  // กระดิ่ง + เมนูธีม/ภาษา
  await p.click('[data-act=bell]');await p.waitForTimeout(200);await scan('bell');await p.keyboard.press('Escape');
  await p.click('[data-act=theme]');await p.waitForTimeout(200);await scan('theme/lang panel');
- ok(await p.$('.thpop [data-act=lang-set][data-l=th]')!==null&&await p.$('.thpop [data-act=lang-set][data-l=en].on')!==null,tag+' language menu in theme panel (English selected)');
  // วันที่เป็น ค.ศ.
  const txt=await p.evaluate(()=>document.body.innerText);
  ok(!/25[6-9]\d/.test(txt.replace(/\d{5,}/g,'')),tag+' no Buddhist-era years shown');

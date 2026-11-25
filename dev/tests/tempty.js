@@ -12,6 +12,6 @@ for(const n of [7,30,90]){await p.click('[data-act=dash][data-n="'+n+'"]');await
 const ks=[...new Set(ks0.concat(await p.$$eval('#main [data-act=det]',e=>[...new Set(e.map(x=>x.dataset.k.split(':')[0]))])))];
 const onView=async k=>{for(const [v,sec] of [['today',null],['report','stats'],['report','cal']]){await p.click('#nav [data-act=tab][data-v='+v+']');if(sec)await p.click('[data-act=rsec][data-s='+sec+']');await p.waitForTimeout(60);if(await p.$('#main [data-act=det][data-k^="'+k+':"]'))return;}};
 for(const k of ks){await onView(k);await p.evaluate(k=>{document.querySelector('#main [data-act=det][data-k^="'+k+':"]').dispatchEvent(new MouseEvent('click',{bubbles:true}))},k);await p.waitForTimeout(60);await p.click('[data-act=det-close]');}
-for(const v of ['schedule','people','leaves','report','settings']){await p.click('[data-act=tab][data-v='+v+']');await p.waitForTimeout(150);}
+for(const v of ['schedule','people','leaves','report']){await p.click('[data-act=tab][data-v='+v+']');await p.waitForTimeout(150);}await p.click('.top-right .iconbtn[data-act=profile]');await p.waitForTimeout(150);await p.click('#main [data-act=tab][data-v=settings]');await p.waitForTimeout(150);
 console.log('kinds',ks.join(','),'| miss kpi',await (await p.click('[data-act=tab][data-v=report]'),await p.click('[data-act=rsec][data-s=stats]'),p.$eval('[data-k="st:miss"] b',e=>e.textContent)));
 console.log(errs.length?errs.join('\n'):'NO ERRORS');await b.close();})();
