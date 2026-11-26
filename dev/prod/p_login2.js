@@ -23,7 +23,7 @@ async function doLogin(){
 }
 async function doLogout(){
   try{await sb.auth.signOut();}catch(e){}
-  me=null;lastPw='';pwm=null;view='home';modal=null;bellOpen=false;dp=null;state=emptyState();loginMsg='';renderAll();
+  me=null;lastPw='';pwm=null;view='home';themeOpen=false;logoutAsk=false;modal=null;bellOpen=false;dp=null;state=emptyState();loginMsg='';renderAll();
 }
 
 /* ---------- views ---------- */

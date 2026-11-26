@@ -12,8 +12,8 @@ for(const vp of [{width:1280,height:900},{width:390,height:844}]){
  const ctx=await b.newContext({viewport:vp});const p=await ctx.newPage();p.on('pageerror',e=>errs.push(tag+' '+e.message));
  await p.goto('file://'+S+'preview_detail.html');await p.waitForTimeout(300);
  // เปลี่ยนภาษาจากปุ่มบนหน้าล็อกอิน
- ok(await p.textContent('[data-act=lang-set]')==='EN',tag+' login shows EN button');
- await p.click('[data-act=lang-set]');await p.waitForLoadState();await p.waitForTimeout(400);
+ ok(await p.$('.top-right [data-act=theme]')!==null,tag+' login shows settings (gear) button');
+ await p.click('[data-act=theme]');await p.click('.thpop [data-act=lang-set][data-l=en]');await p.waitForLoadState();await p.waitForTimeout(400);
  ok(await p.evaluate(()=>document.documentElement.lang)==='en',tag+' html lang=en after switch');
  ok((await p.textContent('#main h1')).trim()==='Sign in',tag+' login page in English');
  // ชื่อพนักงาน + เหตุผลการลา/หมายเหตุที่คนพิมพ์ (ข้อมูล ไม่ต้องแปล)
@@ -38,8 +38,8 @@ for(const vp of [{width:1280,height:900},{width:390,height:844}]){
  const tabs=['today','schedule','people','leaves','report'];
  for(const t of tabs){const el=await p.$('#nav [data-act=tab][data-v='+t+']');if(!el){ok(false,tag+' tab '+t);continue;}await el.click();await p.waitForTimeout(350);await scan('tab '+t);}
  ok((await p.textContent('#nav')).includes('Schedule'),tag+' menu in English');
- ok((await p.textContent('.top-right [data-act=lang-set]')).trim()==='ไทย',tag+' language button on top bar after login');
- await p.click('.top-right .iconbtn[data-act=profile]');await p.waitForTimeout(150);await scan('profile');
+ await p.click('[data-act=theme]');ok(await p.$('.thpop [data-act=lang-set][data-l=en].on')!==null&&await p.$('.thpop [data-act=logout-ask]')!==null,tag+' gear menu: language (English on) + sign out');await p.click('[data-act=theme]');
+ await p.click('#nav [data-act=tab][data-v=profile]');await p.waitForTimeout(150);await scan('profile');
  ok(await p.$('#main .plang [data-act=lang-set][data-l=en].on')!==null,tag+' language choice in profile (English selected)');
  // ตารางกะ ทีม B + มุมมองต่าง ๆ
  await p.click('#nav [data-act=tab][data-v=schedule]');await p.waitForTimeout(200);
@@ -57,27 +57,27 @@ for(const vp of [{width:1280,height:900},{width:390,height:844}]){
  await p.click('#nav [data-act=tab][data-v=people]');await p.waitForTimeout(200);
  await p.click('[data-act=new-emp]');await p.waitForTimeout(200);await scan('new employee form');
  // ตั้งค่า → ทดสอบเข้า-ออกงาน
- await p.click('.top-right .iconbtn[data-act=profile]');await p.click('#main [data-act=tab][data-v=settings]');await p.waitForTimeout(200);
+ await p.click('#nav [data-act=tab][data-v=profile]');await p.click('#main [data-act=tab][data-v=settings]');await p.waitForTimeout(200);
  const sim=await p.$('[data-v=sim]');if(sim){await sim.click();await p.waitForTimeout(300);await scan('sim');}
  // กระดิ่ง + เมนูธีม/ภาษา
  await p.click('[data-act=bell]');await p.waitForTimeout(200);await scan('bell');await p.keyboard.press('Escape');
- await p.click('[data-act=theme]');await p.waitForTimeout(200);await scan('theme/lang panel');
+ await p.click('[data-act=theme]');await p.waitForTimeout(200);await scan('gear menu');await p.click('[data-act=logout-ask]');await p.waitForTimeout(150);await scan('sign-out confirm');await p.click('[data-act=logout-no]');
  // วันที่เป็น ค.ศ.
  const txt=await p.evaluate(()=>document.body.innerText);
  ok(!/25[6-9]\d/.test(txt.replace(/\d{5,}/g,'')),tag+' no Buddhist-era years shown');
  await p.click('[data-act=theme]');
  // ออก แล้วเข้าเป็นพนักงาน
- await p.click('[data-act=logout]');await p.waitForTimeout(400);
+ await p.click('[data-act=theme]');await p.click('[data-act=logout-ask]');await p.click('.thout [data-act=logout]');await p.waitForTimeout(400);
  await login('malee','Temp1234!');
  for(const t of ['home','history','leave','schedule']){const el=await p.$('#nav [data-act=tab][data-v='+t+']');if(el){await el.click();await p.waitForTimeout(300);await scan('staff '+t);}}
- await p.click('[data-act=logout]');await p.waitForTimeout(400);
+ await p.click('[data-act=theme]');await p.click('[data-act=logout-ask]');await p.click('.thout [data-act=logout]');await p.waitForTimeout(400);
  await login('somchai','Temp1234!');await scan('force password');
  const list=[...leftovers].map(([t,w])=>w+' :: '+t.slice(0,120));
  if(SHOW||list.length)console.log(list.join('\n'));
  ok(list.length===0,tag+' no untranslated Thai text ('+list.length+')');
  // เปลี่ยนกลับเป็นไทย
  await p.goto('file://'+S+'preview_detail.html');await p.waitForTimeout(300);
- await p.click('[data-act=lang-set]');await p.waitForLoadState();await p.waitForTimeout(400);
+ await p.click('[data-act=theme]');await p.click('.thpop [data-act=lang-set][data-l=th]');await p.waitForLoadState();await p.waitForTimeout(400);
  ok((await p.textContent('#main h1')).trim()==='เข้าสู่ระบบ'&&await p.evaluate(()=>document.documentElement.lang)==='th',tag+' switch back to Thai');
  await ctx.close();
 }

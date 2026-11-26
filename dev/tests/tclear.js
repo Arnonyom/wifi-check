@@ -7,6 +7,6 @@ await login('somchai','Temp1234!');
 await p.fill('#pwNew','Abcd12');await p.clock.runFor(100000);
 console.log('forced screen after 100s, typed value kept:',JSON.stringify(await p.inputValue('#pwNew')));
 await p.fill('#pwNew','NewPass#2026');await p.fill('#pwNew2','NewPass#2026');await p.click('#pwOk');await p.clock.runFor(2000);
-await p.click('.top-right .iconbtn[data-act=profile]');await p.waitForTimeout(150);await p.click('#main [data-act=pw-self]');await p.fill('#pwCur','NewPass#2026');await p.fill('#pwNew','Zz');await p.clock.runFor(100000);
+await p.click('#nav [data-act=tab][data-v=profile]');await p.waitForTimeout(150);await p.click('#main [data-act=pw-self]');await p.fill('#pwCur','NewPass#2026');await p.fill('#pwNew','Zz');await p.clock.runFor(100000);
 console.log('self-change dialog after 100s, typed value kept:',JSON.stringify(await p.inputValue('#pwNew')),'cur',JSON.stringify(await p.inputValue('#pwCur')));
 console.log(errs.length?errs.join('\n'):'NO ERRORS');await b.close();})();

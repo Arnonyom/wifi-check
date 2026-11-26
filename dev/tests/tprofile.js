@@ -3,7 +3,7 @@
 const {chromium}=require('playwright');const S=require('path').join(__dirname,'..')+'/';
 (async()=>{const b=await chromium.launch();const errs=[];
 const ok=(c,m)=>{console.log((c?'ok   ':'FAIL ')+m);if(!c)errs.push('FAIL: '+m);};
-const PB='.top-right .iconbtn[data-act=profile]';
+const PB='#nav [data-act=tab][data-v=profile]';
 for(const vp of [{width:1280,height:900},{width:390,height:844},{width:320,height:640}]){
  const tag=vp.width>500?'d':vp.width>350?'m':'s';
  const ctx=await b.newContext({viewport:vp});const p=await ctx.newPage();p.on('pageerror',e=>errs.push(tag+' '+e.message));
@@ -12,9 +12,15 @@ for(const vp of [{width:1280,height:900},{width:390,height:844},{width:320,heigh
  const db=await p.evaluate(()=>window.__mockdb.profiles.map(x=>({id:x.id,name:x.name,username:x.username,role:x.role,team:x.team,active:x.active})));
  // ---- พนักงานทีม A
  await login('malee','Temp1234!');
- ok(await p.$('[data-act=pw-self]')===null||!(await p.$('.top-right [data-act=pw-self]')),tag+' no key button on top bar');
- ok(await p.$(PB)!==null,tag+' profile button on top bar');
- ok(await p.$('.top-right [data-act=lang-set]')!==null,tag+' language button on top bar after login');
+ ok(JSON.stringify(await p.$$eval('.top-right button',e=>e.map(x=>x.dataset.act)))===JSON.stringify(['bell','profile','theme']),tag+' top bar: bell, name, gear only');
+ ok(await p.$(PB)!==null&&(await p.$$eval('#nav [data-act=tab]',a=>a.map(x=>x.dataset.v))).pop()==='profile',tag+' profile is the last menu tab');
+ await p.click('[data-act=theme]');ok(await p.$('.thpop [data-act=lang-set]')!==null&&await p.$('.thpop [data-act=theme-set]')!==null&&await p.$('.thpop [data-act=logout-ask]')!==null,tag+' gear menu: language, theme, sign out');await p.click('[data-act=theme]');
+ // ออกจากระบบต้องถามก่อน · กดยกเลิกแล้วยังอยู่ในระบบ
+ await p.click('[data-act=theme]');await p.click('[data-act=logout-ask]');await p.waitForTimeout(100);
+ ok(await p.$('#nav .tab')!==null&&(await p.textContent('.thout')).includes('ออกจากระบบใช่ไหม'),tag+' sign out asks for confirmation first');
+ await p.click('[data-act=logout-no]');await p.waitForTimeout(100);
+ ok(await p.$('#nav .tab')!==null&&await p.$('.thout [data-act=logout]')===null,tag+' cancel keeps you signed in');
+ await p.click('[data-act=theme]');
  ok(await p.evaluate(()=>{const t=document.getElementById('top');return t.scrollWidth<=t.clientWidth+1&&document.documentElement.scrollWidth<=innerWidth;}),tag+' top bar fits ('+vp.width+'px)');
  await p.click(PB);await p.waitForTimeout(250);
  ok((await p.textContent('#main h1')).trim()==='โปรไฟล์',tag+' profile page opens');
@@ -32,16 +38,16 @@ for(const vp of [{width:1280,height:900},{width:390,height:844},{width:320,heigh
  ok(await p.$('#pwbox .modal')!==null,tag+' change password opens from profile');
  await p.click('[data-act=pw-close]');await p.waitForTimeout(200);
  ok(await p.$('#main .plang [data-act=lang-set][data-l=th].on')!==null,tag+' language choice in profile');
- await p.click('[data-act=logout]');await p.waitForTimeout(400);
+ await p.click('[data-act=theme]');await p.click('[data-act=logout-ask]');await p.click('.thout [data-act=logout]');await p.waitForTimeout(400);
  // ---- พนักงานสำรอง (Ops)
  await login('anan','Temp1234!');await p.click(PB);await p.waitForTimeout(250);
  const wantO=db.filter(x=>x.active&&x.role==='staff'&&x.team==='OPS').map(x=>x.name).sort();
  ok(JSON.stringify((await p.$$eval('#main .pmem b',e=>e.map(x=>x.textContent))).sort())===JSON.stringify(wantO),tag+' Ops sees Ops members');
- await p.click('[data-act=logout]');await p.waitForTimeout(400);
+ await p.click('[data-act=theme]');await p.click('[data-act=logout-ask]');await p.click('.thout [data-act=logout]');await p.waitForTimeout(400);
  // ---- ผู้ดูแล
  await login('admin','Admin@2026');
  const tabs=await p.$$eval('#nav [data-act=tab]',a=>a.map(x=>x.dataset.v));
- ok(!tabs.includes('settings')&&tabs.length===5,tag+' admin nav has no settings tab ('+tabs.join(',')+')');
+ ok(!tabs.includes('settings')&&tabs.length===6&&tabs[5]==='profile',tag+' admin nav has no settings tab ('+tabs.join(',')+')');
  ok(await p.evaluate(()=>{const t=document.getElementById('top');return t.scrollWidth<=t.clientWidth+1&&document.documentElement.scrollWidth<=innerWidth;}),tag+' admin top bar fits');
  await p.click(PB);await p.waitForTimeout(250);
  ok((await p.textContent('#main .kv')).includes('ผู้ดูแลระบบ'),tag+' admin role shown');
@@ -55,8 +61,8 @@ for(const vp of [{width:1280,height:900},{width:390,height:844},{width:320,heigh
  if(tag==='m')await p.screenshot({path:S+'profile_m.png'});
  if(vp.width>500){await p.click('.top-right .ubtn');await p.waitForTimeout(150);ok((await p.textContent('#main h1')).trim()==='โปรไฟล์',tag+' name on top bar opens profile');}
  // ---- บังคับตั้งรหัสใหม่: ไม่มีปุ่มโปรไฟล์
- await p.click('[data-act=logout]');await p.waitForTimeout(400);
- await login('somchai','Temp1234!');ok(await p.$(PB)===null,tag+' no profile button while forced to change password');
+ await p.click('[data-act=theme]');await p.click('[data-act=logout-ask]');await p.click('.thout [data-act=logout]');await p.waitForTimeout(400);
+ await login('somchai','Temp1234!');ok(await p.$eval('#nav',e=>e.hidden)&&await p.$('.top-right .ubtn')===null,tag+' no menu / profile while forced to change password');
  await ctx.close();
 }
 // แถบด้านบนต้องไม่ล้นทุกความกว้าง (ทั้งไทยและอังกฤษ)

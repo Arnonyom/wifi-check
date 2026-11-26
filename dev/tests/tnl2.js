@@ -14,5 +14,5 @@ console.log('toast:',await p.$eval('#toast',e=>e.innerText.replace(/\n/g,' | '))
 await p.click('.toast.tgo');await p.clock.runFor(400);
 console.log('after ->',await p.evaluate(()=>document.querySelector('[data-act=tab][aria-current]').dataset.v+' toasts:'+document.querySelectorAll('.toast').length+' '+document.querySelector('[data-act=bell]').getAttribute('aria-label')));
 // staff
-await p.click('[data-act=logout]').catch(()=>{});
+await p.click('[data-act=theme]');await p.click('[data-act=logout-ask]');await p.click('.thout [data-act=logout]').catch(()=>{});
 console.log(errs.length?errs.join('\n'):'NO ERRORS');await b.close();})();

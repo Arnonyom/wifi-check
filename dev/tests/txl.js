@@ -10,7 +10,7 @@ for(const act of ['xl-rep','xl-forgot','xl-cover']){
   const f=S+'xlout/'+dl.suggestedFilename();await dl.saveAs(f);console.log(act,'->',dl.suggestedFilename());}
 console.log('csv card gone:',await p.$('[data-act=mk-rep]')===null);
 await p.screenshot({path:S+'xl_rep.png'});
-await p.click('.top-right .iconbtn[data-act=profile]');await p.click('#main [data-act=tab][data-v=settings]');await p.waitForTimeout(200);
+await p.click('#nav [data-act=tab][data-v=profile]');await p.click('#main [data-act=tab][data-v=settings]');await p.waitForTimeout(200);
 const [dl2]=await Promise.all([p.waitForEvent('download'),p.click('[data-act=xl-sched]')]);const f2=S+'xlout/'+dl2.suggestedFilename();await dl2.saveAs(f2);console.log('xl-sched ->',dl2.suggestedFilename());
 // import an Excel file created by openpyxl (deflate-compressed)
 await p.setInputFiles('#csvFile',f2);await p.waitForTimeout(800);

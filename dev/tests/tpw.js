@@ -20,15 +20,15 @@ await p.fill('#pwNew','NewPass#2026');await p.fill('#pwNew2','NewPass#2026');
 console.log(tag,' checklist:',await p.$$eval('#pwChk li',e=>e.map(x=>x.className||'-').join(',')));
 await p.click('#pwOk');await p.waitForTimeout(800);
 console.log(tag,' after ok: force gone',await p.$('#forceForm')===null,'tabs',await p.$$eval('.tab',e=>e.length));
-await p.click('[data-act=logout]');await p.waitForTimeout(300);
+await p.click('[data-act=theme]');await p.click('[data-act=logout-ask]');await p.click('.thout [data-act=logout]');await p.waitForTimeout(300);
 await login('somchai','Temp1234!');console.log(tag,'old pw ->',await p.textContent('#lerr'));
 await login('somchai','NewPass#2026');console.log(tag,'new pw -> tabs',await p.$$eval('.tab',e=>e.length),'force?',await p.$('#forceForm')!==null);
 // self change from topbar
-await p.click('.top-right .iconbtn[data-act=profile]');await p.waitForTimeout(150);await p.click('#main [data-act=pw-self]');await p.waitForTimeout(150);
+await p.click('#nav [data-act=tab][data-v=profile]');await p.waitForTimeout(150);await p.click('#main [data-act=pw-self]');await p.waitForTimeout(150);
 if(tag==='m')await p.screenshot({path:S+'pw_m_self.png'});
 await p.fill('#pwCur','wrongpass');await p.fill('#pwNew','Another#99');await p.fill('#pwNew2','Another#99');await p.click('#pwOk');await p.waitForTimeout(300);console.log(tag,'self wrong current ->',await err());
 await p.fill('#pwCur','NewPass#2026');await p.click('#pwOk');await p.waitForTimeout(500);console.log(tag,'self ok -> modal closed',await p.$('#pwForm')===null);
-await p.click('[data-act=logout]');await p.waitForTimeout(300);
+await p.click('[data-act=theme]');await p.click('[data-act=logout-ask]');await p.click('.thout [data-act=logout]');await p.waitForTimeout(300);
 // admin reset
 await login('admin','Admin@2026');
 await p.click('[data-act=tab][data-v=people]');await p.waitForTimeout(200);
