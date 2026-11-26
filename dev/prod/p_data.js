@@ -48,7 +48,7 @@ async function loadAll(){
   ]);
   for(var i=0;i<q.length;i++)if(q[i].error)throw q[i].error;
   // ตำแหน่งตอนเข้า/ออกงาน: เห็นเฉพาะของตัวเอง (ผู้ดูแลเห็นทุกคน) · ถ้าโหลดไม่ได้ก็ใช้งานส่วนอื่นต่อได้
-  var lq=await sb.from('attendance_locations').select('*').gte('created_at',since+'T00:00:00+07:00');
+  var lq=null;try{lq=await sb.from('attendance_locations').select('*').gte('created_at',since+'T00:00:00+07:00');}catch(e){lq=null;}
   if(q[0].data)clockOffset=Date.parse(q[0].data)-Date.now();
   var S=emptyState();
   S.employees=(q[1].data||[]).map(mapEmp);

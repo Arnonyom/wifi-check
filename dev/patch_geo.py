@@ -15,7 +15,8 @@ rep("'<span><small>เข้างาน</small><b class=\"tnum\">'+fmtHM(io.in)
 rep("      if(a.out)kvh+='<div><dt>ชั่วโมงทำงาน</dt>","      kvh+=locRows(a);\n      if(a.out)kvh+='<div><dt>ชั่วโมงทำงาน</dt>")
 css="""
 /* ตำแหน่งตอนเข้า/ออกงาน */
-.ioloc{display:flex;flex-direction:column;align-items:center;gap:2px;margin:6px 0 0;color:var(--muted);text-align:center;line-height:1.4}
+.ioloc{margin:6px auto 0;max-width:100%;color:var(--muted);text-align:center;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ioloc .chip{font-size:12px;padding:1px 8px}
 .ioloc b{font-weight:600;color:var(--ink)}
 .maplink{white-space:nowrap;font-size:13px;color:var(--brand-strong);font-weight:600}
 .locp{word-break:keep-all;overflow-wrap:break-word}

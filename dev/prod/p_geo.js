@@ -56,7 +56,7 @@ async function geoSave(kind,attId){
     if(r.error)throw r.error;
     if(!state.locs)state.locs={};
     state.locs[attId+'|'+kind]={status:st,lat:st==='ok'?g.lat:null,lng:st==='ok'?g.lng:null,acc:st==='ok'?g.acc:null,place:st==='ok'?g.place:null};
-    if(!modal&&(view==='home'||det.length)){if(view==='home')renderView();if(det.length)renderDet();}
+    if(!modal&&view==='home')geoHomePaint(attId);
   }catch(e){}
 }
 /* แสดงตำแหน่งที่บันทึกแล้ว (หน้าลงเวลาของเจ้าตัว / รายละเอียดกะของผู้ดูแล) */
@@ -73,6 +73,14 @@ function locRows(a){
   return h;
 }
 function homeLoc(io){
-  var a=locOf(io,'in'),b=locOf(io,'out');if(!a&&!b)return '';
-  return '<p class="ioloc small">'+(a?'<span><b>ตำแหน่งเข้างาน</b> '+locHtml(a,false)+'</span>':'')+(b?'<span><b>ตำแหน่งออกงาน</b> '+locHtml(b,false)+'</span>':'')+'</p>';
+  var b=locOf(io,'out'),a=locOf(io,'in'),L=b||a;if(!L)return '';
+  return '<p class="ioloc small"><b>'+(b?'ตำแหน่งออกงาน':'ตำแหน่งเข้างาน')+'</b> '+locHtml(L,false)+'</p>';
+}
+/* อัปเดตเฉพาะบรรทัดตำแหน่งบนหน้าลงเวลา (ไม่วาดทั้งหน้าใหม่ ข้อความ "เข้างานสำเร็จ" จะได้ไม่หาย) */
+function geoHomePaint(attId){
+  var io=state.attendance.find(function(x){return x.id===attId;}),box=document.querySelector('#main .iotimes');
+  if(!io||!box)return;
+  var old=document.querySelector('#main .ioloc'),h=homeLoc(io);if(!h)return;
+  var t=document.createElement('div');t.innerHTML=h;
+  if(old)old.replaceWith(t.firstChild);else box.parentNode.insertBefore(t.firstChild,box.nextSibling);
 }

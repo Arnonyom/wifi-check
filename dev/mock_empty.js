@@ -46,7 +46,7 @@ function build(){
   return db;
 }
 var db=build();db.attendance=[];db.overrides=[];db.leaves=[];
-function rowsOf(t){return {profiles:db.profiles,settings:db.settings,overrides:db.overrides,attendance:db.attendance,leaves:db.leaves,notifications:db.notifications,notification_reads:db.reads,rota_periods:[],rota_b:[]}[t];}
+function rowsOf(t){return {profiles:db.profiles,settings:db.settings,overrides:db.overrides,attendance:db.attendance,attendance_locations:[],leaves:db.leaves,notifications:db.notifications,notification_reads:db.reads,rota_periods:[],rota_b:[]}[t];}
 var session={uid:'e0',role:'admin'};window.__calls=[];
 function Q(t){this.t=t;this.f=[];this.op='select';}
 Q.prototype.select=function(){this.sel=true;return this;};

@@ -17,7 +17,7 @@ for(const vp of [{width:1280,height:900},{width:390,height:844}]){
  ok(await p.evaluate(()=>document.documentElement.lang)==='en',tag+' html lang=en after switch');
  ok((await p.textContent('#main h1')).trim()==='Sign in',tag+' login page in English');
  // ชื่อพนักงาน + เหตุผลการลา/หมายเหตุที่คนพิมพ์ (ข้อมูล ไม่ต้องแปล)
- const names=await p.evaluate(()=>{const d=window.__mockdb;return [].concat(d.profiles.map(x=>x.name),d.leaves.map(x=>x.reason),d.leaves.map(x=>x.note),d.overrides.map(x=>x.note),d.attendance.map(x=>x.admin_note)).filter(Boolean).sort((a,b)=>b.length-a.length);});
+ const names=await p.evaluate(()=>{const d=window.__mockdb;return [].concat(d.profiles.map(x=>x.name),d.leaves.map(x=>x.reason),d.leaves.map(x=>x.note),d.overrides.map(x=>x.note),d.attendance.map(x=>x.admin_note),(d.locs||[]).map(x=>x.place)).filter(Boolean).sort((a,b)=>b.length-a.length);});
  const leftovers=new Map();
  const scan=async where=>{
   const r=await p.evaluate(()=>{const out=[];const w=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);let n;
