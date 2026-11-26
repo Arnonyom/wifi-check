@@ -9,6 +9,7 @@ rep("  renderModal();\n  var b=document.querySelector('#modal [data-act=\"modal-
     "  geoStart();\n  renderModal();\n  var b=document.querySelector('#modal [data-act=\"modal-ok\"]');if(b)b.focus();\n}")
 rep("      '<div><dt>สถานะ</dt><dd id=\"mStatus\">'+dyn.chip+'</dd></div>'+\n    '</dl>'+",
     "      '<div><dt>สถานะ</dt><dd id=\"mStatus\">'+dyn.chip+'</dd></div>'+\n      '<div><dt>ตำแหน่ง</dt><dd id=\"mLoc\" aria-live=\"polite\">'+geoModalHtml()+'</dd></div>'+\n    '</dl>'+")
+rep("'<div class=\"row\"><button class=\"btn grow\" data-act=\"modal-ok\">'","'<div class=\"row\"><button class=\"btn grow\" data-act=\"modal-ok\"'+(geoBlocked()?' disabled':'')+'>'")
 rep("'<p class=\"muted small\">ระบบบันทึกเวลาตอนที่กดยืนยัน</p>'","'<p class=\"muted small\">ระบบบันทึกเวลาและตำแหน่งตอนที่กดยืนยัน · ตำแหน่งเห็นได้เฉพาะคุณและผู้ดูแล</p>'")
 rep("'<span><small>เข้างาน</small><b class=\"tnum\">'+fmtHM(io.in)+'</b></span><span><small>ออกงาน</small><b class=\"tnum\">'+(io.out?fmtHM(io.out):'—')+'</b></span></div>':'';",
     "'<span><small>เข้างาน</small><b class=\"tnum\">'+fmtHM(io.in)+'</b></span><span><small>ออกงาน</small><b class=\"tnum\">'+(io.out?fmtHM(io.out):'—')+'</b></span></div>'+homeLoc(io):'';")

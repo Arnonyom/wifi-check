@@ -37,15 +37,22 @@ function geoStart(){
 }
 function geoCoords(L){return L.lat.toFixed(5)+', '+L.lng.toFixed(5);}
 function geoMap(L){return 'https://www.google.com/maps?q='+L.lat.toFixed(6)+','+L.lng.toFixed(6);}
-function geoBad(st){return st==='denied'?'ไม่ได้อนุญาตตำแหน่ง':st==='unsupported'?'เครื่องไม่รองรับตำแหน่ง':'หาตำแหน่งไม่เจอ';}
+function geoBad(st){return st==='denied'?'ไม่ได้อนุญาตตำแหน่ง':'อ่านค่าตำแหน่งไม่ได้';}
+/* ต้องอนุญาตตำแหน่งก่อนจึงลงเวลาได้ · ระหว่างรอคำตอบจากเครื่องก็ยังกดยืนยันไม่ได้ */
+function geoBlocked(){return !geo||geo.status==='wait'||geo.status==='denied';}
 /* ข้อความในหน้าต่างยืนยัน */
 function geoModalHtml(){
   var g=geo;
   if(!g||g.status==='wait')return '<span class="muted">กำลังหาตำแหน่ง…</span>';
   if(g.status==='ok')return (g.place?'<span class="locp">'+esc(g.place)+'</span>':'<span class="tnum">'+geoCoords(g)+'</span>'+(g.placeWait?' <span class="muted small">กำลังหาชื่อสถานที่…</span>':''))+' <span class="muted small tnum">±'+g.acc+' ม.</span>';
-  return '<span class="chip late">'+geoBad(g.status)+'</span><br><span class="muted small">ยังลงเวลาได้ แต่ผู้ดูแลจะเห็นว่าไม่มีตำแหน่ง</span>';
+  if(g.status==='denied')return '<span class="chip off">ไม่ได้อนุญาตตำแหน่ง</span><br><span class="small"><b>ต้องอนุญาตให้เข้าถึงตำแหน่งก่อน จึงจะลงเวลาได้</b></span><br><span class="muted small">เปิดที่การตั้งค่าเบราว์เซอร์ (แตะรูปแม่กุญแจข้างที่อยู่เว็บ → ตำแหน่ง → อนุญาต) แล้วกด "ลองใหม่"</span><br><button type="button" class="btn sec sm" data-act="geo-retry" style="margin-top:6px">ลองใหม่</button>';
+  return '<span class="chip late">อ่านค่าตำแหน่งไม่ได้</span><br><span class="muted small">ยังลงเวลาได้ ผู้ดูแลจะเห็นว่าอ่านค่าตำแหน่งไม่ได้</span>';
 }
-function geoPaint(){var el=document.getElementById('mLoc');if(el)el.innerHTML=geoModalHtml();}
+function geoPaint(){
+  var el=document.getElementById('mLoc');if(el)el.innerHTML=geoModalHtml();
+  var b=document.querySelector('#modal [data-act="modal-ok"]');if(b&&!busy)b.disabled=geoBlocked();
+}
+document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-act="geo-retry"]');if(b&&modal){e.stopPropagation();geoStart();geoPaint();}},true);
 /* บันทึกหลังเข้า/ออกงานสำเร็จ (ไม่ทำให้การลงเวลาช้า) */
 async function geoSave(kind,attId){
   var g=geo;if(!g||!attId)return;

@@ -1,5 +1,6 @@
 async function confirmModal(){
   var m=modal;if(!m||busy)return;
+  if(geoBlocked()){geoPaint();return;}
   busy=true;var ok=$('modal')&&document.querySelector('#modal [data-act="modal-ok"]');if(ok)ok.disabled=true;
   try{
     if(m.type==='in'){

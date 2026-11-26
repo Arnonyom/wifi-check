@@ -1166,5 +1166,8 @@
 "ตำแหน่งเข้างาน": "Check-in location",
 "หาตำแหน่งไม่เจอ": "Location not found",
 "เครื่องไม่รองรับตำแหน่ง": "Location not supported",
-"ไม่ได้อนุญาตตำแหน่ง": "Location not allowed"
+"ไม่ได้อนุญาตตำแหน่ง": "Location not allowed",
+"<span class=\"chip late\">อ่านค่าตำแหน่งไม่ได้</span><br><span class=\"muted small\">ยังลงเวลาได้ ผู้ดูแลจะเห็นว่าอ่านค่าตำแหน่งไม่ได้</span>": "<span class=\"chip late\">Couldn't read location</span><br><span class=\"muted small\">You can still check in. Admins will see the location couldn't be read</span>",
+"<span class=\"chip off\">ไม่ได้อนุญาตตำแหน่ง</span><br><span class=\"small\"><b>ต้องอนุญาตให้เข้าถึงตำแหน่งก่อน จึงจะลงเวลาได้</b></span><br><span class=\"muted small\">เปิดที่การตั้งค่าเบราว์เซอร์ (แตะรูปแม่กุญแจข้างที่อยู่เว็บ → ตำแหน่ง → อนุญาต) แล้วกด \"ลองใหม่\"</span><br><button type=\"button\" class=\"btn sec sm\" data-act=\"geo-retry\" style=\"margin-top:6px\">ลองใหม่</button>": "<span class=\"chip off\">Location not allowed</span><br><span class=\"small\"><b>You must allow location access to check in</b></span><br><span class=\"muted small\">Turn it on in your browser settings (tap the lock icon next to the address → Location → Allow), then tap \"Try again\"</span><br><button type=\"button\" class=\"btn sec sm\" data-act=\"geo-retry\" style=\"margin-top:6px\">Try again</button>",
+"อ่านค่าตำแหน่งไม่ได้": "Couldn't read location"
 }
