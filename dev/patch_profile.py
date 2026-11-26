@@ -63,6 +63,21 @@ css="""
 .profwrap .pav.sm{width:30px;height:30px;font-size:13px}
 .profwrap .kv div{padding:7px 0}
 .profwrap .li{padding:8px 0}
+/* มือถือ: การ์ดโปรไฟล์แคบลง อยู่กลางจอ */
+@media (max-width:640px){.profwrap{width:max(80%,min(100%,300px));margin:0 auto}}
+/* สมาชิกในทีม: กดแล้วขยาย */
+.pmem{all:unset;box-sizing:border-box;width:100%;display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:8px 6px;border-bottom:1px solid var(--line);cursor:pointer;border-radius:10px;transition:background .15s}
+.pmem:hover{background:var(--surface-2)}
+.pmem:focus-visible{outline:2px solid var(--brand);outline-offset:1px}
+.pmem .pmchev{color:var(--muted);transition:transform .15s}
+.pmem.open{background:var(--surface-2);border-color:transparent;margin:4px 0;padding:12px 10px}
+.pmem.open .pmchev{transform:rotate(90deg)}
+.pmem.open .pav.sm{width:44px;height:44px;font-size:18px}
+.pmem.open b{font-size:16px}
+.pmx{flex-basis:100%;display:flex;flex-direction:column;gap:6px;padding:8px 2px 2px;font-size:14px;animation:pmin .15s ease-out}
+.pmrow{display:flex;justify-content:space-between;gap:10px}.pmrow b{font-size:14px!important;text-align:right}
+@keyframes pmin{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.pmx{animation:none}.pmem,.pmem .pmchev{transition:none}}
 /* เมนูฟันเฟือง: ออกจากระบบ (ถามยืนยันก่อน) */
 .thout{border-top:1px solid var(--line);padding-top:10px;display:flex;flex-direction:column;gap:8px}.thout p{margin:0}
 .thout .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px}.thout .btn svg{width:18px;height:18px}

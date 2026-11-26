@@ -35,6 +35,21 @@ for(const vp of [{width:1280,height:900},{width:390,height:844},{width:320,heigh
  ok(JSON.stringify(got)===JSON.stringify(want),tag+' team members = team A ('+got.length+')');
  ok(await p.$eval('#main .pmem:has(.chip)',e=>e.textContent.includes('มาลี')),tag+' "คุณ" marks myself');
  ok(await p.$('#main [data-v=settings]')===null,tag+' staff has no system settings');
+ // กดชื่อสมาชิก → ขยาย · กดคนอื่น → สลับ · กดซ้ำ/กดที่อื่น → หุบ
+ const openIds=()=>p.$$eval('#main .pmem.open',e=>e.map(x=>x.dataset.pm));
+ const ids=await p.$$eval('#main .pmem',e=>e.map(x=>x.dataset.pm));
+ await p.click('[data-pm="'+ids[0]+'"]');await p.waitForTimeout(150);
+ ok(JSON.stringify(await openIds())===JSON.stringify([ids[0]])&&(await p.textContent('.pmem.open .pmx')).includes('บทบาท'),tag+' tap member expands details');
+ ok(!/\d\d\.\d\d–\d\d\.\d\d/.test(await p.textContent('.pmem.open')),tag+' expanded member shows no regular shift');
+ await p.click('[data-pm="'+ids[1]+'"]');await p.waitForTimeout(150);
+ ok(JSON.stringify(await openIds())===JSON.stringify([ids[1]]),tag+' tap another member switches');
+ await p.click('[data-pm="'+ids[1]+'"]');await p.waitForTimeout(150);
+ ok((await openIds()).length===0,tag+' tap same member again collapses');
+ await p.click('[data-pm="'+ids[0]+'"]');await p.click('#main h1');await p.waitForTimeout(150);
+ ok((await openIds()).length===0,tag+' tap elsewhere collapses');
+ await p.focus('[data-pm="'+ids[2]+'"]');await p.keyboard.press('Enter');await p.waitForTimeout(150);
+ ok(JSON.stringify(await openIds())===JSON.stringify([ids[2]]),tag+' keyboard Enter expands');
+ if(tag==='m'){const w=await p.$eval('#main .profwrap',e=>e.getBoundingClientRect().width);ok(w<=310,tag+' phone: card narrower than screen ('+Math.round(w)+'px)');}
  await p.click('#main [data-act=pw-self]');await p.waitForTimeout(200);
  ok(await p.$('#pwbox .modal')!==null,tag+' change password opens from profile');
  await p.click('[data-act=pw-close]');await p.waitForTimeout(200);

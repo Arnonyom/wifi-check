@@ -1,4 +1,4 @@
-/* หน้าโปรไฟล์ (เปิดจากปุ่มรูปคนมุมขวาบน): ข้อมูลของฉัน · สมาชิกในทีม · เปลี่ยนรหัสผ่าน · ภาษา · (ผู้ดูแล) ตั้งค่าระบบ
+/* หน้าโปรไฟล์ (แท็บสุดท้ายของเมนูล่าง): ข้อมูลของฉัน · สมาชิกในทีม · เปลี่ยนรหัสผ่าน · ภาษา · (ผู้ดูแล) ตั้งค่าระบบ
    ไม่แสดงกะประจำ เพราะทีม A หมุนกะทุกสัปดาห์ และทีม B สลับกะทุก 2 สัปดาห์ */
 function teamMembers(e){
   var same=state.employees.filter(function(x){
@@ -7,13 +7,27 @@ function teamMembers(e){
   });
   return byOrder(same);
 }
+/* กดชื่อสมาชิก → ขยายดูรายละเอียด · กดคนอื่นสลับไปคนนั้น · กดที่อื่น/กดซ้ำ → หุบ */
+var profOpen=null;
+document.addEventListener('click',function(e){
+  if(view!=='profile'){profOpen=null;return;}
+  var r=e.target.closest&&e.target.closest('[data-pm]'),id=r?r.getAttribute('data-pm'):null;
+  var nv=id&&profOpen!==id?id:null;
+  if(nv!==profOpen){profOpen=nv;renderView();var b=nv&&document.querySelector('[data-pm="'+nv+'"]');if(b&&b.focus)try{b.focus({preventScroll:true});}catch(x){}}
+});
 function viewProfile(){
   var e=me,isAdm=e.role==='admin',T0=isAdm?null:TEAMS[e.team];
   var ini=esc((e.name||'?').trim().charAt(0).toUpperCase());
   var mem=teamMembers(e);
   var rows=mem.map(function(x){
-    return '<div class="li pmem"><span class="pav sm" aria-hidden="true">'+esc((x.name||'?').trim().charAt(0).toUpperCase())+'</span><span class="grow"><b>'+esc(x.name)+'</b><br><span class="muted small">'+esc(x.username)+'</span></span>'+
-      (x.id===e.id?'<span class="chip">คุณ</span>':'')+'</div>';
+    var op=profOpen===x.id,xa=x.role==='admin',xt=xa?null:TEAMS[x.team];
+    return '<button type="button" class="li pmem'+(op?' open':'')+'" data-pm="'+x.id+'" aria-expanded="'+op+'"><span class="pav sm" aria-hidden="true">'+esc((x.name||'?').trim().charAt(0).toUpperCase())+'</span><span class="grow"><b>'+esc(x.name)+'</b><br><span class="muted small">'+esc(x.username)+'</span></span>'+
+      (x.id===e.id?'<span class="chip">คุณ</span>':'')+'<span class="pmchev" aria-hidden="true">›</span>'+
+      (op?'<span class="pmx"><span class="pmrow"><span class="muted">ชื่อผู้ใช้</span><b>'+esc(x.username)+'</b></span>'+
+        '<span class="pmrow"><span class="muted">บทบาท</span><b>'+(xa?'ผู้ดูแลระบบ':'พนักงาน')+'</b></span>'+
+        (xa?'<span class="pmrow"><span class="muted">ช่วยทำงานแทน</span><b>'+(x.canWork?'ได้':'ไม่ได้')+'</b></span>'
+           :'<span class="pmrow"><span class="muted">ทีม</span><b>'+esc(xt.name)+' <span class="muted small">'+esc(xt.dayText)+'</span></b></span>')+
+        '</span>':'')+'</button>';
   }).join('')||'<p class="muted small" style="padding:10px 0">ยังไม่มีสมาชิกคนอื่น</p>';
   var go='<span class="go" aria-hidden="true">›</span>';
   return '<div class="stack profwrap"><h1>โปรไฟล์</h1>'+
