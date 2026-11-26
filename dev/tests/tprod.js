@@ -2,7 +2,9 @@ const {chromium}=require('playwright');
 const S=require('path').join(__dirname,'..')+'/';
 (async()=>{
 const b=await chromium.launch();const errs=[];
-async function mk(vp){const ctx=await b.newContext({viewport:vp});const p=await ctx.newPage();
+// เข้า/ออกงานต้องอนุญาตตำแหน่ง → ให้สิทธิ์ตำแหน่ง + จำลองคำตอบ OpenStreetMap (ไม่ต่อเน็ตจริง)
+async function mk(vp){const ctx=await b.newContext({viewport:vp,permissions:['geolocation'],geolocation:{latitude:13.73,longitude:100.56,accuracy:25}});const p=await ctx.newPage();
+  await p.route('https://nominatim.openstreetmap.org/**',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({address:{road:'ถนนทดสอบ',city:'กรุงเทพมหานคร'}})}));
   p.on('pageerror',e=>errs.push('pageerror: '+e.message));p.on('console',m=>{if(m.type()==='error'&&!/fonts|ERR_|Failed to load resource/.test(m.text()))errs.push('console: '+m.text());});
   await p.route('**/supabase-js@*/**',r=>r.fulfill({body:'',contentType:'text/javascript'}));
   await p.addInitScript({path:S+'mock.js'});
