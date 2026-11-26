@@ -24,6 +24,7 @@ for(const vp of [{width:1280,height:900},{width:390,height:844},{width:320,heigh
  ok(await p.evaluate(()=>{const t=document.getElementById('top');return t.scrollWidth<=t.clientWidth+1&&document.documentElement.scrollWidth<=innerWidth;}),tag+' top bar fits ('+vp.width+'px)');
  await p.click(PB);await p.waitForTimeout(250);
  ok((await p.textContent('#main h1')).trim()==='โปรไฟล์',tag+' profile page opens');
+ { const w=await p.$eval('#main .profwrap',e=>e.getBoundingClientRect().width);ok(w<=520,tag+' profile is a compact card, not full width ('+Math.round(w)+'px)'); }
  ok(await p.$eval(PB,e=>e.getAttribute('aria-current'))==='page',tag+' profile button lit');
  const kv=await p.$eval('#main .kv',e=>e.innerText);
  ok(kv.includes('ทีม A')&&kv.includes('จันทร์–ศุกร์'),tag+' shows team');

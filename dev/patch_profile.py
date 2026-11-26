@@ -54,6 +54,15 @@ css="""
 .pav.sm{width:34px;height:34px;font-size:15px}
 .pmem{flex-wrap:nowrap}
 .plang{display:flex;flex-direction:column;gap:8px}.plang p{margin:0}
+/* โปรไฟล์เป็นการ์ดขนาดพอดี ไม่ยืดเต็มจอ (คอมและมือถือ) */
+.profwrap{max-width:520px;width:100%;gap:12px}
+.profwrap .card{padding:16px}
+.profwrap h2{font-size:17px}
+.profwrap .phd{gap:12px}
+.profwrap .pav{width:46px;height:46px;font-size:19px}
+.profwrap .pav.sm{width:30px;height:30px;font-size:13px}
+.profwrap .kv div{padding:7px 0}
+.profwrap .li{padding:8px 0}
 /* เมนูฟันเฟือง: ออกจากระบบ (ถามยืนยันก่อน) */
 .thout{border-top:1px solid var(--line);padding-top:10px;display:flex;flex-direction:column;gap:8px}.thout p{margin:0}
 .thout .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px}.thout .btn svg{width:18px;height:18px}

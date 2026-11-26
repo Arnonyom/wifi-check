@@ -16,7 +16,7 @@ function viewProfile(){
       (x.id===e.id?'<span class="chip">คุณ</span>':'')+'</div>';
   }).join('')||'<p class="muted small" style="padding:10px 0">ยังไม่มีสมาชิกคนอื่น</p>';
   var go='<span class="go" aria-hidden="true">›</span>';
-  return '<div class="stack"><h1>โปรไฟล์</h1>'+
+  return '<div class="stack profwrap"><h1>โปรไฟล์</h1>'+
     '<section class="card stack"><div class="phd"><span class="pav" aria-hidden="true">'+ini+'</span><div class="grow"><h2>'+esc(e.name)+'</h2><p class="muted">'+esc(e.username)+'</p></div></div>'+
     '<dl class="kv">'+
       '<div><dt>บทบาท</dt><dd>'+(isAdm?'ผู้ดูแลระบบ':'พนักงาน')+'</dd></div>'+
