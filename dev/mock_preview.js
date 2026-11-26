@@ -56,10 +56,17 @@ function build(){
    ['ผู้ดูแลลงเวลาแทน',"'บันทึกเวลา '+(function(x){return x.slice(8,10)+'/'+x.slice(5,7);})(addDays(today,-2))+' เข้า 10:02 ออก 19:00'",['e2'],'',8],
    ['สร้างบัญชีใหม่',"'ผู้ดูแลสร้างบัญชีให้ best'",[],'',30]].forEach(function(r,i){
     db.notifications.push({id:'nl'+i,ts:new Date(now-r[4]*36e5).toISOString(),to_ids:r[2],title:r[0],body:eval(r[1]),kind:r[3]});});
+  // ตำแหน่งตัวอย่าง (พิกัดสมมติ) ของการลงเวลาล่าสุด
+  var PL=[[13.7466,100.5393,'อาคารสำนักงานตัวอย่าง, ถนนเพลินจิต, แขวงลุมพินี, เขตปทุมวัน, กรุงเทพมหานคร'],[13.7563,100.5018,'ถนนราชดำเนินกลาง, แขวงบวรนิเวศ, เขตพระนคร, กรุงเทพมหานคร'],[13.7276,100.5241,'ถนนสีลม, แขวงสุริยวงศ์, เขตบางรัก, กรุงเทพมหานคร']];
+  db.locs=[];db.attendance.slice(-14).forEach(function(a,i){
+    var p=PL[i%3];db.locs.push({att_id:a.id,kind:'in',emp:a.emp,status:i===5?'denied':'ok',lat:i===5?null:p[0]+i*1e-4,lng:i===5?null:p[1],acc:i===5?null:12+i,place:i===5?null:p[2],created_at:a.check_in});
+    if(a.check_out)db.locs.push({att_id:a.id,kind:'out',emp:a.emp,status:'ok',lat:p[0],lng:p[1]+i*1e-4,acc:20,place:p[2],created_at:a.check_out});});
   return db;
 }
 var db=build();window.__mockdb=db;
-function rowsOf(t){return {profiles:db.profiles,settings:db.settings,overrides:db.overrides,attendance:db.attendance,leaves:db.leaves,notifications:db.notifications,notification_reads:db.reads,rota_periods:db.rota,rota_b:db.rota_b}[t];}
+// หน้าตัวอย่าง: จำลองตำแหน่งเครื่อง (ไม่ขอสิทธิ์จริง ไม่ส่งข้อมูลออกนอกเครื่อง)
+window.__geoMock={geo:{getCurrentPosition:function(ok){setTimeout(function(){ok({coords:{latitude:13.74661,longitude:100.53928,accuracy:15}});},400);}},place:'อาคารสำนักงานตัวอย่าง, ถนนเพลินจิต, แขวงลุมพินี, เขตปทุมวัน, กรุงเทพมหานคร'};
+function rowsOf(t){return {profiles:db.profiles,settings:db.settings,overrides:db.overrides,attendance:db.attendance,attendance_locations:(db.locs||(db.locs=[])).filter(function(l){return session&&(session.role==='admin'||l.emp===session.uid);}),leaves:db.leaves,notifications:db.notifications,notification_reads:db.reads,rota_periods:db.rota,rota_b:db.rota_b}[t];}
 var session=null;window.__calls=[];
 function Q(t){this.t=t;this.f=[];this.op='select';}
 Q.prototype.select=function(){this.sel=true;return this;};
@@ -80,6 +87,9 @@ Q.prototype.then=function(res,rej){
 function fail(m){return {data:null,error:{message:m}};}
 var RPC={
  set_profile_order:function(a){if(session.role!=='admin')throw new Error('เฉพาะผู้ดูแลระบบ');(a.p_ids||[]).forEach(function(id,i){var p=db.profiles.find(function(x){return x.id===id;});if(p)p.sort_order=i+1;});return null;},
+ set_my_location:function(a){var r=db.attendance.find(function(x){return x.id===a.p_att;});if(!r||r.emp!==session.uid)throw new Error('ไม่พบรายการเข้างาน');
+   db.locs=db.locs||[];db.locs=db.locs.filter(function(l){return !(l.att_id===a.p_att&&l.kind===a.p_kind);});var ok=a.p_status==='ok';
+   db.locs.push({att_id:a.p_att,kind:a.p_kind,emp:r.emp,status:a.p_status,lat:ok?a.p_lat:null,lng:ok?a.p_lng:null,acc:ok?a.p_acc:null,place:ok?a.p_place:null,created_at:new Date().toISOString()});return null;},
  server_now:function(){return new Date().toISOString();},
  check_in:function(a){var me=db.profiles.find(function(p){return p.id===session.uid;});
    var ov=db.overrides.find(function(o){return o.work_date===a.p_date&&o.shift_id===a.p_shift;});

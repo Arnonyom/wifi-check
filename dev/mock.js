@@ -25,7 +25,7 @@ function build(){
   return db;
 }
 var db=build();
-function rowsOf(t){return {profiles:db.profiles,settings:db.settings,overrides:db.overrides,attendance:db.attendance,leaves:db.leaves,notifications:db.notifications,notification_reads:db.reads,rota_periods:[],rota_b:[]}[t];}
+function rowsOf(t){return {profiles:db.profiles,settings:db.settings,overrides:db.overrides,attendance:db.attendance,attendance_locations:(db.locs||(db.locs=[])).filter(function(l){return session&&(session.role==='admin'||l.emp===session.uid);}),leaves:db.leaves,notifications:db.notifications,notification_reads:db.reads,rota_periods:[],rota_b:[]}[t];}
 var session=null;window.__calls=[];
 function Q(t){this.t=t;this.f=[];this.op='select';}
 Q.prototype.select=function(){this.sel=true;return this;};
@@ -46,6 +46,9 @@ Q.prototype.then=function(res,rej){
 function fail(m){return {data:null,error:{message:m}};}
 var RPC={
  set_profile_order:function(a){if(session.role!=='admin')throw new Error('เฉพาะผู้ดูแลระบบ');(a.p_ids||[]).forEach(function(id,i){var p=db.profiles.find(function(x){return x.id===id;});if(p)p.sort_order=i+1;});return null;},
+ set_my_location:function(a){var r=db.attendance.find(function(x){return x.id===a.p_att;});if(!r||r.emp!==session.uid)throw new Error('ไม่พบรายการเข้างาน');
+   db.locs=db.locs||[];db.locs=db.locs.filter(function(l){return !(l.att_id===a.p_att&&l.kind===a.p_kind);});var ok=a.p_status==='ok';
+   db.locs.push({att_id:a.p_att,kind:a.p_kind,emp:r.emp,status:a.p_status,lat:ok?a.p_lat:null,lng:ok?a.p_lng:null,acc:ok?a.p_acc:null,place:ok?a.p_place:null,created_at:new Date().toISOString()});return null;},
  server_now:function(){return new Date().toISOString();},
  check_in:function(a){var me=db.profiles.find(function(p){return p.id===session.uid;});
    var ov=db.overrides.find(function(o){return o.work_date===a.p_date&&o.shift_id===a.p_shift;});

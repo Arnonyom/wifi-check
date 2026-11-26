@@ -3,7 +3,7 @@ var CFG=window.APP_CONFIG||{};
 var sb=null;
 try{sb=window.supabase.createClient(CFG.SUPABASE_URL,CFG.SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});}catch(e){sb=null;}
 var busy=false,loginMsg='',lastNoteTs=0,loaded=false,curUid=null;
-function emptyState(){return {settings:{openBefore:30,lateAfter:30},employees:[],overrides:{},attendance:[],notifications:[],leaves:[]};}
+function emptyState(){return {settings:{openBefore:30,lateAfter:30},employees:[],overrides:{},attendance:[],notifications:[],leaves:[],locs:{}};}
 function save(){}
 function lsGet(k){try{return localStorage.getItem(k);}catch(e){return null;}}
 function lsSet(k,v){try{localStorage.setItem(k,v);}catch(e){}}
@@ -47,6 +47,8 @@ async function loadAll(){
     sb.from('rota_b').select('*').order('start_date')
   ]);
   for(var i=0;i<q.length;i++)if(q[i].error)throw q[i].error;
+  // ตำแหน่งตอนเข้า/ออกงาน: เห็นเฉพาะของตัวเอง (ผู้ดูแลเห็นทุกคน) · ถ้าโหลดไม่ได้ก็ใช้งานส่วนอื่นต่อได้
+  var lq=await sb.from('attendance_locations').select('*').gte('created_at',since+'T00:00:00+07:00');
   if(q[0].data)clockOffset=Date.parse(q[0].data)-Date.now();
   var S=emptyState();
   S.employees=(q[1].data||[]).map(mapEmp);
@@ -59,6 +61,7 @@ async function loadAll(){
   S.notifications=(q[6].data||[]).map(function(n){return {id:n.id,ts:Date.parse(n.ts),to:n.to_ids||[],title:n.title,body:n.body||'',kind:n.kind||'',read:read[n.id]&&uid0?[uid0]:[]};});
   S.rota=(q[8].data||[]).map(function(r){return {week:r.week_from,active:r.active,cyc:r.cyc||3,ids:[r.a2,r.a3,r.a4,r.a1||null]};});
   S.rotaB=(q[9].data||[]).map(function(r){return {start:r.start_date,active:r.active,day:r.b_day,night:r.b_night};});
+  (lq&&!lq.error?lq.data||[]:[]).forEach(function(l){S.locs[l.att_id+'|'+l.kind]={status:l.status,lat:l.lat,lng:l.lng,acc:l.acc,place:l.place||null};});
   state=S;
   if(me){var fresh=emp(me.id);if(fresh)me=fresh;}
   loaded=true;

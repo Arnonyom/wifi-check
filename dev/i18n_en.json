@@ -1119,7 +1119,8 @@
 "ผู้ดูแลตั้งการหมุนกะทีม A ใหม่ เริ่มสัปดาห์ ": "Admin set a new Team A rotation starting week ",
 "ผู้ดูแลอนุมัติลาพักร้อน ": "Admin approved vacation leave ",
 "ผู้ดูแลอนุมัติลากิจ ": "Admin approved personal leave ",
-"ผู้ดูแลอนุมัติลาป่วย ": "Admin approved sick leave "
+"ผู้ดูแลอนุมัติลาป่วย ": "Admin approved sick leave ",
+"หมดเวลาบันทึกตำแหน่ง": "Too late to save the location"
 },
 "<button class=\"uname ubtn\" data-act=\"profile\" title=\"โปรไฟล์\">": "<button class=\"uname ubtn\" data-act=\"profile\" title=\"Profile\">",
 "<button class=\"iconbtn\" data-act=\"profile\" aria-label=\"โปรไฟล์\" title=\"โปรไฟล์\"": "<button class=\"iconbtn\" data-act=\"profile\" aria-label=\"Profile\" title=\"Profile\"",
@@ -1151,5 +1152,19 @@
 " (ลาก หรือกดลูกศร)\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 16 16\" aria-hidden=\"true\" fill=\"currentColor\"><circle cx=\"5.5\" cy=\"3\" r=\"1.5\"/><circle cx=\"10.5\" cy=\"3\" r=\"1.5\"/><circle cx=\"5.5\" cy=\"8\" r=\"1.5\"/><circle cx=\"10.5\" cy=\"8\" r=\"1.5\"/><circle cx=\"5.5\" cy=\"13\" r=\"1.5\"/><circle cx=\"10.5\" cy=\"13\" r=\"1.5\"/></svg></button>": " (drag or press arrow keys)\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 16 16\" aria-hidden=\"true\" fill=\"currentColor\"><circle cx=\"5.5\" cy=\"3\" r=\"1.5\"/><circle cx=\"10.5\" cy=\"3\" r=\"1.5\"/><circle cx=\"5.5\" cy=\"8\" r=\"1.5\"/><circle cx=\"10.5\" cy=\"8\" r=\"1.5\"/><circle cx=\"5.5\" cy=\"13\" r=\"1.5\"/><circle cx=\"10.5\" cy=\"13\" r=\"1.5\"/></svg></button>",
 "<button type=\"button\" class=\"dragh\" data-drag title=\"ลากเพื่อย้ายตำแหน่ง\" aria-label=\"ย้ายตำแหน่ง ": "<button type=\"button\" class=\"dragh\" data-drag title=\"Drag to move\" aria-label=\"Move ",
 "<div class=\"stack\"><div class=\"row between\"><div><h1>พนักงาน</h1><p class=\"muted\">ผู้ดูแลสร้างและแก้ไขโปรไฟล์ · รหัสผ่านที่ผู้ดูแลตั้งเป็นรหัสชั่วคราว ผู้ใช้ต้องตั้งรหัสใหม่เองเมื่อล็อกอินครั้งแรก</p><p class=\"muted small\" style=\"margin-top:4px\">กดที่ชื่อเพื่อแก้ไข รีเซ็ตรหัสผ่าน หรือลบ · ลากที่ปุ่มจุด ⠿ เพื่อสลับตำแหน่ง (ย้ายได้ในกลุ่มเดียวกัน)</p></div>": "<div class=\"stack\"><div class=\"row between\"><div><h1>Staff</h1><p class=\"muted\">Admins create and edit profiles · passwords set by admins are temporary, users must set their own at first sign-in</p><p class=\"muted small\" style=\"margin-top:4px\">Tap a name to edit, reset password or delete · drag the ⠿ dots to reorder (within the same group)</p></div>",
-"<span class=\"chip mute\">ปิดใช้งาน</span>": "<span class=\"chip mute\">Inactive</span>"
+"<span class=\"chip mute\">ปิดใช้งาน</span>": "<span class=\"chip mute\">Inactive</span>",
+" <span class=\"muted small\">กำลังหาชื่อสถานที่…</span>": " <span class=\"muted small\">finding place name…</span>",
+" ม.</span>": " m</span>",
+"\" target=\"_blank\" rel=\"noopener\">ดูแผนที่</a>": "\" target=\"_blank\" rel=\"noopener\">View map</a>",
+"</span><br><span class=\"muted small\">ยังลงเวลาได้ แต่ผู้ดูแลจะเห็นว่าไม่มีตำแหน่ง</span>": "</span><br><span class=\"muted small\">You can still check in, but admins will see there is no location</span>",
+"<div><dt>ตำแหน่ง</dt><dd id=\"mLoc\" aria-live=\"polite\">": "<div><dt>Location</dt><dd id=\"mLoc\" aria-live=\"polite\">",
+"<p class=\"muted small\">ระบบบันทึกเวลาและตำแหน่งตอนที่กดยืนยัน · ตำแหน่งเห็นได้เฉพาะคุณและผู้ดูแล</p>": "<p class=\"muted small\">The time and location are recorded when you tap confirm · only you and admins can see the location</p>",
+"<span class=\"muted\">กำลังหาตำแหน่ง…</span>": "<span class=\"muted\">Finding location…</span>",
+"<span><b>ตำแหน่งออกงาน</b> ": "<span><b>Check-out location</b> ",
+"<span><b>ตำแหน่งเข้างาน</b> ": "<span><b>Check-in location</b> ",
+"ตำแหน่งออกงาน": "Check-out location",
+"ตำแหน่งเข้างาน": "Check-in location",
+"หาตำแหน่งไม่เจอ": "Location not found",
+"เครื่องไม่รองรับตำแหน่ง": "Location not supported",
+"ไม่ได้อนุญาตตำแหน่ง": "Location not allowed"
 }
