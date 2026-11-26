@@ -7,7 +7,8 @@ function teamMembers(e){
   });
   return byOrder(same);
 }
-/* กดชื่อสมาชิก → ขยายดูรายละเอียด · กดคนอื่นสลับไปคนนั้น · กดที่อื่น/กดซ้ำ → หุบ */
+/* พนักงานทั่วไปเห็นเฉพาะข้อมูลของตัวเอง · ผู้ดูแลเห็นรายชื่อผู้ดูแลด้วยกัน
+   กดชื่อสมาชิก → ขยายดูรายละเอียด · กดคนอื่นสลับไปคนนั้น · กดที่อื่น/กดซ้ำ → หุบ */
 var profOpen=null;
 document.addEventListener('click',function(e){
   if(view!=='profile'){profOpen=null;return;}
@@ -38,7 +39,7 @@ function viewProfile(){
       (isAdm?'<div><dt>ช่วยทำงานแทน</dt><dd>'+(e.canWork?'ได้':'ไม่ได้')+'</dd></div>':'')+
       '<div><dt>สถานะบัญชี</dt><dd>ใช้งาน</dd></div>'+
     '</dl></section>'+
-    '<section class="card"><h2>'+(isAdm?'ผู้ดูแลระบบ':'สมาชิกในทีม')+' <span class="muted small">'+mem.length+' คน</span></h2><div class="list">'+rows+'</div></section>'+
+    (isAdm?'<section class="card"><h2>'+(isAdm?'ผู้ดูแลระบบ':'สมาชิกในทีม')+' <span class="muted small">'+mem.length+' คน</span></h2><div class="list">'+rows+'</div></section>':'')+
     '<section class="card stack"><h2>ตั้งค่า</h2><div class="list">'+
       '<button class="li lib" data-act="pw-self"><span class="grow"><b>เปลี่ยนรหัสผ่าน</b><br><span class="muted small">ตั้งรหัสผ่านใหม่สำหรับเข้าสู่ระบบ</span></span>'+go+'</button>'+
       (isAdm?'<button class="li lib" data-act="tab" data-v="settings"><span class="grow"><b>ตั้งค่าระบบ</b><br><span class="muted small">การหมุนกะ กฎการลงเวลา นำเข้า/ส่งออกตารางกะ และทดสอบเข้า-ออกงาน</span></span>'+go+'</button>':'')+
