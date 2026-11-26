@@ -33,7 +33,7 @@ await p.click('[data-act=theme]');await p.click('[data-act=logout-ask]');await p
 await login('admin','Admin@2026');
 await p.click('[data-act=tab][data-v=people]');await p.waitForTimeout(200);
 const btns=await p.$$eval('[data-act=pw-reset]',e=>e.length);console.log(tag,'reset buttons',btns,'self change button on own card',await p.$$eval('.pcard [data-act=pw-self]',e=>e.length));
-await p.click('[data-act=pw-reset] >> nth=1');await p.waitForTimeout(150);
+await p.click('[data-pr] >> nth=1');await p.waitForTimeout(150);await p.click('[data-act=pw-reset]');await p.waitForTimeout(150);
 console.log(tag,'reset dialog shows',await p.$eval('#pwForm .kv',e=>e.innerText.replace(/\s+/g,' ')),'| current field?',await p.$('#pwCur')!==null);
 if(tag==='d')await p.screenshot({path:S+'pw_reset.png'});
 await p.fill('#pwNew','short');await p.fill('#pwNew2','short');await p.click('#pwOk');await p.waitForTimeout(100);console.log(tag,' reset short ->',await err());
@@ -43,7 +43,7 @@ console.log(tag,' reset ok -> pending chips',await p.$$eval('.chip.late',e=>e.fi
 await p.click('[data-act=new-emp]');await p.fill('#fName','ทดสอบ รหัสใหม่');await p.fill('#fUser','tester'+tag);await p.fill('#fPin','Start#123');await p.fill('#fPin2','Start#124');await p.selectOption('#fTeam','OPS');
 await p.click('[data-act=save-emp]');await p.waitForTimeout(200);console.log(tag,'new emp mismatch ->',await p.textContent('#fErr'));
 await p.fill('#fPin2','Start#123');await p.click('[data-act=save-emp]');await p.waitForTimeout(500);console.log(tag,'new emp ok ->',(await p.textContent('#main')).includes('ทดสอบ รหัสใหม่'));
-await p.click('[data-act=edit-emp] >> nth=0');await p.waitForTimeout(100);console.log(tag,'edit form has pw field?',await p.$('#fPin')!==null);
+await p.click('[data-pr] >> nth=0');await p.waitForTimeout(150);await p.click('[data-act=edit-emp]');await p.waitForTimeout(100);console.log(tag,'edit form has pw field?',await p.$('#fPin')!==null);
 await p.close();
 }
 console.log(errs.length?errs.join('\n'):'NO ERRORS');await b.close();})();

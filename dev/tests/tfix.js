@@ -36,6 +36,7 @@ for(const vp of [{width:1280,height:900},{width:390,height:844}]){
  const missing=Number((st.match(/(\d+) ไม่ครบ/)||[])[1]);ok(missing<15,tag+' missing count not inflated ('+missing+')');
  // 3) ลบพนักงาน: เตือนก่อน
  await p.click('#nav [data-act=tab][data-v=people]');await p.waitForTimeout(150);
+ await p.click('[data-pr] >> nth=1');await p.waitForTimeout(150);
  const delBtn=await p.$('[data-act=del-emp]');
  if(delBtn){await delBtn.click();await p.waitForTimeout(100);ok((await p.$eval('#main',e=>e.innerText)).includes('จะหายถาวร'),tag+' delete warns history is lost');await p.click('[data-act=del-no]');}
  else{await p.click('[data-act=edit-emp] >> nth=1');await p.waitForTimeout(150);const d2=await p.$('[data-act=del-emp]');ok(!!d2,tag+' delete button found in editor');if(d2){await d2.click();await p.waitForTimeout(100);ok((await p.$eval('#main',e=>e.innerText)).includes('จะหายถาวร'),tag+' delete warns history is lost');}}

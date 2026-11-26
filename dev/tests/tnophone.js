@@ -11,7 +11,7 @@ for(const vp of [{width:390,height:844},{width:1280,height:900}]){
  ok(!(await p.$eval('#main',e=>e.innerText)).includes('0812345602'),tag+' phone not shown on cards');
  // แก้ไข malee
  const id=await p.evaluate(()=>window.__mockdb.profiles.find(x=>x.username==='malee').id);
- await p.click('[data-act=edit-emp][data-id="'+id+'"]');await p.waitForTimeout(150);
+ await p.click('[data-pr="'+id+'"]');await p.waitForTimeout(150);await p.click('[data-act=edit-emp][data-id="'+id+'"]');await p.waitForTimeout(150);
  ok(!(await p.$('#fPhone')),tag+' no phone field in edit form');
  await p.fill('#fName','มาลี รักงานมาก');await p.click('[data-act=save-emp]');await p.waitForTimeout(400);
  const pr=await p.evaluate(()=>window.__mockdb.profiles.find(x=>x.username==='malee'));

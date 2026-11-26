@@ -20,6 +20,7 @@ python3 patch_mobile.py >/dev/null
 python3 patch_att.py >/dev/null
 python3 patch_order.py >/dev/null
 python3 patch_profile.py >/dev/null
+python3 patch_plist.py >/dev/null
 python3 build_prod.py >/dev/null
 python3 i18n.py
 python3 make_preview.py >/dev/null

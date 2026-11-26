@@ -33,7 +33,8 @@ for(const vp of [{width:1280,height:900},{width:360,height:760,hasTouch:true}]){
  // ลากข้ามกลุ่มไม่ได้
  if(b0.length&&tag==="d"){
   const n0=await p.evaluate(()=>window.__calls.filter(c=>c[1]==='set_profile_order').length);
-  await top(a1[0]);const h2=await box('.pcard[data-eid="'+a1[0]+'"] .dragh');const tb=await box('.pcard[data-eid="'+b0[0]+'"]');
+  // ลากคนสุดท้ายของทีม A (ด้านล่างเป็นการ์ดทีม B) ลงไปวางบนทีม B
+  const la=a1[a1.length-1];await top(la);const h2=await box('.pcard[data-eid="'+la+'"] .dragh');const tb=await box('.pcard[data-eid="'+b0[0]+'"]');
   await p.mouse.move(h2.x+h2.width/2,h2.y+h2.height/2);await p.mouse.down();
   for(let i=1;i<=12;i++){await p.mouse.move(h2.x+(tb.x+tb.width/2-h2.x)*i/12,h2.y+(tb.y+tb.height/2-h2.y)*i/12);await p.waitForTimeout(16);}
   await p.mouse.up();await p.waitForTimeout(200);
@@ -46,7 +47,7 @@ for(const vp of [{width:1280,height:900},{width:360,height:760,hasTouch:true}]){
  ok(a2[1]===a1[0]&&a2[0]===a1[1],tag+' keyboard arrow moves card');
  ok(await p.evaluate(()=>document.activeElement&&document.activeElement.matches('.dragh')),tag+' focus stays on handle');
  // ปุ่มอื่นบนการ์ดยังใช้ได้
- await p.click('.pcard[data-eid="'+a2[0]+'"] [data-act=edit-emp]');await p.waitForTimeout(200);
+ await p.click('[data-pr="'+a2[0]+'"]');await p.waitForTimeout(150);await p.click('.pcard[data-eid="'+a2[0]+'"] [data-act=edit-emp]');await p.waitForTimeout(200);
  ok(await p.$('#empEd')!==null,tag+' edit button still works');
  await goPeople();
  if(tag==='m'){ // ทดสอบลากด้วยนิ้ว (touch → pointer events)
