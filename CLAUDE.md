@@ -76,6 +76,7 @@ dev/                                            ← ต้นฉบับ + เ�
   - เปลี่ยนภาษาทันทีไม่โหลดหน้าใหม่ · ค่าคงที่ที่แปลตอนเปิดแอป (TEAMS, DOW_TH, LEAVE_TH ฯลฯ) ถูกแปลใหม่ใน `relocalize()` ที่ i18n.py สร้างให้
   - เทสต์: `ten` (ไม่มีคำไทยหลงในโหมดอังกฤษ), `tlang` (สลับไป-กลับแล้วเหมือนเดิม)
 - โปรไฟล์ = แท็บสุดท้ายของเมนูล่าง: ข้อมูลของฉัน สมาชิกในทีม เปลี่ยนรหัสผ่าน ภาษา · ตั้งค่าระบบของผู้ดูแลอยู่ในนี้ (ไม่มีแท็บตั้งค่าแล้ว)
+- หน้าพนักงาน (ผู้ดูแล): การ์ดละทีม ข้างในเป็นรายชื่อ · กดชื่อ (`data-pr`) แล้วขยายเห็นปุ่ม แก้ไข/รีเซ็ตรหัสผ่าน/ลบ · ลาก ⠿ สลับลำดับ (`prod/p_plist.js`, `p_order.js`)
 - แถบด้านบน: กระดิ่ง + ปุ่มฟันเฟือง (`data-act=theme`: ภาษา ธีม ออกจากระบบ) · ออกจากระบบต้องกดยืนยัน (`logout-ask` → `logout`)
 - Migration ที่ใช้ไปแล้ว: fix_function_search_path, add_must_change_pw, team_a_rotation_and_flex_shift, rotation_4_shifts_and_team_b_cycle, admin_attendance_and_multi_day_override, fix_forgot_checkout_and_admin_cancel_leave, drop_profiles_phone, admin_attendance_no_future, check_in_duplicate_message, profile_sort_order (+ schema.sql ตั้งต้น)
 - repo เป็นสาธารณะ: ห้ามใส่รหัสผ่านจริง, service key หรือข้อมูลส่วนตัวพนักงานลงไฟล์ใด ๆ
