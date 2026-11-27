@@ -13,7 +13,7 @@ function rotaBAt(S,d){
 function rotaBOff(r,d){return Math.round((Date.parse(d)-Date.parse(r.start))/864e5);}
 /* วันทำงานของทีม */
 function teamWorksS(S,team,d){
-  if(team==='A')return [1,2,3,4,5].indexOf(dowOf(d))>=0;
+  if(team==='A')return [1,2,3,4,5].indexOf(dowOf(d))>=0&&!(S&&S.holidays&&S.holidays[d]); // ทีม A หยุดวันหยุดราชการ/นักขัตฤกษ์
   if(team!=='B')return false;
   var r=rotaBAt(S,d);if(!r)return [5,6,0,1].indexOf(dowOf(d))>=0;
   return [0,1,2,3,7,8,9].indexOf(((rotaBOff(r,d)%14)+14)%14)>=0;

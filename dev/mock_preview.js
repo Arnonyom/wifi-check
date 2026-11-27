@@ -12,7 +12,7 @@ var ROT=['A2','A3','A4','A1'],ANCHOR=null,ROTA=[],ROTB=[];
 function monday(d){var w=dow(d);return addDays(d,-((w+6)%7));}
 function rotaAt(d){var m=monday(d),b=null;ROTA.forEach(function(r){if(r.week_from<=m&&(!b||r.week_from>b.week_from))b=r;});return b&&b.active?b:null;}
 function rotbAt(d){var b=null;ROTB.forEach(function(r){if(r.start_date<=d&&(!b||r.start_date>b.start_date))b=r;});return b&&b.active?b:null;}
-function teamWorks(t,d){if(t==='A')return DAYS.A.indexOf(dow(d))>=0;var b=rotbAt(d);if(!b)return DAYS.B.indexOf(dow(d))>=0;var o=((Math.round((Date.parse(d)-Date.parse(b.start_date))/864e5)%14)+14)%14;return [0,1,2,3,7,8,9].indexOf(o)>=0;}
+function teamWorks(t,d){if(t==='A')return DAYS.A.indexOf(dow(d))>=0&&!(typeof HOLS!=='undefined'&&HOLS[d]);var b=rotbAt(d);if(!b)return DAYS.B.indexOf(dow(d))>=0;var o=((Math.round((Date.parse(d)-Date.parse(b.start_date))/864e5)%14)+14)%14;return [0,1,2,3,7,8,9].indexOf(o)>=0;}
 function regOf(db,d,sid){if(sid==='A5')return null;
   if(sid==='B1'||sid==='B2'){var b=rotbAt(d);if(b){var c=Math.floor(Math.round((Date.parse(d)-Date.parse(b.start_date))/864e5)/14)%2;return (sid==='B1')===(c===0)?b.b_day:b.b_night;}var q=db.profiles.find(function(p){return p.active&&p.role==='staff'&&p.shift_id===sid;});return q?q.id:null;}
   var r=rotaAt(d);if(r){var n=r.cyc,ids=[r.a2,r.a3,r.a4,r.a1].slice(0,n),j=ROT.slice(0,n).indexOf(sid);if(j>=0){var k=Math.round((Date.parse(monday(d))-Date.parse(r.week_from))/6048e5);return ids[((j-k)%n+n)%n];}var p=db.profiles.find(function(p){return p.active&&p.role==='staff'&&p.shift_id===sid&&ids.indexOf(p.id)<0;});return p?p.id:null;}
@@ -63,10 +63,12 @@ function build(){
     if(a.check_out)db.locs.push({att_id:a.id,kind:'out',emp:a.emp,status:'ok',lat:p[0],lng:p[1]+i*1e-4,acc:20,place:p[2],created_at:a.check_out});});
   return db;
 }
-var db=build();window.__mockdb=db;
+var HOLS={};
+var db=build();
+db.holidays=[['2026-12-05','วันพ่อแห่งชาติ'],['2026-12-07','ชดเชยวันพ่อแห่งชาติ'],['2026-12-10','วันรัฐธรรมนูญ'],['2026-12-31','วันสิ้นปี'],['2027-01-01','วันขึ้นปีใหม่'],['2027-02-22','ชดเชยวันมาฆบูชา']].map(function(h){return {d:h[0],name:h[1]};});db.holidays.forEach(function(h){HOLS[h.d]=h.name;});window.__mockdb=db;
 // หน้าตัวอย่าง: จำลองตำแหน่งเครื่อง (ไม่ขอสิทธิ์จริง ไม่ส่งข้อมูลออกนอกเครื่อง)
 window.__geoMock={geo:{getCurrentPosition:function(ok){setTimeout(function(){ok({coords:{latitude:13.74661,longitude:100.53928,accuracy:15}});},400);}},place:'อาคารสำนักงานตัวอย่าง, ถนนเพลินจิต, แขวงลุมพินี, เขตปทุมวัน, กรุงเทพมหานคร'};
-function rowsOf(t){return {profiles:db.profiles,settings:db.settings,overrides:db.overrides,attendance:db.attendance,attendance_locations:(db.locs||(db.locs=[])).filter(function(l){return session&&(session.role==='admin'||l.emp===session.uid);}),leaves:db.leaves,notifications:db.notifications,notification_reads:db.reads,rota_periods:db.rota,rota_b:db.rota_b}[t];}
+function rowsOf(t){return {profiles:db.profiles,settings:db.settings,overrides:db.overrides,attendance:db.attendance,holidays:db.holidays||(db.holidays=[]),attendance_locations:(db.locs||(db.locs=[])).filter(function(l){return session&&(session.role==='admin'||l.emp===session.uid);}),leaves:db.leaves,notifications:db.notifications,notification_reads:db.reads,rota_periods:db.rota,rota_b:db.rota_b}[t];}
 var session=null;window.__calls=[];
 function Q(t){this.t=t;this.f=[];this.op='select';}
 Q.prototype.select=function(){this.sel=true;return this;};
@@ -90,6 +92,16 @@ var RPC={
  set_my_location:function(a){var r=db.attendance.find(function(x){return x.id===a.p_att;});if(!r||r.emp!==session.uid)throw new Error('ไม่พบรายการเข้างาน');
    db.locs=db.locs||[];db.locs=db.locs.filter(function(l){return !(l.att_id===a.p_att&&l.kind===a.p_kind);});var ok=a.p_status==='ok';
    db.locs.push({att_id:a.p_att,kind:a.p_kind,emp:r.emp,status:a.p_status,lat:ok?a.p_lat:null,lng:ok?a.p_lng:null,acc:ok?a.p_acc:null,place:ok?a.p_place:null,created_at:new Date().toISOString()});return null;},
+ admin_set_holiday:function(a){if(session.role!=='admin')throw new Error('เฉพาะผู้ดูแลระบบ');db.holidays=(db.holidays||[]).filter(function(h){return h.d!==a.p_d;});if(a.p_name&&a.p_name.trim())db.holidays.push({d:a.p_d,name:a.p_name.trim()});db.holidays.sort(function(x,y){return x.d<y.d?-1:1;});HOLS={};db.holidays.forEach(function(h){HOLS[h.d]=h.name;});return null;},
+ admin_clear_data:function(a){if(session.role!=='admin')throw new Error('เฉพาะผู้ดูแลระบบ');if(!a.p_from||!a.p_to||a.p_from>a.p_to)throw new Error('เลือกช่วงวันที่ให้ถูกต้อง');
+   var F=a.p_from,T=a.p_to,inR=function(d){return d>=F&&d<=T;},bd=function(ts){return new Date(Date.parse(ts)+7*36e5).toISOString().slice(0,10);};
+   var att=a.p_att?db.attendance.filter(function(x){return inR(x.work_date);}):[],ov=a.p_sched?db.overrides.filter(function(x){return inR(x.work_date);}):[],
+     lv=a.p_sched?db.leaves.filter(function(x){return x.from_date<=T&&x.to_date>=F;}):[],nt=a.p_notif?db.notifications.filter(function(x){return inR(bd(x.ts));}):[],
+     rp=a.p_rota?(db.rota||[]).filter(function(x){return inR(x.week_from);}):[],rb=a.p_rota?(db.rota_b||[]).filter(function(x){return inR(x.start_date);}):[];
+   if(!a.p_dry){var rm=function(arr,del){for(var i=arr.length-1;i>=0;i--)if(del.indexOf(arr[i])>=0)arr.splice(i,1);};
+     var ids=att.map(function(x){return x.id;});rm(db.attendance,att);if(db.locs)db.locs=db.locs.filter(function(l){return ids.indexOf(l.att_id)<0;});
+     rm(db.overrides,ov);rm(db.leaves,lv);rm(db.notifications,nt);if(db.rota)rm(db.rota,rp);if(db.rota_b)rm(db.rota_b,rb);if(typeof ROTA!=='undefined')rm(ROTA,rp);if(typeof ROTB!=='undefined')rm(ROTB,rb);}
+   return {attendance:att.length,overrides:ov.length,leaves:lv.length,notifications:nt.length,rota:rp.length+rb.length};},
  server_now:function(){return new Date().toISOString();},
  check_in:function(a){var me=db.profiles.find(function(p){return p.id===session.uid;});
    var ov=db.overrides.find(function(o){return o.work_date===a.p_date&&o.shift_id===a.p_shift;});
