@@ -11,7 +11,7 @@ for(const v of [15,70]){
   await p.screenshot({path:S+`g_${tag}_${v}_theme.png`});await p.click('[data-act=theme]');await p.waitForTimeout(200);
   await p.click('[data-k="now:pend"]');await p.waitForTimeout(600);await p.screenshot({path:S+`g_${tag}_${v}_detail.png`});await p.click('[data-act=det-close]');await p.waitForTimeout(200);
   await p.click('#nav [data-act=tab][data-v=profile]');await p.waitForTimeout(150);await p.click('#main [data-act=pw-self]');await p.waitForTimeout(600);await p.screenshot({path:S+`g_${tag}_${v}_pw.png`});await p.click('[data-act=pw-close]');await p.waitForTimeout(200);
-  await p.click('[data-act=bell]');await p.waitForTimeout(600);await p.screenshot({path:S+`g_${tag}_${v}_bell.png`});await p.click('[data-act=bell]');await p.waitForTimeout(200);
+  await p.click('[data-act=bell]');await p.waitForTimeout(600);await p.screenshot({path:S+`g_${tag}_${v}_bell.png`});await p.$eval('[data-act=bell]',e=>e.click()); /* หน้าตัวอย่างมีแถบเหลือง ป๊อปอัปจึงทับปุ่ม */await p.waitForTimeout(200);
   await p.click('#nav [data-act=tab][data-v=today]');await p.waitForTimeout(200);
 }
 await p.close();}

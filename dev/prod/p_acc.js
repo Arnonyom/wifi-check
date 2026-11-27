@@ -9,6 +9,7 @@ function accIdOf(c,i){
   if(c.querySelector('#csvIn'))return 'import';
   if(c.id==='holCard')return 'hol';
   if(c.id==='clrCard')return 'clr';
+  var h2=c.querySelector('h2');if(h2&&/Push/.test(h2.textContent))return 'push';
   return 'c'+i;
 }
 function settingsAcc(){
