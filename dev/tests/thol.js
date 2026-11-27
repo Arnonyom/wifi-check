@@ -37,24 +37,35 @@ async function open(iso,u,pw){
 {const {ctx,p}=await open('2026-12-02T10:00:00+07:00','admin','Admin@2026');
  await p.click('#nav [data-v=profile]');await p.click('#main [data-act=tab][data-v=settings]');await p.waitForTimeout(300);
  ok(await p.$('#holCard')!==null&&await p.$('#clrCard')!==null,'settings has holiday + clear-data cards');
- // การ์ดหุบเหลือหัวข้อ · กดขยาย · กดใบอื่นสลับ · กด "ปิด" / กดที่อื่น → หุบ
+ // แท็บหมวด + ตารางการ์ด · กด "เปิด" → popup · ปิดด้วย ✕ / พื้นหลัง / Esc
  const vis=sel=>p.$eval(sel,e=>!!e.getClientRects().length).catch(()=>false);
- ok(!(await vis('[data-act=save-rules]'))&&!(await vis('[data-act=hol-add]'))&&!(await vis('[data-act=clr-check]')),'all settings cards start collapsed (titles only)');
- ok((await p.$$eval('#main .acchd',e=>e.length))>=7,'each card has a title button');
- await p.click('[data-acc-t=rules]');await p.waitForTimeout(150);
- ok(await vis('[data-act=save-rules]')&&(await p.$eval('[data-acc-t=rules].acchd',e=>e.getAttribute('aria-expanded')))==='true','tap title expands the card');
- await p.click('[data-acc-t=hol]');await p.waitForTimeout(150);
- ok(await vis('[data-act=hol-add]')&&!(await vis('[data-act=save-rules]')),'tap another title switches (one open at a time)');
- await p.click('.accfoot [data-acc-t=hol]');await p.waitForTimeout(150);
- ok(!(await vis('[data-act=hol-add]')),'"Close" button collapses');
- await p.click('[data-acc-t=rules]');await p.click('#main h1');await p.waitForTimeout(150);
- ok(!(await vis('[data-act=save-rules]')),'tap elsewhere collapses');
- await p.click('[data-acc-t=rules]');await p.fill('#setOpen','30');await p.waitForTimeout(100);
- ok(await vis('[data-act=save-rules]'),'typing inside an open card keeps it open');
- await p.click('[data-acc-t=rules]');await p.waitForTimeout(100);
+ const tiles=()=>p.$$eval('#main .stile:not([hidden])',e=>e.map(x=>x.dataset.tile));
+ ok(!(await vis('[data-act=save-rules]'))&&!(await vis('[data-act=hol-add]'))&&!(await vis('[data-act=clr-check]')),'settings show as a card grid (no feature open)');
+ ok(JSON.stringify(await tiles())===JSON.stringify(['rota','rotab','hol','rules','push','export','import','sim','clr']),'grid has every feature ('+(await tiles()).join(',')+')');
+ ok((await p.$$eval('#main .settabs [data-set-tab]',e=>e.map(x=>x.textContent)).catch(()=>[])).join('|')==='ทั้งหมด|กะ & ทีม|วันหยุด|กฎ|นำเข้า/ส่งออก|ทดสอบ','tab bar: all / shifts / holidays / rules / import-export / testing');
+ for(const [tab,want] of [['shift',['rota','rotab']],['hol',['hol']],['rule',['rules','push']],['io',['export','import']],['test',['sim','clr']],['all',['rota','rotab','hol','rules','push','export','import','sim','clr']]]){
+   await p.click('[data-set-tab='+tab+']');await p.waitForTimeout(80);
+   ok(JSON.stringify(await tiles())===JSON.stringify(want)&&(await p.$eval('[data-set-tab='+tab+']',e=>e.getAttribute('aria-selected')))==='true','tab "'+tab+'" shows '+want.join(','));
+ }
+ await p.click('[data-set-open=rules]');await p.waitForTimeout(150);
+ ok(await vis('[data-act=save-rules]')&&await vis('#main .spbg.on'),'"Open" shows the feature in a popup over a backdrop');
+ await p.click('#main section.spop.open .spx');await p.waitForTimeout(150);
+ ok(!(await vis('[data-act=save-rules]')),'✕ closes the popup');
+ await p.click('[data-set-open=hol]');await p.waitForTimeout(150);
+ ok(await vis('[data-act=hol-add]'),'another feature opens');
+ await p.mouse.click(5,5);await p.waitForTimeout(150);
+ ok(!(await vis('[data-act=hol-add]')),'tap on the backdrop closes');
+ await p.click('[data-set-open=rules]');await p.waitForTimeout(150);await p.keyboard.press('Escape');await p.waitForTimeout(150);
+ ok(!(await vis('[data-act=save-rules]')),'Esc closes');
+ await p.click('[data-set-open=rules]');await p.fill('#setOpen','30');await p.click('[data-act=save-rules]');await p.waitForTimeout(400);
+ ok(await vis('[data-act=save-rules]'),'popup stays open after saving (page re-render)');
+ await p.click('#main section.spop.open .spx');await p.waitForTimeout(100);
+ await p.click('[data-set-open=sim]');await p.waitForTimeout(250);
+ ok((await p.textContent('#main h1')).includes('ทดสอบ'),'check-in test opens its own page');
+ await p.click('#nav [data-v=profile]');await p.click('#main [data-act=tab][data-v=settings]');await p.waitForTimeout(250);
  // เพิ่มวันหยุดพิเศษ 9 ธ.ค. (วันที่ตั้งผ่านตัวเลือกวันที่)
  await p.evaluate(()=>{});
-await p.click('[data-acc-t=hol]');await p.waitForTimeout(150);
+await p.evaluate(()=>{const o=document.querySelector('#main section.spop.open .spx');if(o)o.click();});await p.click('[data-set-open=hol]');await p.waitForTimeout(150);
  const n0=await p.$$eval('#holCard .hrow',e=>e.length);
  await p.click('[data-act=hol-add]');await p.waitForTimeout(150);
  ok((await p.textContent('#holCard')).includes('ใส่ชื่อวันหยุด'),'holiday name required');
@@ -69,7 +80,7 @@ await p.click('[data-acc-t=hol]');await p.waitForTimeout(150);
  // ล้างข้อมูล
  const before=await p.evaluate(()=>{const d=window.__mockdb;return {att:d.attendance.length,ov:d.overrides.length,lv:d.leaves.length,nt:d.notifications.length,pr:d.profiles.length,hol:d.holidays.length};});
  ok(before.att>0&&before.nt>0,'mock has data to clear');
-await p.click('[data-acc-t=clr]');await p.waitForTimeout(150);
+await p.evaluate(()=>{const o=document.querySelector('#main section.spop.open .spx');if(o)o.click();});await p.click('[data-set-open=clr]');await p.waitForTimeout(150);
  await p.evaluate(()=>{document.querySelectorAll('[data-clr]').forEach(x=>{x.checked=false;x.dispatchEvent(new Event('change',{bubbles:true}));});});
  await p.click('[data-act=clr-check]');await p.waitForTimeout(200);
  ok((await p.textContent('#clrCard')).includes('เลือกอย่างน้อย 1 อย่าง'),'must choose at least one category');

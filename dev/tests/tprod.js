@@ -33,9 +33,9 @@ await p.fill('#fName','ทดสอบ ระบบ');await p.fill('#fUser','tes
 await p.click('[data-act=save-emp]');await p.waitForTimeout(500);
 console.log('people has tester:',(await p.textContent('#main')).includes('ทดสอบ ระบบ'),'fn calls:',JSON.stringify(await p.evaluate(()=>window.__calls.filter(c=>c[0]==='fn').map(c=>c[2].action))));
 // settings rules
-await p.click('#nav [data-act=tab][data-v=profile]');await p.click('#main [data-act=tab][data-v=settings]');await p.click('[data-acc-t=rules]');await p.waitForTimeout(150);await p.fill('#setLate','20');await p.click('[data-act=save-rules]');await p.waitForTimeout(500);
+await p.click('#nav [data-act=tab][data-v=profile]');await p.click('#main [data-act=tab][data-v=settings]');await p.evaluate(()=>{const o=document.querySelector('#main section.spop.open .spx');if(o)o.click();});await p.click('[data-set-open=rules]');await p.waitForTimeout(150);await p.fill('#setLate','20');await p.click('[data-act=save-rules]');await p.waitForTimeout(500);
 console.log('rules msg:',(await p.textContent('#main')).includes('บันทึกกฎแล้ว'));
-await p.screenshot({path:S+'p_set.png'});
+await p.screenshot({path:S+'p_set.png'});await p.evaluate(()=>{const o=document.querySelector('#main section.spop.open .spx');if(o)o.click();});
 // logout
 await p.click('[data-act=theme]');await p.click('[data-act=logout-ask]');await p.click('.thout [data-act=logout]');await p.waitForTimeout(300);console.log('back at login:',await p.$('#loginForm')!==null);
 // staff: Somchai check-in flow (time-dependent) -> use wichai A3 (18:00-03:00) now ~21:xx Bangkok

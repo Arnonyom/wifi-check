@@ -26,7 +26,7 @@ ok(await p.$('.sum'),'summary in table section');
 await p.click('#nav [data-act=tab][data-v=today]');await p.click('#nav [data-act=tab][data-v=report]');
 ok(await p.$eval('[data-act=rsec][data-s=table]',e=>e.getAttribute('aria-pressed'))==='true','report remembers section');
 // sim via settings
-await p.click('#nav [data-act=tab][data-v=profile]');await p.click('#main [data-act=tab][data-v=settings]');await p.click('#main [data-act=tab][data-v=sim]');await p.waitForTimeout(200);
+await p.click('#nav [data-act=tab][data-v=profile]');await p.click('#main [data-act=tab][data-v=settings]');await p.click('#main [data-set-open=sim]');await p.waitForTimeout(200);
 ok((await p.textContent('#main h1')).includes('ทดสอบ'),'sim opens from settings');
 ok(await p.$eval('#nav [data-act=tab][data-v=profile]',e=>e.getAttribute('aria-current'))==='page','profile tab lit on sim');
 await p.click('#main [data-act=tab][data-v=settings]');await p.waitForTimeout(150);ok((await p.textContent('#main h1')).includes('ตั้งค่า'),'back to settings');

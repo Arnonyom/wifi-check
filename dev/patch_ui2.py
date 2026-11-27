@@ -23,15 +23,24 @@ rep("'</div><div class=\"plang\">'+langRow()+'</div></section></div>';","'</div>
 rep("/* ---------- leave ---------- */",open(S+'prod/p_acc.js',encoding='utf-8').read()+"/* ---------- leave ---------- */")
 rep("  $('main').innerHTML=(fns[view]||viewHome)();\n","  $('main').innerHTML=(fns[view]||viewHome)();\n  if(view==='settings')settingsAcc();\n")
 css="""
-/* หน้าตั้งค่าระบบ: การ์ดหุบ/ขยาย */
-.sacc:not(.open)>*:not(.acchead){display:none!important}
-.sacc .acchead{margin:0}
-.acchd{all:unset;box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;cursor:pointer;border-radius:8px;font:inherit}
-.acchd:focus-visible{outline:2px solid var(--brand);outline-offset:3px}
-.accchev{color:var(--muted);font-size:22px;line-height:1;transition:transform .15s}
-.sacc.open .accchev{transform:rotate(90deg)}
-.accfoot{display:flex;justify-content:flex-end}
-@media (prefers-reduced-motion:reduce){.accchev{transition:none}}
+/* หน้าตั้งค่าระบบ: แท็บหมวด + ตารางการ์ด + หน้าต่าง popup */
+.settabs{align-self:flex-start;max-width:100%;overflow-x:auto;flex-wrap:nowrap}
+.settabs button{white-space:nowrap}
+.settabs button[aria-selected="true"]{background:var(--brand-strong);color:var(--on-strong)}
+.setgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+.stile{display:flex;align-items:center;gap:12px;padding:14px}
+.stile[hidden]{display:none}
+.stile .grow{min-width:0;display:flex;flex-direction:column;gap:2px}
+.stile b{font-size:15px}
+.stic{flex:none;width:44px;height:44px;border-radius:12px;background:var(--brand-soft);color:var(--brand-strong);display:grid;place-items:center}
+section.spop:not(.open){display:none!important}
+section.spop.open{position:fixed;z-index:42;left:50%;top:50%;transform:translate(-50%,-50%);width:min(680px,calc(100vw - 32px));max-height:min(86vh,900px);overflow:auto;box-shadow:var(--shadow);padding-top:18px}
+section.spop.open>h2{padding-right:44px}
+.spx{position:absolute;top:10px;right:10px}
+section.spop.open{position:fixed}
+.spbg{display:none}.spbg.on{display:block;position:fixed;inset:0;z-index:41;background:var(--scrim,rgba(0,0,0,.45))}
+body.noscroll{overflow:hidden}
+@media (max-width:720px){section.spop.open{left:0;right:0;bottom:0;top:auto;transform:none;width:100%;max-height:88vh;border-radius:18px 18px 0 0;padding-bottom:calc(18px + env(safe-area-inset-bottom,0px))}}
 /* ฟันเฟือง: สวิตช์ภาษา */
 .langsw{padding:6px 2px}.langsw .lsw{display:flex;align-items:center;gap:8px}.langsw .lsw>span[lang]{font-size:14px;color:var(--muted)}.langsw .lsw>span.on{color:var(--ink);font-weight:700}
 """

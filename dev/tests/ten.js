@@ -58,8 +58,9 @@ for(const vp of [{width:1280,height:900},{width:390,height:844}]){
  await p.click('[data-act=new-emp]');await p.waitForTimeout(200);await scan('new employee form');
  // ตั้งค่า → ทดสอบเข้า-ออกงาน
  await p.click('#nav [data-act=tab][data-v=profile]');await p.click('#main [data-act=tab][data-v=settings]');await p.waitForTimeout(200);
- for(const k of ['rota','rotab','rules','export','import','hol','clr']){if(await p.$('[data-acc-t='+k+']')){await p.click('[data-acc-t='+k+']');await p.waitForTimeout(150);await scan('settings card '+k);}}
- const sim=await p.$('[data-v=sim]');if(sim){await sim.click();await p.waitForTimeout(300);await scan('sim');}
+ for(const k of ['rota','rotab','rules','export','import','hol','clr']){if(await p.$('[data-set-open='+k+']')){await p.evaluate(()=>{const o=document.querySelector('#main section.spop.open .spx');if(o)o.click();});await p.click('[data-set-open='+k+']');await p.waitForTimeout(150);await scan('settings card '+k);}}
+ await p.evaluate(()=>{const o=document.querySelector('#main section.spop.open .spx');if(o)o.click();});
+ const sim=await p.$('[data-set-open=sim]');if(sim){await sim.click();await p.waitForTimeout(300);await scan('sim');}
  // กระดิ่ง + เมนูธีม/ภาษา
  await p.click('[data-act=bell]');await p.waitForTimeout(200);await scan('bell');await p.keyboard.press('Escape');
  await p.click('[data-act=theme]');await p.waitForTimeout(200);await scan('gear menu');await p.click('[data-act=logout-ask]');await p.waitForTimeout(150);await scan('sign-out confirm');await p.click('[data-act=logout-no]');
