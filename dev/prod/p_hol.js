@@ -2,7 +2,7 @@
    วันหยุด: ทีม A ไม่ทำงาน (teamWorksS) · ทีม B ทำตามรอบปกติ · ตารางกะแสดงชื่อวันหยุด
    ล้างข้อมูล: เลือกหมวด + ช่วงวันที่ → นับก่อน → ถามยืนยันทุกครั้ง → ลบ (admin_clear_data) · ไม่แตะบัญชีผู้ใช้ */
 var holUi={err:'',msg:'',del:''},clrUi={att:true,sched:true,notif:true,rota:false,ask:null,err:'',msg:''};
-function holName(d){return state.holidays&&state.holidays[d]||'';}
+function holName(d){return state.holidays&&state.holidays[d]?_td(state.holidays[d]):'';} // ชื่อที่ใส่ไว้ตั้งต้นแปลเป็นอังกฤษได้ · ชื่อที่ผู้ดูแลพิมพ์เองแสดงตามเดิม
 function holCard(){
   var today=bkk(now()).date,y0=today.slice(0,4);
   var list=Object.keys(state.holidays||{}).filter(function(d){return d.slice(0,4)>=y0;}).sort();
@@ -11,9 +11,9 @@ function holCard(){
     return '<h3 style="margin:10px 0 2px">ปี '+(LANG==='en'?y:(+y+543))+' <span class="muted small">'+byY[y].length+' วัน</span></h3>'+
       byY[y].map(function(d){
         var past=d<today,ask=holUi.del===d;
-        return '<div class="li hrow'+(past?' past':'')+'"><span class="tnum hd">'+esc(thDate(d,{weekday:'short',day:'numeric',month:'short'}))+'</span><span class="grow">'+esc(state.holidays[d])+'</span>'+
+        return '<div class="li hrow'+(past?' past':'')+'"><span class="tnum hd">'+esc(thDate(d,{weekday:'short',day:'numeric',month:'short'}))+'</span><span class="grow">'+esc(holName(d))+'</span>'+
           (ask?'<button class="btn danger sm" data-act="hol-del-yes" data-d="'+d+'">ยืนยันลบ</button><button class="btn sec sm" data-act="hol-del-no">ยกเลิก</button>'
-              :'<button class="btn sec sm" data-act="hol-del" data-d="'+d+'" aria-label="ลบวันหยุด '+esc(state.holidays[d])+'">ลบ</button>')+'</div>';
+              :'<button class="btn sec sm" data-act="hol-del" data-d="'+d+'" aria-label="ลบวันหยุด '+esc(holName(d))+'">ลบ</button>')+'</div>';
       }).join('');
   }).join('')||'<p class="muted small">ยังไม่มีวันหยุดในรายการ</p>';
   return '<section class="card stack" id="holCard"><h2>วันหยุดราชการ / นักขัตฤกษ์</h2>'+
