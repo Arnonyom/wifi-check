@@ -38,9 +38,9 @@ for(const vp of [{width:1280,height:900},{width:390,height:844}]){
  const tabs=['today','schedule','people','leaves','report'];
  for(const t of tabs){const el=await p.$('#nav [data-act=tab][data-v='+t+']');if(!el){ok(false,tag+' tab '+t);continue;}await el.click();await p.waitForTimeout(350);await scan('tab '+t);}
  ok((await p.textContent('#nav')).includes('Schedule'),tag+' menu in English');
- await p.click('[data-act=theme]');ok(await p.$('.thpop [data-act=lang-set][data-l=en].on')!==null&&await p.$('.thpop [data-act=logout-ask]')!==null,tag+' gear menu: language (English on) + sign out');await p.click('[data-act=theme]');
+ await p.click('[data-act=theme]');ok(await p.$('.thpop .langsw[aria-checked=true]')!==null&&await p.$('.thpop [data-act=logout-ask]')!==null,tag+' gear menu: language (English on) + sign out');await p.click('[data-act=theme]');
  await p.click('#nav [data-act=tab][data-v=profile]');await p.waitForTimeout(150);await scan('profile');await p.click('#main [data-pm] >> nth=0');await p.waitForTimeout(150);await scan('profile member expanded');
- ok(await p.$('#main .plang [data-act=lang-set][data-l=en].on')!==null,tag+' language choice in profile (English selected)');
+ ok(await p.$('#main [data-act=lang-set]')===null,tag+' no language choice in profile (it is in the gear menu)');
  // ตารางกะ ทีม B + มุมมองต่าง ๆ
  await p.click('#nav [data-act=tab][data-v=schedule]');await p.waitForTimeout(200);
  {const n=(await p.$$('#main .seg button')).length;for(let i=0;i<n;i++){const bs=await p.$$('#main .seg button');if(bs[i]){await bs[i].click();await p.waitForTimeout(200);await scan('schedule views '+i);}}}
@@ -58,6 +58,7 @@ for(const vp of [{width:1280,height:900},{width:390,height:844}]){
  await p.click('[data-act=new-emp]');await p.waitForTimeout(200);await scan('new employee form');
  // ตั้งค่า → ทดสอบเข้า-ออกงาน
  await p.click('#nav [data-act=tab][data-v=profile]');await p.click('#main [data-act=tab][data-v=settings]');await p.waitForTimeout(200);
+ for(const k of ['rota','rotab','rules','export','import','hol','clr']){if(await p.$('[data-acc-t='+k+']')){await p.click('[data-acc-t='+k+']');await p.waitForTimeout(150);await scan('settings card '+k);}}
  const sim=await p.$('[data-v=sim]');if(sim){await sim.click();await p.waitForTimeout(300);await scan('sim');}
  // กระดิ่ง + เมนูธีม/ภาษา
  await p.click('[data-act=bell]');await p.waitForTimeout(200);await scan('bell');await p.keyboard.press('Escape');

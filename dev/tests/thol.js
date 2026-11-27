@@ -37,8 +37,24 @@ async function open(iso,u,pw){
 {const {ctx,p}=await open('2026-12-02T10:00:00+07:00','admin','Admin@2026');
  await p.click('#nav [data-v=profile]');await p.click('#main [data-act=tab][data-v=settings]');await p.waitForTimeout(300);
  ok(await p.$('#holCard')!==null&&await p.$('#clrCard')!==null,'settings has holiday + clear-data cards');
+ // การ์ดหุบเหลือหัวข้อ · กดขยาย · กดใบอื่นสลับ · กด "ปิด" / กดที่อื่น → หุบ
+ const vis=sel=>p.$eval(sel,e=>!!e.getClientRects().length).catch(()=>false);
+ ok(!(await vis('[data-act=save-rules]'))&&!(await vis('[data-act=hol-add]'))&&!(await vis('[data-act=clr-check]')),'all settings cards start collapsed (titles only)');
+ ok((await p.$$eval('#main .acchd',e=>e.length))>=7,'each card has a title button');
+ await p.click('[data-acc-t=rules]');await p.waitForTimeout(150);
+ ok(await vis('[data-act=save-rules]')&&(await p.$eval('[data-acc-t=rules].acchd',e=>e.getAttribute('aria-expanded')))==='true','tap title expands the card');
+ await p.click('[data-acc-t=hol]');await p.waitForTimeout(150);
+ ok(await vis('[data-act=hol-add]')&&!(await vis('[data-act=save-rules]')),'tap another title switches (one open at a time)');
+ await p.click('.accfoot [data-acc-t=hol]');await p.waitForTimeout(150);
+ ok(!(await vis('[data-act=hol-add]')),'"Close" button collapses');
+ await p.click('[data-acc-t=rules]');await p.click('#main h1');await p.waitForTimeout(150);
+ ok(!(await vis('[data-act=save-rules]')),'tap elsewhere collapses');
+ await p.click('[data-acc-t=rules]');await p.fill('#setOpen','30');await p.waitForTimeout(100);
+ ok(await vis('[data-act=save-rules]'),'typing inside an open card keeps it open');
+ await p.click('[data-acc-t=rules]');await p.waitForTimeout(100);
  // เพิ่มวันหยุดพิเศษ 9 ธ.ค. (วันที่ตั้งผ่านตัวเลือกวันที่)
  await p.evaluate(()=>{});
+await p.click('[data-acc-t=hol]');await p.waitForTimeout(150);
  const n0=await p.$$eval('#holCard .hrow',e=>e.length);
  await p.click('[data-act=hol-add]');await p.waitForTimeout(150);
  ok((await p.textContent('#holCard')).includes('ใส่ชื่อวันหยุด'),'holiday name required');
@@ -53,6 +69,7 @@ async function open(iso,u,pw){
  // ล้างข้อมูล
  const before=await p.evaluate(()=>{const d=window.__mockdb;return {att:d.attendance.length,ov:d.overrides.length,lv:d.leaves.length,nt:d.notifications.length,pr:d.profiles.length,hol:d.holidays.length};});
  ok(before.att>0&&before.nt>0,'mock has data to clear');
+await p.click('[data-acc-t=clr]');await p.waitForTimeout(150);
  await p.evaluate(()=>{document.querySelectorAll('[data-clr]').forEach(x=>{x.checked=false;x.dispatchEvent(new Event('change',{bubbles:true}));});});
  await p.click('[data-act=clr-check]');await p.waitForTimeout(200);
  ok((await p.textContent('#clrCard')).includes('เลือกอย่างน้อย 1 อย่าง'),'must choose at least one category');

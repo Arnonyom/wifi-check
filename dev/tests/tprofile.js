@@ -12,7 +12,7 @@ for(const vp of [{width:1280,height:900},{width:390,height:844},{width:320,heigh
  const db=await p.evaluate(()=>window.__mockdb.profiles.map(x=>({id:x.id,name:x.name,username:x.username,role:x.role,team:x.team,active:x.active})));
  // ---- พนักงานทีม A
  await login('malee','Temp1234!');
- ok(JSON.stringify(await p.$$eval('.top-right button',e=>e.map(x=>x.dataset.act)))===JSON.stringify(['bell','profile','theme']),tag+' top bar: bell, name, gear only');
+ ok(JSON.stringify(await p.$$eval('.top-right button',e=>e.map(x=>x.dataset.act)))===JSON.stringify(['profile','bell','theme']),tag+' top bar: name, bell, gear (in this order)');
  ok(await p.$(PB)!==null&&(await p.$$eval('#nav [data-act=tab]',a=>a.map(x=>x.dataset.v))).pop()==='profile',tag+' profile is the last menu tab');
  await p.click('[data-act=theme]');ok(await p.$('.thpop [data-act=lang-set]')!==null&&await p.$('.thpop [data-act=theme-set]')!==null&&await p.$('.thpop [data-act=logout-ask]')!==null,tag+' gear menu: language, theme, sign out');await p.click('[data-act=theme]');
  // ออกจากระบบต้องถามก่อน · กดยกเลิกแล้วยังอยู่ในระบบ
@@ -39,7 +39,8 @@ for(const vp of [{width:1280,height:900},{width:390,height:844},{width:320,heigh
  await p.click('#main [data-act=pw-self]');await p.waitForTimeout(200);
  ok(await p.$('#pwbox .modal')!==null,tag+' change password opens from profile');
  await p.click('[data-act=pw-close]');await p.waitForTimeout(200);
- ok(await p.$('#main .plang [data-act=lang-set][data-l=th].on')!==null,tag+' language choice in profile');
+ ok(await p.$('#main [data-act=lang-set]')===null,tag+' no language choice in profile');
+ await p.click('[data-act=theme]');ok(await p.$('.thpop .langsw[role=switch][aria-checked=false]')!==null,tag+' gear menu has a language switch (Thai now)');await p.$eval('[data-act=theme]',e=>e.click()); // (หน้าตัวอย่างมีแถบเหลืองดันแถบบนลง ป๊อปอัปจึงทับปุ่ม)
  await p.click('[data-act=theme]');await p.click('[data-act=logout-ask]');await p.click('.thout [data-act=logout]');await p.waitForTimeout(400);
  // ---- พนักงานสำรอง (Ops)
  await login('anan','Temp1234!');await p.click(PB);await p.waitForTimeout(250);
