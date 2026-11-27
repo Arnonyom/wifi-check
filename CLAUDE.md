@@ -78,6 +78,9 @@ dev/                                            ← ต้นฉบับ + เ�
 - โปรไฟล์ = แท็บสุดท้ายของเมนูล่าง: ข้อมูลของฉัน สมาชิกในทีม เปลี่ยนรหัสผ่าน ภาษา · ตั้งค่าระบบของผู้ดูแลอยู่ในนี้ (ไม่มีแท็บตั้งค่าแล้ว)
 - หน้าพนักงาน (ผู้ดูแล): การ์ดละทีม ข้างในเป็นรายชื่อ · กดชื่อ (`data-pr`) แล้วขยายเห็นปุ่ม แก้ไข/รีเซ็ตรหัสผ่าน/ลบ · ลาก ⠿ สลับลำดับ (`prod/p_plist.js`, `p_order.js`)
 - ตำแหน่งตอนเข้า/ออกงาน (`prod/p_geo.js`): ต้องอนุญาตตำแหน่งจึงลงเวลาได้ · อ่านค่าไม่ได้ก็ลงได้ (ติดป้าย) · ชื่อสถานที่จาก OpenStreetMap · เก็บในตาราง `attendance_locations` (เห็นเฉพาะเจ้าตัว + ผู้ดูแล) ผ่าน `set_my_location` · หน้าตัวอย่างใช้ `window.__geoMock` · เทสต์ `tgeo`
-- แถบด้านบน: กระดิ่ง + ปุ่มฟันเฟือง (`data-act=theme`: ภาษา ธีม ออกจากระบบ) · ออกจากระบบต้องกดยืนยัน (`logout-ask` → `logout`)
-- Migration ที่ใช้ไปแล้ว: fix_function_search_path, add_must_change_pw, team_a_rotation_and_flex_shift, rotation_4_shifts_and_team_b_cycle, admin_attendance_and_multi_day_override, fix_forgot_checkout_and_admin_cancel_leave, drop_profiles_phone, admin_attendance_no_future, check_in_duplicate_message, profile_sort_order, attendance_locations (+ schema.sql ตั้งต้น)
+- แถบด้านบน: ชื่อ → กระดิ่ง → ปุ่มฟันเฟือง (`data-act=theme`: สวิตช์ภาษา ธีม ออกจากระบบ) · ออกจากระบบต้องกดยืนยัน (`logout-ask` → `logout`)
+- วันหยุดราชการ (`prod/p_hol.js`, ตาราง `holidays`): ทีม A หยุด (`team_works` ในฐานข้อมูล + `teamWorksS` ในเว็บ) · ทีม B ทำตามรอบ · ผู้ดูแลเพิ่ม/ลบผ่าน `admin_set_holiday` · วันหยุดปี 2570 ใส่ตามปฏิทินทั่วไป รอตรวจกับประกาศ ครม.
+- ล้างข้อมูลทดสอบ: `admin_clear_data(from,to,att,sched,notif,rota,dry)` — dry=true นับอย่างเดียว · ไม่แตะ profiles/settings/holidays
+- หน้าตั้งค่าระบบ (`prod/p_acc.js`): แท็บหมวด + ตารางการ์ด กด "เปิด" (`data-set-open`) เป็น popup · การ์ดเพิ่มใหม่ต้องใส่ใน SET_META/SET_ORDER และ accIdOf
+- Migration ที่ใช้ไปแล้ว: fix_function_search_path, add_must_change_pw, team_a_rotation_and_flex_shift, rotation_4_shifts_and_team_b_cycle, admin_attendance_and_multi_day_override, fix_forgot_checkout_and_admin_cancel_leave, drop_profiles_phone, admin_attendance_no_future, check_in_duplicate_message, profile_sort_order, attendance_locations, holidays_and_clear_data (+ schema.sql ตั้งต้น)
 - repo เป็นสาธารณะ: ห้ามใส่รหัสผ่านจริง, service key หรือข้อมูลส่วนตัวพนักงานลงไฟล์ใด ๆ
