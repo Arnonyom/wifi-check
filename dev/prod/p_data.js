@@ -14,15 +14,29 @@ function errMsg(e){
   if(/JWT|token/i.test(m)&&/expired|invalid/i.test(m))return 'หมดเวลาการเข้าสู่ระบบ กรุณาเข้าสู่ระบบใหม่';
   return m;
 }
-async function adminFn(body){
+async function adminFn(body,again){
   var r=await sb.functions.invoke('admin-users',{body:body});
   if(r.error){
-    var m=r.error.message;
+    var m=r.error.message,st=r.error.context&&r.error.context.status;
     try{var j=await r.error.context.json();if(j&&j.error)m=j.error;}catch(e){}
+    // 401 = การล็อกอินของเครื่องนี้ใช้ไม่ได้แล้ว (หมดอายุ หรือถูกออกจากระบบจากที่อื่น)
+    if(st===401||m==='ยังไม่ได้ล็อกอิน'){
+      if(!again){var rf=null;try{rf=await sb.auth.refreshSession();}catch(e){}if(rf&&rf.data&&rf.data.session&&!rf.error)return adminFn(body,true);}
+      sessionLost();
+      throw new Error('การเข้าสู่ระบบของเครื่องนี้หมดอายุ กรุณาเข้าสู่ระบบใหม่');
+    }
     throw new Error(m);
   }
   if(r.data&&r.data.error)throw new Error(r.data.error);
   return r.data;
+}
+/* การล็อกอินใช้ไม่ได้แล้ว → ล้างข้อมูลในเครื่อง กลับหน้าล็อกอิน พร้อมบอกเหตุผล */
+function sessionLost(){
+  setTimeout(async function(){
+    try{await sb.auth.signOut({scope:'local'});}catch(e){}
+    me=null;pwm=null;modal=null;bellOpen=false;dp=null;view='home';state=emptyState();
+    loginMsg='การเข้าสู่ระบบหมดอายุ (อาจออกจากระบบจากเครื่องอื่น) กรุณาเข้าสู่ระบบใหม่';renderAll();
+  },1500);
 }
 async function rpc(name,args){
   var r=await sb.rpc(name,args||{});
@@ -89,9 +103,9 @@ async function refreshData(){
 async function enter(uid){
   curUid=uid;
   $('main').innerHTML='<p class="muted center" style="padding:40px 0" role="status">กำลังโหลดข้อมูล…</p>';
-  try{await loadAll();}catch(e){loginMsg=errMsg(e);await sb.auth.signOut();me=null;renderAll();return false;}
+  try{await loadAll();}catch(e){loginMsg=errMsg(e);await sb.auth.signOut({scope:'local'});me=null;renderAll();return false;}
   var e=emp(uid);
-  if(!e||!e.active){loginMsg='บัญชีนี้ถูกปิดใช้งาน ติดต่อผู้ดูแล';await sb.auth.signOut();me=null;renderAll();return false;}
+  if(!e||!e.active){loginMsg='บัญชีนี้ถูกปิดใช้งาน ติดต่อผู้ดูแล';await sb.auth.signOut({scope:'local'});me=null;renderAll();return false;}
   me=e;view=e.role==='admin'?'today':'home';schedTeam=(e.team==='B')?'B':'A';schedAnchor=bkk(now()).date;
   editSlot=null;editEmp=null;armed='';modal=null;bellOpen=false;flash=null;dp=null;lvOpen=null;lvReject=null;lvErr='';loginMsg='';
   det=[];lastNoteTs=0;announceNew(true);

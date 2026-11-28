@@ -48,7 +48,7 @@ Deno.serve(async (req) => {
     const check = createClient(url, anonKey, { auth: { persistSession: false, autoRefreshToken: false } });
     const { error: se } = await check.auth.signInWithPassword({ email: u.user.email!, password: current });
     if (se) return json({ error: "รหัสผ่านปัจจุบันไม่ถูกต้อง" }, 400);
-    await check.auth.signOut().catch(() => {});
+    await check.auth.signOut({ scope: "local" }).catch(() => {}); // ออกเฉพาะ session ที่ใช้ตรวจรหัส ไม่ตัดเครื่องอื่นของผู้ใช้
     const { error } = await admin.auth.admin.updateUserById(u.user.id, { password });
     if (error) return json({ error: error.message }, 400);
     await admin.from("profiles").update({ must_change_pw: false }).eq("id", u.user.id);

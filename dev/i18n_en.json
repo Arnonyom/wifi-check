@@ -1261,5 +1261,7 @@
 "ลบข้อมูลที่ใส่ระหว่างทดสอบ": "Delete data entered while testing",
 "หมวดการตั้งค่า": "Settings categories",
 " วันข้างหน้า · ": " upcoming · ",
-"\" aria-haspopup=\"dialog\">เปิด</button></div>": "\" aria-haspopup=\"dialog\">Open</button></div>"
+"\" aria-haspopup=\"dialog\">เปิด</button></div>": "\" aria-haspopup=\"dialog\">Open</button></div>",
+"การเข้าสู่ระบบของเครื่องนี้หมดอายุ กรุณาเข้าสู่ระบบใหม่": "Your sign-in on this device has expired. Please sign in again",
+"การเข้าสู่ระบบหมดอายุ (อาจออกจากระบบจากเครื่องอื่น) กรุณาเข้าสู่ระบบใหม่": "Your sign-in expired (you may have signed out on another device). Please sign in again"
 }

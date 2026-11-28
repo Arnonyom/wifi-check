@@ -142,10 +142,13 @@ var RPC={
 window.supabase={createClient:function(){return {
   auth:{getSession:function(){return Promise.resolve({data:{session:session&&{user:{id:session.uid}}}});},
     signInWithPassword:function(o){var u=o.email.split('@')[0],r=db.pw[u];if(!r||r[1]!==o.password)return Promise.resolve({data:{},error:{message:'Invalid login credentials'}});session={uid:r[0],role:db.profiles.find(function(p){return p.id===r[0];}).role};return Promise.resolve({data:{user:{id:r[0]}},error:null});},
-    signOut:function(){session=null;return Promise.resolve({});}},
+    signOut:function(o){window.__calls.push(['signOut',o||{}]);session=null;return Promise.resolve({});},
+    // จำลอง: __revoked = ถูกออกจากระบบจากเครื่องอื่น (ต่ออายุไม่ได้) · __expiredOnce = หมดอายุครั้งเดียว ต่ออายุแล้วใช้ได้
+    refreshSession:function(){window.__calls.push(['refresh']);if(window.__revoked||!session)return Promise.resolve({data:{session:null},error:{message:'Invalid Refresh Token: Refresh Token Not Found'}});window.__expiredOnce=false;return Promise.resolve({data:{session:{user:{id:session.uid}}},error:null});}},
   from:function(t){return new Q(t);},
   rpc:function(n,a){window.__calls.push(['rpc',n,a]);try{var d=RPC[n](a||{});return Promise.resolve({data:d,error:null});}catch(e){return Promise.resolve(fail(e.message));}},
   functions:{invoke:function(n,o){window.__calls.push(['fn',n,o.body]);var b=o.body;
+    if(window.__revoked||window.__expiredOnce){return Promise.resolve({data:null,error:{message:'Edge Function returned a non-2xx status code',context:{status:401,json:function(){return Promise.resolve({error:'ยังไม่ได้ล็อกอิน'});}}}});}
     var okPw=function(x){return typeof x==='string'&&/^[\x21-\x7E]{8,72}$/.test(x);},err=function(m){return Promise.resolve({data:null,error:{message:m,context:{json:function(){return Promise.resolve({error:m});}}}});};
     var meP=db.profiles.find(function(p){return p.id===session.uid;});
     if(b.action==='change_own'){if(!okPw(b.password))return err('รหัสผ่านไม่ผ่านเกณฑ์');if(db.pw[meP.username][1]!==b.current)return err('รหัสผ่านปัจจุบันไม่ถูกต้อง');if(b.password===b.current)return err('รหัสผ่านใหม่ต้องไม่ซ้ำกับรหัสเดิม');db.pw[meP.username][1]=b.password;meP.must_change_pw=false;return Promise.resolve({data:{ok:true},error:null});}

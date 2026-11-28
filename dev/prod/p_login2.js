@@ -22,7 +22,7 @@ async function doLogin(){
   busy=false;
 }
 async function doLogout(){
-  try{await sb.auth.signOut();}catch(e){}
+  try{await sb.auth.signOut({scope:'local'});}catch(e){} // เฉพาะเครื่องนี้ ไม่ตัดเครื่องอื่นของบัญชีเดียวกัน
   me=null;lastPw='';pwm=null;view='home';themeOpen=false;logoutAsk=false;modal=null;bellOpen=false;dp=null;state=emptyState();loginMsg='';renderAll();
 }
 
