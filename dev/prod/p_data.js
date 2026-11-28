@@ -34,7 +34,7 @@ async function adminFn(body,again){
 function sessionLost(){
   setTimeout(async function(){
     try{await sb.auth.signOut({scope:'local'});}catch(e){}
-    me=null;pwm=null;modal=null;bellOpen=false;dp=null;view='home';state=emptyState();
+    me=null;pwm=null;modal=null;bellOpen=false;dp=null;view='home';state=emptyState();userThemeOff();
     loginMsg='การเข้าสู่ระบบหมดอายุ (อาจออกจากระบบจากเครื่องอื่น) กรุณาเข้าสู่ระบบใหม่';renderAll();
   },1500);
 }
@@ -44,7 +44,7 @@ async function rpc(name,args){
   return Array.isArray(r.data)?r.data[0]:r.data;
 }
 function mapEmp(p){
-  return {id:p.id,username:p.username,name:p.name,role:p.role,team:p.team,shift:p.shift_id,active:p.active,canWork:p.can_work,notify:p.notify,mustChange:!!p.must_change_pw,avatar:p.avatar||'',sortOrder:p.sort_order==null?null:p.sort_order,push:lsGet('wc-push-'+p.id)==='1'};
+  return {id:p.id,username:p.username,name:p.name,role:p.role,team:p.team,shift:p.shift_id,active:p.active,canWork:p.can_work,notify:p.notify,mustChange:!!p.must_change_pw,avatar:p.avatar||'',prefs:p.prefs||null,sortOrder:p.sort_order==null?null:p.sort_order,push:lsGet('wc-push-'+p.id)==='1'};
 }
 async function loadAll(){
   var today=bkk(Date.now()).date,since=addDays(today,-130);
@@ -108,10 +108,11 @@ async function refreshData(){
 async function enter(uid){
   curUid=uid;
   $('main').innerHTML='<p class="muted center" style="padding:40px 0" role="status">กำลังโหลดข้อมูล…</p>';
-  try{await loadAll();}catch(e){loginMsg=errMsg(e);await sb.auth.signOut({scope:'local'});me=null;renderAll();return false;}
+  try{await loadAll();}catch(e){loginMsg=errMsg(e);await sb.auth.signOut({scope:'local'});me=null;userThemeOff();renderAll();return false;}
   var e=emp(uid);
-  if(!e||!e.active){loginMsg='บัญชีนี้ถูกปิดใช้งาน ติดต่อผู้ดูแล';await sb.auth.signOut({scope:'local'});me=null;renderAll();return false;}
-  me=e;view=e.role==='admin'?'today':'home';schedTeam=(e.team==='B')?'B':'A';schedAnchor=bkk(now()).date;
+  if(!e||!e.active){loginMsg='บัญชีนี้ถูกปิดใช้งาน ติดต่อผู้ดูแล';await sb.auth.signOut({scope:'local'});me=null;userThemeOff();renderAll();return false;}
+  me=e;userThemeOn(e); // ธีมของบัญชีนี้
+  view=e.role==='admin'?'today':'home';schedTeam=(e.team==='B')?'B':'A';schedAnchor=bkk(now()).date;
   editSlot=null;editEmp=null;armed='';modal=null;bellOpen=false;flash=null;dp=null;lvOpen=null;lvReject=null;lvErr='';loginMsg='';
   det=[];lastNoteTs=0;announceNew(true);fxKey='';
   renderAll();setTimeout(function(){if(document.querySelector('.bellwrap .badge'))bellRing();},700);return true;

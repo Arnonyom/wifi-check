@@ -1,4 +1,4 @@
--- 28 พ.ย. 2569: สิทธิ์วันลารายคน · ผู้ดูแลลาแทน · กติกาวันลาใหม่ · รูปโปรไฟล์ · ให้พนักงานแก้ชื่อ/รูปเองได้
+-- 28–29 พ.ย. 2569: สิทธิ์วันลารายคน · ผู้ดูแลลาแทน · กติกาวันลาใหม่ · รูปโปรไฟล์ · ให้พนักงานแก้ชื่อ/รูปเองได้
 -- migration: leave_quota_avatar
 
 -- 1) ค่าตั้งต้นสิทธิ์วันลา (ใช้กับคนที่ยังไม่ได้กำหนดเอง) + สวิตช์สิทธิ์แก้รูป/ชื่อ
@@ -42,6 +42,10 @@ alter table public.leaves add column if not exists by_admin uuid references publ
 -- 5) รูปโปรไฟล์ (รูปเล็กที่ย่อในเครื่องแล้ว เก็บเป็น data URL)
 alter table public.profiles add column if not exists avatar text
   check (avatar is null or (avatar like 'data:image/%' and length(avatar) <= 80000));
+
+-- 6) ธีมหน้าจอของแต่ละคน (จำตามบัญชี ไม่ใช่ตามเครื่อง): {theme, glass, custom:{c, base}}
+alter table public.profiles add column if not exists prefs jsonb not null default '{}'::jsonb
+  check (jsonb_typeof(prefs) = 'object' and length(prefs::text) <= 1000);
 
 -- สิทธิ์วันลาของคนหนึ่งในปีหนึ่ง (กำหนดเอง ถ้าไม่มีใช้ค่าตั้งต้น)
 create or replace function public.leave_quota_of(p_emp uuid, p_yr int, p_type text)
@@ -181,6 +185,17 @@ begin
   update settings set allow_avatar = coalesce(p_avatar, allow_avatar), allow_name = coalesce(p_name, allow_name) where id = 1;
 end $$;
 
+-- บันทึกธีมของตัวเอง (ทุกคน)
+create or replace function public.set_my_prefs(p_prefs jsonb)
+returns void language plpgsql security definer set search_path = public as $$
+begin
+  if auth.uid() is null then raise exception 'ยังไม่ได้ล็อกอิน'; end if;
+  if p_prefs is null or jsonb_typeof(p_prefs) <> 'object' or length(p_prefs::text) > 1000 then raise exception 'ข้อมูลไม่ถูกต้อง'; end if;
+  update profiles set prefs = p_prefs where id = auth.uid();
+end $$;
+
+revoke execute on function public.set_my_prefs(jsonb) from public, anon;
+grant execute on function public.set_my_prefs(jsonb) to authenticated;
 revoke execute on function public.leave_quota_of(uuid,int,text) from public, anon;
 grant execute on function public.leave_quota_of(uuid,int,text) to authenticated;
 revoke execute on function public.admin_set_quota(uuid[],int,text,text,int,text) from public, anon;

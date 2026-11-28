@@ -30,7 +30,7 @@ function loginShake(){
 document.addEventListener('input',function(e){var t=e.target;if(t&&(t.id==='lu'||t.id==='lp')){['lu','lp'].forEach(function(id){var x=$(id);if(x){x.classList.remove('bad');x.removeAttribute('aria-invalid');}});}});
 async function doLogout(){
   try{await sb.auth.signOut({scope:'local'});}catch(e){} // เฉพาะเครื่องนี้ ไม่ตัดเครื่องอื่นของบัญชีเดียวกัน
-  me=null;lastPw='';pwm=null;view='home';themeOpen=false;logoutAsk=false;modal=null;bellOpen=false;dp=null;state=emptyState();loginMsg='';renderAll();
+  me=null;lastPw='';pwm=null;view='home';themeOpen=false;logoutAsk=false;modal=null;bellOpen=false;dp=null;state=emptyState();loginMsg='';userThemeOff();renderAll();
 }
 
 /* ---------- views ---------- */

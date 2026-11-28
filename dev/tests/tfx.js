@@ -84,10 +84,12 @@ ok(JSON.stringify(await p.$$eval('.thpop [data-act=cust-base]',e=>e.map(x=>x.tex
 await p.click('[data-act=cust-pick][data-c="#9B51E0"]');await p.click('[data-act=cust-base][data-b=glass]');await p.waitForTimeout(100);
 ok(await p.evaluate(()=>document.documentElement.getAttribute('data-theme')==='glass'&&document.documentElement.hasAttribute('data-cust')),'custom glass previews as glass');
 await p.click('[data-act=gear-yes]');await p.waitForTimeout(150);
-ok(await p.evaluate(()=>{const c=JSON.parse(localStorage.getItem('wc-custom'));return c.base==='glass'&&c.c==='#9B51E0';}),'custom glass saved');
+await p.waitForTimeout(400);ok(await p.evaluate(()=>{const c=window.__mockdb.profiles.find(x=>x.id==='e0').prefs.custom;return c.base==='glass'&&c.c==='#9B51E0';}),'custom glass saved (to this account)');
 ok(await p.$('.thpop .thopt.on[data-t=custom]')!==null&&await vis('#glassRange'),'custom glass: still shown as "custom" + transparency slider');
 ok((await p.evaluate(()=>getComputedStyle(document.body).backgroundImage)).includes('radial-gradient'),'custom glass: colored glass background');
-await p.reload();await p.waitForTimeout(500);
-ok(await p.evaluate(()=>document.documentElement.getAttribute('data-theme')==='glass'&&document.documentElement.hasAttribute('data-cust')),'custom glass kept after reload');
+await p.click('[data-act=theme]');await p.click('[data-act=logout-ask]');await p.click('.thout [data-act=logout]');await p.waitForTimeout(400);
+ok(!(await p.evaluate(()=>document.documentElement.hasAttribute('data-cust'))),'signed out: device theme (not the account color)');
+await login('admin','Admin@2026');
+ok(await p.evaluate(()=>document.documentElement.getAttribute('data-theme')==='glass'&&document.documentElement.hasAttribute('data-cust')),'custom glass back after signing in again');
 await ctx.close();await b.close();
 console.log(errs.length?errs.join('\n'):'NO ERRORS');process.exit(errs.length?1:0);})();

@@ -71,7 +71,7 @@ ok(await vis('.thpop .gask')&&await p.evaluate(()=>getComputedStyle(document.bod
 await p.click('[data-act=gear-no]');await p.waitForTimeout(100);
 ok(await p.evaluate(()=>getComputedStyle(document.body).backgroundColor)===bg0,'custom color: cancel restores');
 await p.click('[data-act=cust-pick][data-c="#2F80ED"]');await p.click('[data-act=cust-base][data-b=dark]');await p.click('[data-act=gear-yes]');await p.waitForTimeout(150);
-ok(await p.evaluate(()=>JSON.parse(localStorage.getItem('wc-custom')).c==='#2F80ED'&&JSON.parse(localStorage.getItem('wc-custom')).base==='dark'),'custom color: saved on this device (blue, dark)');
+await p.waitForTimeout(400);ok(await p.evaluate(()=>{const c=window.__mockdb.profiles.find(x=>x.id==='e2').prefs.custom;return c.c==='#2F80ED'&&c.base==='dark';}),'custom color: saved to this account (blue, dark)');
 const ink=await p.evaluate(()=>getComputedStyle(document.documentElement).getPropertyValue('--ink').trim());ok(ink.toUpperCase()==='#EDF1EE','custom dark: light text');
 await p.click('[data-act=theme-set][data-t=light]');await p.click('[data-act=gear-yes]');await p.waitForTimeout(150);
 ok(await p.evaluate(()=>document.documentElement.style.getPropertyValue('--bg')==='')&&await p.evaluate(()=>document.documentElement.getAttribute('data-theme'))==='light','back to light: custom colors removed');

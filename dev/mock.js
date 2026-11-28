@@ -47,6 +47,7 @@ Q.prototype.then=function(res,rej){
   return Promise.resolve({data:data,error:null}).then(res,rej);};
 function fail(m){return {data:null,error:{message:m}};}
 var RPC={
+ set_my_prefs:function(a){var p=db.profiles.find(function(x){return x.id===session.uid;});if(!p)throw new Error('ยังไม่ได้ล็อกอิน');p.prefs=JSON.parse(JSON.stringify(a.p_prefs||{}));return null;},
  admin_set_quota:function(a){if(session.role!=='admin')throw new Error('เฉพาะผู้ดูแลระบบ');if(!a.p_emps||!a.p_emps.length)throw new Error('เลือกพนักงานอย่างน้อย 1 คน');db.lq=db.lq||[];db.lql=db.lql||[];var s0=db.settings[0],c=0;
    a.p_emps.forEach(function(e){var r=db.lq.find(function(x){return x.emp===e&&x.yr===a.p_yr&&x.type===a.p_type;}),o=r?r.days:s0['q_'+a.p_type],n=Math.max(0,Math.min(366,a.p_mode==='set'?a.p_days:o+a.p_days));
      if(r)r.days=n;else db.lq.push({emp:e,yr:a.p_yr,type:a.p_type,days:n});if(n!==o){c++;db.lql.unshift({id:db.lql.length+1,emp:e,yr:a.p_yr,type:a.p_type,old_days:o,new_days:n,note:a.p_note||'',by_id:session.uid,at:new Date().toISOString()});}});return c;},
