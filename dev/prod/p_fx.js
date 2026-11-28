@@ -18,7 +18,7 @@ function countUp(el,dur){
   el.textContent=m[1]+(0).toFixed(dec)+m[3];requestAnimationFrame(step);
 }
 function animMain(){
-  var k=view+'|'+(view==='report'?rep.sec:'')+'|'+dashDays+'|'+(typeof dashEmp!=='undefined'?dashEmp:'');
+  var k=view+'|'+(view==='report'?rep.sec:'')+'|'+dashDays+'|'+(typeof dashTo!=='undefined'?dashTo:'')+'|'+(typeof dashEmp!=='undefined'?dashEmp:'');
   if(k===fxKey)return;fxKey=k;
   if(fxReduced()||!/^(today|report|home)$/.test(view))return;
   var m=$('main');if(!m)return;

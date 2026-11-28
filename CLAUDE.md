@@ -31,7 +31,7 @@ dev/                                            ← ต้นฉบับ + เ�
   supabase/                    SQL ที่เคยใช้ + Edge Function admin-users
 ```
 
-ลำดับ build: ดูใน `build_all.sh` (patch_detail → … → patch_order → patch_profile → … → patch_ui2 → patch_leaveq → patch_gear → patch_avatar → patch_stats → patch_fx → build_prod → i18n → make_preview)
+ลำดับ build: ดูใน `build_all.sh` (patch_detail → … → patch_order → patch_profile → … → patch_ui2 → patch_leaveq → patch_gear → patch_avatar → patch_stats → patch_fx → patch_r4 → build_prod → i18n → make_preview)
 (`patch_detail.py` สร้าง `app_src.html` ใหม่จาก `app_src_before_detail.html` ทุกครั้ง)
 
 ## ขั้นตอนทำงาน
@@ -84,10 +84,12 @@ dev/                                            ← ต้นฉบับ + เ�
 - **ถามยืนยันก่อนทุกปุ่ม ส่ง/อนุมัติ/บันทึก** (`prod/p_confirm.js` วางต้นสคริปต์ ดักแบบ capture ด้วย `CF_ACTS`, หน้าต่าง `#cfbox` ปุ่ม `[data-cf=yes|no]`) · ส่งคำขอลา/ลาแทน ตรวจข้อมูลก่อนแล้วค่อยถาม (`askConfirm`) · ปุ่มเพิ่มใหม่ที่บันทึกข้อมูล ต้องใส่ใน `CF_ACTS` · เทสต์ที่กดปุ่มเหล่านี้ต้องกด `#cfbox [data-cf=yes]` ต่อ
 - ลูกเล่น (`prod/p_fx.js`): KPI นับขึ้น + กราฟวิ่ง (`animMain` เฉพาะตอนเปิดหน้า/เปลี่ยนช่วง) · กระดิ่งขยับ (`bellRing`) · toast สำเร็จ `toast(t,b,'ok')` · ล็อกอินผิด สั่น+แดง (`loginShake`) · คำขอลามีขั้นตอน (`lvFlow`) · เทสต์ `tfx`
 - วันลา (`prod/p_leaveq.js`, ตาราง `leave_quota` + `leave_quota_log`, ค่าตั้งต้น `settings.q_vac/q_per/q_sick`): สิทธิ์รายคนต่อปี `leave_quota_of` · ปรับ `admin_set_quota` (set/add) · ผู้ดูแลลาแทน `admin_request_leave` (ต้องมีเหตุผล, `leaves.by_admin`) · พักร้อน/ลากิจ เริ่มได้ตั้งแต่วันนี้ · ลาป่วยเริ่มได้เฉพาะวันนี้ ≤ 3 วัน · เลือกวันเริ่ม + จำนวนวัน · เมนูชื่อ "ลา" · รายงานมีการ์ดสิทธิ์คงเหลือ (`#lvBal`) · เทสต์ `tleave`
-- รายงาน › สถิติ: เลือก "ดูของ" ทุกคน/คนเดียว (`dashEmp`) กราฟพฤติกรรมเป็นของคนนั้น กราฟเปรียบเทียบยังแสดงทุกคนแต่คนอื่นจาง · ตารางกะเปิดมาเป็นมุมมองเดือน
+- รายงาน › สถิติ: เลือก "ดูของ" ทุกคน/คนเดียว (`dashEmp`) กราฟพฤติกรรมเป็นของคนนั้น กราฟเปรียบเทียบยังแสดงทุกคนแต่คนอื่นจาง · ช่วงเวลา 7/30/90/180 วัน/1 ปี/กำหนดเอง ≤ 366 วัน (`dashDays`, `dashTo`, `dashCustom`, `dsFrom/dsTo`) · เกิน 92 วันกราฟรายวันรวมเป็นรายสัปดาห์ (`weekly`) · ปกติโหลดข้อมูลย้อนหลัง 130 วัน ช่วงยาวโหลดเพิ่มเอง (`histDays`) · ตารางกะเปิดมาเป็นมุมมองเดือน
+- สำรองข้อมูลทั้งหมดเป็น Excel (`prod/p_r4.js`, การ์ด `bkCard` ใน Admin tool › นำเข้า/ส่งออก): ดึงทุกตารางแบบแบ่งหน้า (`range`) ชีตละหมวด ไม่รวม avatar/prefs · เทสต์ `tr4`
+- แถบสีด้านบน (meta theme-color) ตามธีม `syncThemeColor()` · ป๊อปอัป Admin tool โฟกัสปุ่มปิด (ไม่เด้งแป้นพิมพ์บน iOS) + ยกพ้นแป้นพิมพ์ (`--kb` จาก visualViewport) · การ์ดแจ้งเตือนบนมือถือเอาออกจาก Admin tool แล้ว (ตั้งที่กระดิ่ง)
 - วันหยุดราชการ (`prod/p_hol.js`, ตาราง `holidays`): ทีม A หยุด (`team_works` ในฐานข้อมูล + `teamWorksS` ในเว็บ) · ทีม B ทำตามรอบ · ผู้ดูแลเพิ่ม/ลบผ่าน `admin_set_holiday` · วันหยุดปี 2570 ใส่ตามปฏิทินทั่วไป รอตรวจกับประกาศ ครม.
 - ล้างข้อมูลทดสอบ: `admin_clear_data(from,to,att,sched,notif,rota,dry)` — dry=true นับอย่างเดียว · ไม่แตะ profiles/settings/holidays
-- หน้าตั้งค่าระบบ = **Admin tool** (`prod/p_acc.js`): แท็บหมวด (ทั้งหมด/กะ & ทีม/วันหยุด/วันลา/กฎ/นำเข้า-ส่งออก/ทดสอบ) + ตารางการ์ด กด "เปิด" (`data-set-open`) เป็น popup · การ์ดเพิ่มใหม่ต้องใส่ใน SET_META/SET_ORDER และ accIdOf
+- หน้าตั้งค่าระบบ = **Admin tool** (`prod/p_acc.js`): แท็บหมวด (ทั้งหมด/กะ & ทีม/วันหยุด/วันลา/กฎ/นำเข้า-ส่งออก-สำรอง/ทดสอบ) + ตารางการ์ด กด "เปิด" (`data-set-open`) เป็น popup · การ์ดเพิ่มใหม่ต้องใส่ใน SET_META/SET_ORDER และ accIdOf
 - ออกจากระบบ = เฉพาะเครื่องนี้ (`signOut({scope:'local'})`) ห้ามใช้ `signOut()` เฉย ๆ เพราะจะตัดทุกเครื่องของบัญชี · `adminFn` เจอ 401 → ต่ออายุแล้วลองใหม่ 1 ครั้ง ไม่ได้ → กลับหน้าล็อกอิน (เทสต์ `tsess`)
 - Migration ที่ใช้ไปแล้ว: fix_function_search_path, add_must_change_pw, team_a_rotation_and_flex_shift, rotation_4_shifts_and_team_b_cycle, admin_attendance_and_multi_day_override, fix_forgot_checkout_and_admin_cancel_leave, drop_profiles_phone, admin_attendance_no_future, check_in_duplicate_message, profile_sort_order, attendance_locations, holidays_and_clear_data, leave_quota_avatar (+ schema.sql ตั้งต้น)
 - repo เป็นสาธารณะ: ห้ามใส่รหัสผ่านจริง, service key หรือข้อมูลส่วนตัวพนักงานลงไฟล์ใด ๆ

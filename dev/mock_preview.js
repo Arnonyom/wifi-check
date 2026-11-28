@@ -80,7 +80,7 @@ Q.prototype.select=function(){this.sel=true;return this;};
 Q.prototype.eq=function(k,v){this.f.push(function(r){return r[k]===v;});return this;};
 Q.prototype.gte=function(k,v){this.f.push(function(r){return r[k]>=v;});return this;};
 Q.prototype.order=function(k,o){this.ord=[k,!(o&&o.ascending===false)];return this;};
-Q.prototype.limit=function(n){this.lim=n;return this;};
+Q.prototype.limit=function(n){this.lim=n;return this;};Q.prototype.range=function(a,b){this.rng=[a,b];return this;};
 Q.prototype.maybeSingle=function(){this.single=true;return this;};
 Q.prototype.update=function(o){this.op='update';this.upd=o;return this;};
 Q.prototype.then=function(res,rej){
@@ -89,7 +89,7 @@ Q.prototype.then=function(res,rej){
   else{if(this.t==='notification_reads')rows=rows.filter(function(r){return r.user_id===session.uid;});
     if(this.t==='leaves'&&session.role!=='admin')rows=rows.filter(function(r){return r.emp===session.uid;});
     if(this.ord){var k=this.ord[0],a=this.ord[1];rows=rows.slice().sort(function(x,y){return (x[k]>y[k]?1:x[k]<y[k]?-1:0)*(a?1:-1);});}
-    if(this.lim)rows=rows.slice(0,this.lim);data=this.single?(rows[0]||null):rows.slice();}
+    if(this.lim)rows=rows.slice(0,this.lim);if(this.rng)rows=rows.slice(this.rng[0],this.rng[1]+1);data=this.single?(rows[0]||null):rows.slice();}
   return Promise.resolve({data:data,error:null}).then(res,rej);};
 function fail(m){return {data:null,error:{message:m}};}
 var RPC={

@@ -104,7 +104,7 @@ def rhs(js,name):
 def reloc(js):
     """ค่าคงที่ที่แปลครั้งเดียวตอนเปิดแอป → ฟังก์ชันแปลใหม่ตอนเปลี่ยนภาษา (คงตัวแปรเดิม ไม่สร้างใหม่)"""
     out=['function relocalize(){']
-    for a in ['DOW_TH','DOW_S','SET_TABS','THEMES','CBASE']:
+    for a in ['DOW_TH','DOW_S','SET_TABS','THEMES','CBASE','DASH_PRESETS','BK_TABLES']:
         r=rhs(js,a);assert r.startswith('[') and r.endswith(']');out.append(a+'.splice.apply('+a+',[0,'+a+'.length].concat('+r+'));')
     for o in ['LEAVE_TH','LEAVE_ST','DSTATE','SET_META']:
         r=rhs(js,o);assert r.startswith('{') and r.endswith('}');out.append('Object.assign('+o+','+r+');')

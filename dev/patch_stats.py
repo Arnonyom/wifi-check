@@ -32,7 +32,7 @@ rep("function pct(a,b){","""function dashEmpSel(){
   if(dashEmp&&!es.some(function(e){return e.id===dashEmp;}))dashEmp='';
   return '<label class="dsel small"><span>ดูของ</span><select id="dashEmp">'+'<option value="">ทุกคน</option>'+es.map(function(e){return '<option value="'+e.id+'"'+(dashEmp===e.id?' selected':'')+'>'+esc(e.name)+'</option>';}).join('')+'</select></label>';
 }
-document.addEventListener('change',function(e){if(e.target&&e.target.id==='dashEmp'){dashEmp=e.target.value;renderView();var x=document.getElementById('dashEmp');if(x)try{x.focus({preventScroll:true});}catch(er){}}});
+document.addEventListener('change',function(e){if(e.target&&e.target.id==='dashEmp'){dashEmp=e.target.value;renderView(); /* ไม่โฟกัสช่องเลือกซ้ำ: บน iOS จะเปิดรายการขึ้นมาใหม่เอง */}});
 function pct(a,b){""")
 css="""
 /* สถิติ: เลือกคน */

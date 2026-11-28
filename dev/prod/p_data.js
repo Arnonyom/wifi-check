@@ -47,7 +47,7 @@ function mapEmp(p){
   return {id:p.id,username:p.username,name:p.name,role:p.role,team:p.team,shift:p.shift_id,active:p.active,canWork:p.can_work,notify:p.notify,mustChange:!!p.must_change_pw,avatar:p.avatar||'',prefs:p.prefs||null,sortOrder:p.sort_order==null?null:p.sort_order,push:lsGet('wc-push-'+p.id)==='1'};
 }
 async function loadAll(){
-  var today=bkk(Date.now()).date,since=addDays(today,-130);
+  var today=bkk(Date.now()).date,since=addDays(today,-Math.max(130,histDays||130)); // ปกติ 130 วัน · สถิติช่วงยาวโหลดเพิ่ม (histDays)
   var q=await Promise.all([
     sb.rpc('server_now'),
     sb.from('profiles').select('*').order('created_at'),

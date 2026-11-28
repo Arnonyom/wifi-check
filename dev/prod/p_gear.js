@@ -30,7 +30,7 @@ function applyCustom(cfg){
     root.setAttribute('data-theme','glass');root.setAttribute('data-cust','1');
     v={'--cg1':rgba(c,.85),'--cg2':rgba(hueShift(c,40),.7),'--cg3':rgba(hueShift(c,-70),.55),'--cg4':rgba(hueShift(c,150),.45),'--cgb':mixC(c,'#ffffff',0.18),
        '--brand':c,'--brand-strong':readable(mixC(c,'#000000',0.85),'#ffffff','#000000'),'--brand-soft':rgba(c,.28),'--on-brand':lum(c)>0.35?'#101412':'#ffffff','--ink':mixC(c,'#0d1512',0.10)};
-    Object.keys(v).forEach(function(k){r.setProperty(k,v[k]);});applyGlass(glassLevel());return;
+    Object.keys(v).forEach(function(k){r.setProperty(k,v[k]);});applyGlass(glassLevel());syncThemeColor();return;
   }
   root.setAttribute('data-theme','custom');
   if(cfg.base==='dark'){
@@ -46,7 +46,7 @@ function applyCustom(cfg){
        '--late':'#7A4A00','--late-soft':'#FFF0CF','--amber':'#E0A100','--off':'#A8322A','--off-soft':'#FBE6E3','--hatch':mixC(c,'#ffffff',0.09),'--scrim':'rgba(8,12,10,.55)',
        '--shadow':'0 1px 2px rgba(16,24,20,.06),0 8px 24px rgba(16,24,20,.07)','--grid':mixC(c,'#e8ece9',0.10),'--axis':mixC(c,'#b9c2bd',0.15),'color-scheme':'light'};
   }
-  CUSTOM_VARS.forEach(function(k){if(v[k]!=null)r.setProperty(k,v[k]);});
+  CUSTOM_VARS.forEach(function(k){if(v[k]!=null)r.setProperty(k,v[k]);});syncThemeColor();
 }
 function clearCustom(){var r=document.documentElement.style;CUSTOM_VARS.forEach(function(k){r.removeProperty(k);});document.documentElement.removeAttribute('data-cust');}
 // ธีมที่เลือก (กำหนดสีเองแบบแก้ว ใช้ data-theme=glass + data-cust)
@@ -72,7 +72,7 @@ function applyTheme(t){
   var R=document.documentElement;
   if(t)R.setAttribute('data-theme',t);else R.removeAttribute('data-theme');
   if(t==='custom')applyCustom(customCfg());else clearCustom();
-  applyGlass(glassLevel());
+  applyGlass(glassLevel());syncThemeColor();
 }
 function setTheme(t){prefSave('theme',t);applyTheme(t);renderAll();}
 function validPrefs(p){return p&&typeof p==='object'&&!Array.isArray(p)?p:{};}
@@ -86,7 +86,7 @@ function userThemeOn(e){
 }
 function userThemeOff(){var dl=devGet('wc-lang')==='en'?'en':'th';if(dl!==LANG)setLang(dl,true);if(!UP&&!devGet('wc-last-uid'))return;UP=null;gearPend=null;devDel('wc-last-uid');applyTheme(devGet(THEME_KEY)||'');}
 // เปิดหน้าใหม่ขณะยังล็อกอินอยู่: ใช้ธีมของคนล่าสุดทันที (ยืนยันอีกครั้งหลังโหลดข้อมูล)
-(function(){var u=devGet('wc-last-uid');if(!u)return;var c=null;try{c=JSON.parse(devGet('wc-u-'+u)||'null');}catch(x){}if(c&&c.theme){UP=c;applyTheme(c.theme);UP=null;}else applyTheme(devGet(THEME_KEY)||'');})();
+(function(){var u=devGet('wc-last-uid'),c=null;if(u)try{c=JSON.parse(devGet('wc-u-'+u)||'null');}catch(x){}if(c&&c.theme){UP=c;applyTheme(c.theme);UP=null;}else applyTheme(devGet(THEME_KEY)||'');})();
 function effDark(){var t=document.documentElement.getAttribute('data-theme');if(t)return t==='dark'||t==='black'||(t==='custom'&&customCfg().base==='dark');return window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches;}
 /* ขอเปลี่ยน → แสดงแถบยืนยันในเมนู · ภาษา/ธีม ยังไม่เปลี่ยนจนกว่าจะยืนยัน · แถบเลื่อน/สี แสดงให้ดูก่อน ยกเลิกแล้วกลับค่าเดิม */
 function gearAsk(k,v){

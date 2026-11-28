@@ -22,13 +22,13 @@ var SET_META={
   hol:['hol','cal','วันหยุดราชการ / นักขัตฤกษ์','ทีม A หยุด · ทีม B ทำตามรอบ'],
   lvq:['leave','bag','การตั้งค่าวันลา','สิทธิ์วันลารายคน · ปรับเพิ่ม/ลด · ลาแทนพนักงาน'],
   rules:['rule','clock','กฎการลงเวลา','เวลาเปิดให้ลงเวลา และเกณฑ์สาย'],
-  push:['rule','bell','แจ้งเตือนบนมือถือ','สถานะการแจ้งเตือน (Push)'],
   export:['io','down','ส่งออกตารางกะ','ดาวน์โหลดเป็น Excel'],
   import:['io','up','นำเข้าตารางกะ','จากไฟล์ Excel หรือ .csv'],
+  bk:['io','down','สำรองข้อมูลทั้งหมด','ดาวน์โหลดทุกหมวดเป็น Excel ไฟล์เดียว'],
   sim:['test','flask','ทดสอบเข้า-ออกงาน','ลองลงเวลาแทนพนักงาน (ไม่บันทึกจริง)'],
   clr:['test','trash','ล้างข้อมูลทดสอบ','ลบข้อมูลที่ใส่ระหว่างทดสอบ']
 };
-var SET_ORDER=['rota','rotab','hol','lvq','rules','push','export','import','sim','clr'];
+var SET_ORDER=['rota','rotab','hol','lvq','rules','export','import','bk','sim','clr'];
 function accIdOf(c,i){
   if(c.querySelector('[data-v="sim"]'))return 'sim';
   if(c.querySelector('[data-act^="rotab"]')||c.id==='rotaBEd')return 'rotab';
@@ -39,6 +39,7 @@ function accIdOf(c,i){
   if(c.id==='holCard')return 'hol';
   if(c.id==='clrCard')return 'clr';
   if(c.id==='lvqCard')return 'lvq';
+  if(c.id==='bkCard')return 'bk';
   var h2=c.querySelector('h2');if(h2&&/Push/.test(h2.textContent))return 'push';
   return 'c'+i;
 }
@@ -48,6 +49,7 @@ function settingsAcc(){
   cards.forEach(function(c,i){
     var id=accIdOf(c,i);have[id]=1;
     c.classList.add('spop');c.setAttribute('data-acc',id);c.setAttribute('role','dialog');c.setAttribute('aria-modal','true');
+    if(id==='push'){c.remove();return;} // แจ้งเตือนบนมือถือ: ตั้งที่กระดิ่งแทน (เอาการ์ดออกจาก Admin tool)
     if(id==='sim'){c.hidden=true;return;} // ทดสอบเข้า-ออกงาน เป็นหน้าแยก กดแล้วไปหน้านั้น
     var m=SET_META[id],h=c.querySelector(':scope > h2');
     if(h){if(!h.id)h.id='spt-'+id;c.setAttribute('aria-labelledby',h.id);}
@@ -80,7 +82,8 @@ function accPaint(){
 }
 function accFocus(){
   var c=accOpen&&document.querySelector('#main section.spop.open');
-  if(c){c.scrollTop=0;var f=c.querySelector('h2 button,input,select,textarea,button:not(.spx)')||c.querySelector('.spx');if(f&&f.focus)try{f.focus({preventScroll:true});}catch(x){}}
+  // โฟกัสปุ่มปิด (ไม่โฟกัสช่องพิมพ์ เพราะบนมือถือแป้นพิมพ์จะเด้งขึ้นมาบังทันที)
+  if(c){c.scrollTop=0;var f=c.querySelector('.spx');if(f&&f.focus)try{f.focus({preventScroll:true});}catch(x){}}
 }
 document.addEventListener('click',function(e){
   if(view!=='settings'){if(accOpen){accOpen='';document.body.classList.remove('noscroll');}return;}
