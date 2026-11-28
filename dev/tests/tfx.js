@@ -68,7 +68,15 @@ ok(await p.evaluate(()=>window.__mockdb.settings[0].open_before===45),'rules sav
 await p.click('#main section.spop.open .spx');
 // ธีม
 await p.click('[data-act=theme]');
-ok(JSON.stringify(await p.$$eval('.thpop [data-act=theme-set]',e=>e.map(x=>x.textContent.trim())))===JSON.stringify(['กลางวัน','กลางคืน','White','Black','Liquid Glass','กำหนดสีเอง']),'theme names: Day / Night / White / Black / Glass / Custom');
+ok(JSON.stringify(await p.$$eval('.thpop .thopt[data-act=theme-set]',e=>e.map(x=>x.textContent.trim())))===JSON.stringify(['White','Black','Liquid Glass','กำหนดสีเอง']),'theme buttons: White / Black / Glass / Custom');
+// โหมดกลางวัน/กลางคืน เป็นสวิตช์
+ok(await p.$('.thpop .daysw[role=switch][aria-checked=false].on')!==null&&(await p.textContent('.thpop .daysw')).includes('โหมดกลางวัน'),'day/night toggle: day now');
+await p.click('.thpop .daysw');await p.waitForTimeout(100);
+ok(await p.evaluate(()=>document.documentElement.getAttribute('data-theme'))!=='dark'&&(await p.textContent('.thpop .gask')).includes('กลางคืน'),'toggle asks to confirm night mode');
+await p.click('[data-act=gear-yes]');await p.waitForTimeout(150);
+ok(await p.evaluate(()=>document.documentElement.getAttribute('data-theme'))==='dark'&&await p.$('.thpop .daysw[aria-checked=true]')!==null&&(await p.textContent('.thpop .daysw')).includes('โหมดกลางคืน'),'night mode on, toggle shows night');
+await p.click('.thpop .daysw');await p.click('[data-act=gear-yes]');await p.waitForTimeout(150);
+ok(await p.evaluate(()=>document.documentElement.getAttribute('data-theme'))==='light','toggle back to day');
 await p.click('[data-act=theme-set][data-t=white]');await p.click('[data-act=gear-yes]');await p.waitForTimeout(150);
 ok(await p.evaluate(()=>getComputedStyle(document.body).backgroundColor)==='rgb(255, 255, 255)','White theme: pure white');
 await p.click('[data-act=theme-set][data-t=custom]');await p.click('[data-act=gear-yes]');await p.waitForTimeout(150);

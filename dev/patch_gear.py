@@ -20,6 +20,11 @@ rep("""    '<section class="card stack"><h2>ตั้งค่า</h2><div class
 rep("<h1>ตั้งค่า</h1><p class=\"muted\">","<h1>Admin tool</h1><p class=\"muted\">")
 css="""
 .thpop{max-height:min(86vh,680px)}.thpop>*{flex-shrink:0}
+.daysw{padding:6px 10px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+.daysw.on{border-color:var(--brand-strong);box-shadow:0 0 0 2px var(--brand-strong) inset;font-weight:600}
+.daysw.pend{border-style:dashed;border-color:var(--brand-strong)}
+.dsw{display:flex;align-items:center;gap:8px}.dic{display:grid;place-items:center;color:var(--muted);opacity:.55}.dic svg{width:18px;height:18px}
+.dic.on{opacity:1}.dic.on:first-child{color:#E0A100}.dic.on:last-child{color:var(--brand-strong)}
 /* ธีม Black (ดำสนิท) */
 :root[data-theme="black"]{
   --bg:#000000; --surface:#0E0E0E; --surface-2:#171717; --ink:#F2F2F2; --muted:#A6A6A6; --line:#2A2A2A;

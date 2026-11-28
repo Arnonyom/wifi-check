@@ -1417,8 +1417,6 @@
 "<ol class=\"lvflow\" aria-label=\"ขั้นตอนคำขอลา: ตอนนี้ ": "<ol class=\"lvflow\" aria-label=\"Leave request progress: now ",
 "<span>บันทึกการลาแทน</span></button></div></section>": "<span>Save leave</span></button></div></section>",
 "<span>ส่งคำขอลา</span></button></div></section>": "<span>Send leave request</span></button></div></section>",
-"กลางคืน": "Night",
-"กลางวัน": "Day",
 "บันทึก": "Save",
 "ผลการอนุมัติ": "Decision",
 "ผู้ดูแลบันทึกให้": "Entered by admin",
@@ -1435,5 +1433,10 @@
 "ส่งถึงผู้ดูแลแล้ว": "Sent to admin",
 "อนุมัติ": "Approve ",
 "แก้ว": "Glass",
-"บันทึกการลาแทน ": "Enter leave for "
+"บันทึกการลาแทน ": "Enter leave for ",
+"<p class=\"small muted\">ธีมหน้าจอ</p>": "<p class=\"small muted\">Theme</p>",
+"โหมดกลางคืน": "Night mode",
+"โหมดกลางคืน (กดเพื่อเปลี่ยนเป็นกลางวัน)": "Night mode (tap for day mode)",
+"โหมดกลางวัน": "Day mode",
+"โหมดกลางวัน (กดเพื่อเปลี่ยนเป็นกลางคืน)": "Day mode (tap for night mode)"
 }

@@ -4,7 +4,7 @@
    - ธีม: สว่าง · มืด · Black (ดำสนิท) · Liquid Glass · กำหนดสีเอง (เลือกสีหลัก + พื้นสว่าง/มืด) · จำไว้ในเครื่องนี้
    - เปลี่ยนรหัสผ่าน (ย้ายมาจากหน้าโปรไฟล์) · ออกจากระบบ (ถามยืนยันเหมือนเดิม) */
 var gearPend=null,CUSTOM_KEY='wc-custom';
-var THEMES=[['light','กลางวัน'],['dark','กลางคืน'],['white','White'],['black','Black'],['glass','Liquid Glass'],['custom','กำหนดสีเอง']];
+var THEMES=[['light','โหมดกลางวัน'],['dark','โหมดกลางคืน'],['white','White'],['black','Black'],['glass','Liquid Glass'],['custom','กำหนดสีเอง']];
 var CBASE=[['light','สว่าง'],['dark','มืด'],['glass','แก้ว']];
 function themeName(t){var o=THEMES.find(function(x){return x[0]===t;});return o?o[1]:t;}
 // สีที่เลือกเอง: {c: สีหลัก, base: light|dark|glass} (แบบเดิม {dark:true} = มืด)
@@ -85,12 +85,19 @@ function gearAskHtml(){
     :p.k==='glass'?'ใช้ความใส '+p.v+'% ใช่ไหม?':'ใช้สีนี้ใช่ไหม?';
   return '<div class="gask" role="alert"><p class="small"><b>'+msg+'</b></p><div class="row" style="gap:8px"><button class="btn grow" data-act="gear-yes">ยืนยัน</button><button class="btn sec" data-act="gear-no">ยกเลิก</button></div></div>';
 }
+/* โหมดกลางวัน ↔ กลางคืน เป็นสวิตช์ (ธีมสว่าง/มืดเดิม) · ธีมอื่น (White Black Glass สีเอง) เลือกจากปุ่มด้านล่าง
+   สวิตช์อยู่ฝั่งกลางคืนเมื่อธีมตอนนี้เป็นแบบมืด · กดแล้วถามยืนยันเหมือนทุกการเปลี่ยนในเมนูนี้ */
+function dayRow(t,sel){
+  var night=effDark(),act=t==='light'||t==='dark',pend=sel!==t&&(sel==='light'||sel==='dark');
+  return '<button type="button" class="swrow daysw'+(act?' on':'')+(pend?' pend':'')+'" role="switch" aria-checked="'+night+'" data-act="theme-set" data-t="'+(night?'light':'dark')+'" aria-label="'+(night?'โหมดกลางคืน (กดเพื่อเปลี่ยนเป็นกลางวัน)':'โหมดกลางวัน (กดเพื่อเปลี่ยนเป็นกลางคืน)')+'">'+
+    '<span>'+(night?'โหมดกลางคืน':'โหมดกลางวัน')+'</span><span class="dsw"><span class="dic'+(night?'':' on')+'" aria-hidden="true">'+ico(ICONS.sun)+'</span><span class="sw'+(night?' on':'')+'"><i></i></span><span class="dic'+(night?' on':'')+'" aria-hidden="true">'+ico(ICONS.moon)+'</span></span></button>';
+}
 function themePanel(){
   var t=curTheme(),p=gearPend,v=p&&p.k==='glass'?p.v:glassLevel(),cc=p&&p.k==='color'?p.v:customCfg(),sel=p&&p.k==='theme'?p.v:t;
   var sw=function(o){return o==='custom'?' style="background:linear-gradient(135deg,'+cc.c+' 0 50%,'+(cc.base==='dark'?'#0a0c0b':cc.base==='glass'?'#cfe9ff':'#ffffff')+' 50% 100%)"':'';};
   return '<div class="pop thpop" role="dialog" aria-label="ตั้งค่า">'+langRow()+(p&&p.k==='lang'?gearAskHtml():'')+
-    '<p class="small muted">ธีมหน้าจอ</p><div class="thopts">'+
-    THEMES.map(function(o){return '<button class="thopt'+(t===o[0]?' on':'')+(sel===o[0]&&sel!==t?' pend':'')+'" data-act="theme-set" data-t="'+o[0]+'" aria-pressed="'+(t===o[0])+'"><span class="thsw thsw-'+o[0]+'"'+sw(o[0])+'>'+(o[0]==='light'?ico(ICONS.sun):o[0]==='dark'?ico(ICONS.moon):'')+'</span>'+o[1]+'</button>';}).join('')+'</div>'+
+    '<p class="small muted">ธีมหน้าจอ</p>'+dayRow(t,sel)+'<div class="thopts">'+
+    THEMES.filter(function(o){return o[0]!=='light'&&o[0]!=='dark';}).map(function(o){return '<button class="thopt'+(t===o[0]?' on':'')+(sel===o[0]&&sel!==t?' pend':'')+'" data-act="theme-set" data-t="'+o[0]+'" aria-pressed="'+(t===o[0])+'"><span class="thsw thsw-'+o[0]+'"'+sw(o[0])+'>'+(o[0]==='light'?ico(ICONS.sun):o[0]==='dark'?ico(ICONS.moon):'')+'</span>'+o[1]+'</button>';}).join('')+'</div>'+
     (p&&p.k==='theme'?gearAskHtml():'')+
     (t==='glass'||(t==='custom'&&cc.base==='glass')?'<label for="glassRange" class="small">ความใส ↔ ขุ่น <b class="tnum" id="glassVal">'+v+'%</b></label><input id="glassRange" type="range" min="0" max="100" step="1" value="'+v+'"><div class="row between small muted"><span>ใส</span><span>ขุ่น</span></div>'+(p&&p.k==='glass'?gearAskHtml():''):'')+
     (t==='custom'?'<div class="cust"><label for="custColor" class="small">สีหลัก</label><input id="custColor" type="color" value="'+cc.c+'">'+
