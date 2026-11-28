@@ -87,7 +87,7 @@ await p.click('[data-act=gear-yes]');await p.waitForTimeout(150);
 await p.waitForTimeout(400);ok(await p.evaluate(()=>{const c=window.__mockdb.profiles.find(x=>x.id==='e0').prefs.custom;return c.base==='glass'&&c.c==='#9B51E0';}),'custom glass saved (to this account)');
 ok(await p.$('.thpop .thopt.on[data-t=custom]')!==null&&await vis('#glassRange'),'custom glass: still shown as "custom" + transparency slider');
 ok((await p.evaluate(()=>getComputedStyle(document.body).backgroundImage)).includes('radial-gradient'),'custom glass: colored glass background');
-await p.click('[data-act=theme]');await p.click('[data-act=logout-ask]');await p.click('.thout [data-act=logout]');await p.waitForTimeout(400);
+if(!(await p.$('.thpop')))await p.click('[data-act=theme]');await p.click('[data-act=logout-ask]');await p.click('.thout [data-act=logout]');await p.waitForTimeout(400);
 ok(!(await p.evaluate(()=>document.documentElement.hasAttribute('data-cust'))),'signed out: device theme (not the account color)');
 await login('admin','Admin@2026');
 ok(await p.evaluate(()=>document.documentElement.getAttribute('data-theme')==='glass'&&document.documentElement.hasAttribute('data-cust')),'custom glass back after signing in again');

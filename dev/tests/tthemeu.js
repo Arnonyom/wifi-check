@@ -8,7 +8,7 @@ await p.goto('file://'+S+'preview_detail.html');await p.waitForTimeout(300);
 const th=()=>p.evaluate(()=>(document.documentElement.getAttribute('data-theme')||'')+(document.documentElement.hasAttribute('data-cust')?'+cust':''));
 const bg=()=>p.evaluate(()=>getComputedStyle(document.body).backgroundColor);
 const login=async(u,pw)=>{await p.fill('#lu',u);await p.fill('#lp',pw);await p.click('#lbtn');await p.waitForTimeout(800);};
-const logout=async()=>{await p.click('[data-act=theme]');await p.click('[data-act=logout-ask]');await p.click('.thout [data-act=logout]');await p.waitForTimeout(400);};
+const logout=async()=>{if(!(await p.$('.thpop')))await p.click('[data-act=theme]');await p.click('[data-act=logout-ask]');await p.click('.thout [data-act=logout]');await p.waitForTimeout(400);};
 const pick=async t=>{await p.click('[data-act=theme]');await p.click('.thpop .thopt[data-t='+t+']');await p.click('[data-act=gear-yes]');await p.waitForTimeout(400);await p.click('[data-act=theme]');};
 // หน้าล็อกอิน: เลือกธีมของเครื่องเป็น White
 await pick('white');
@@ -42,5 +42,22 @@ ok((await p.evaluate(()=>getComputedStyle(document.documentElement).getPropertyV
 // ความใสของแก้วก็จำแยกคน
 await p.click('[data-act=theme]');await p.$eval('#glassRange',e=>{e.value=25;e.dispatchEvent(new Event('input',{bubbles:true}));e.dispatchEvent(new Event('change',{bubbles:true}));});await p.waitForTimeout(100);await p.click('[data-act=gear-yes]');await p.waitForTimeout(400);
 ok(await p.evaluate(()=>window.__mockdb.profiles.find(x=>x.id==='e2').prefs.glass)===25,'glass transparency saved per person');
+// ---------- ภาษา: จำแยกตามบัญชีเหมือนธีม ----------
+const lang=()=>p.evaluate(()=>document.documentElement.lang);
+await logout();
+ok(await lang()==='th','login page: device language (Thai)');
+await login('admin','Admin@2026');
+await p.click('[data-act=theme]');await p.click('.thpop [data-act=lang-set]');await p.click('[data-act=gear-yes]');await p.waitForTimeout(450);
+ok(await lang()==='en'&&(await p.textContent('#nav')).includes('Schedule'),'admin switches to English');
+ok(await p.evaluate(()=>window.__mockdb.profiles.find(x=>x.id==='e0').prefs.lang)==='en','English saved to admin profile');
+ok(await p.evaluate(()=>localStorage.getItem('wc-lang'))!=='en','device language unchanged');
+await p.click('[data-act=theme]');await p.click('[data-act=logout-ask]');await p.click('.thout [data-act=logout]');await p.waitForTimeout(400);
+ok(await lang()==='th'&&(await p.textContent('#main h1')).trim()==='เข้าสู่ระบบ','sign-out: login page back in Thai');
+await login('malee','Temp1234!');
+ok(await lang()==='th'&&(await p.textContent('#nav')).includes('ตารางกะ'),'malee stays Thai (does not get admin\'s English)');
+await logout();
+await login('admin','Admin@2026');
+ok(await lang()==='en'&&(await p.textContent('#nav')).includes('Schedule'),'admin signs in again: English');
+ok(await th()==='black','admin still has own Black theme');
 await ctx.close();await b.close();
 console.log(errs.length?errs.join('\n'):'NO ERRORS');process.exit(errs.length?1:0);})();

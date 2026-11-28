@@ -51,7 +51,7 @@ function applyCustom(cfg){
 function clearCustom(){var r=document.documentElement.style;CUSTOM_VARS.forEach(function(k){r.removeProperty(k);});document.documentElement.removeAttribute('data-cust');}
 // ธีมที่เลือก (กำหนดสีเองแบบแก้ว ใช้ data-theme=glass + data-cust)
 function curTheme(){var R=document.documentElement;if(R.hasAttribute('data-cust'))return 'custom';return R.getAttribute('data-theme')||(effDark()?'dark':'light');}
-/* ธีมจำแยกตามบัญชี (29 พ.ย. 2569)
+/* ธีม + ภาษา จำแยกตามบัญชี (29 พ.ย. 2569)
    - ล็อกอินอยู่: ธีม/ความใส/สีที่เลือกเอง เก็บในโปรไฟล์ของคนนั้น (profiles.prefs ผ่าน set_my_prefs) → ล็อกอินเครื่องไหนก็ได้ธีมของตัวเอง
    - ยังไม่ล็อกอิน (หน้าล็อกอิน): ใช้ธีมของเครื่อง (localStorage เหมือนเดิม) · ออกจากระบบแล้วกลับเป็นธีมของเครื่อง
    - คนที่ยังไม่เคยเลือกธีม ใช้ธีมของเครื่อง · จำค่าของคนล่าสุดไว้ในเครื่องด้วย (wc-u-…) เปิดหน้าใหม่จะได้ไม่กะพริบ */
@@ -66,7 +66,7 @@ function prefSave(k,v){
     clearTimeout(upTimer);upTimer=setTimeout(function(){if(!me||me.id!==uid||!sb)return;sb.rpc('set_my_prefs',{p_prefs:JSON.parse(snap)}).then(function(r){if(!r.error){var e=emp(uid);if(e)e.prefs=JSON.parse(snap);}});},300);
     return;
   }
-  if(k==='theme')devSet(THEME_KEY,v);else if(k==='glass')devSet(GLASS_KEY,String(v));else if(k==='custom')devSet(CUSTOM_KEY,JSON.stringify(v));
+  if(k==='lang')devSet('wc-lang',v);else if(k==='theme')devSet(THEME_KEY,v);else if(k==='glass')devSet(GLASS_KEY,String(v));else if(k==='custom')devSet(CUSTOM_KEY,JSON.stringify(v));
 }
 function applyTheme(t){
   var R=document.documentElement;
@@ -79,11 +79,12 @@ function validPrefs(p){return p&&typeof p==='object'&&!Array.isArray(p)?p:{};}
 // เข้าระบบ: ใช้ธีมของคนนี้ · ออกจากระบบ: กลับเป็นธีมของเครื่อง
 function userThemeOn(e){
   var p=validPrefs(e&&e.prefs);if(!p.theme){var c=null;try{c=JSON.parse(devGet('wc-u-'+e.id)||'null');}catch(x){}if(c&&c.theme)p=c;}
-  UP={theme:p.theme||null,glass:p.glass!=null?p.glass:null,custom:p.custom||null};
+  UP={theme:p.theme||null,glass:p.glass!=null?p.glass:null,custom:p.custom||null,lang:p.lang==='en'||p.lang==='th'?p.lang:null};
   devSet('wc-last-uid',e.id);devSet('wc-u-'+e.id,JSON.stringify(UP));gearPend=null;
   applyTheme(UP.theme||devGet(THEME_KEY)||'');
+  if(UP.lang&&UP.lang!==LANG)setLang(UP.lang,true); // ภาษาของคนนี้ (ยังไม่เคยเลือก = ใช้ภาษาที่เปิดอยู่)
 }
-function userThemeOff(){if(!UP&&!devGet('wc-last-uid'))return;UP=null;gearPend=null;devDel('wc-last-uid');applyTheme(devGet(THEME_KEY)||'');}
+function userThemeOff(){var dl=devGet('wc-lang')==='en'?'en':'th';if(dl!==LANG)setLang(dl,true);if(!UP&&!devGet('wc-last-uid'))return;UP=null;gearPend=null;devDel('wc-last-uid');applyTheme(devGet(THEME_KEY)||'');}
 // เปิดหน้าใหม่ขณะยังล็อกอินอยู่: ใช้ธีมของคนล่าสุดทันที (ยืนยันอีกครั้งหลังโหลดข้อมูล)
 (function(){var u=devGet('wc-last-uid');if(!u)return;var c=null;try{c=JSON.parse(devGet('wc-u-'+u)||'null');}catch(x){}if(c&&c.theme){UP=c;applyTheme(c.theme);UP=null;}else applyTheme(devGet(THEME_KEY)||'');})();
 function effDark(){var t=document.documentElement.getAttribute('data-theme');if(t)return t==='dark'||t==='black'||(t==='custom'&&customCfg().base==='dark');return window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches;}

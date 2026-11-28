@@ -74,7 +74,7 @@ def classify(js,lits):
 
 # ปุ่ม/เมนูภาษา (อยู่นอกส่วนที่ถูกแปล จึงแสดงชื่อภาษาตามจริงเสมอ)
 # เปลี่ยนภาษาทันที ไม่โหลดหน้าใหม่ (ไม่หลุดล็อกอิน): แปลค่าคงที่ที่คำนวณไว้ตอนเปิดแอปใหม่ (relocalize) แล้ววาดหน้าจอใหม่
-LANGJS=r"""function setLang(l){if(l===LANG)return;LANG=l;try{localStorage.setItem('wc-lang',l);}catch(e){}
+LANGJS=r"""function setLang(l,noSave){if(l===LANG)return;LANG=l;if(!noSave){if(typeof prefSave==='function')prefSave('lang',l);else try{localStorage.setItem('wc-lang',l);}catch(e){}}
   document.documentElement.lang=l;var nv=document.getElementById('nav');if(nv)nv.setAttribute('aria-label',l==='en'?'Menu':'เมนู');
   var keep={};document.querySelectorAll('input[id],select[id],textarea[id]').forEach(function(x){if(x.type!=='file')keep[x.id]=[x.type,x.type==='checkbox'||x.type==='radio'?x.checked:x.value];});
   relocalize();themeOpen=false;bellOpen=false;renderAll();
@@ -147,7 +147,7 @@ def main():
         js=js[:a]+'_tx('+js[a:b]+')'+js[b:]
     EN={k:v for k,v in D.items() if not k.startswith('__')}
     frag=D.get('__data__',{})  # แจ้งเตือน/ข้อความผิดพลาดที่มาจากฐานข้อมูล
-    head=("var LANG=(function(){try{return localStorage.getItem('wc-lang')==='en'?'en':'th';}catch(e){return 'th';}})();\n"
+    head=("var LANG=(function(){try{var u=localStorage.getItem('wc-last-uid'),c=u&&JSON.parse(localStorage.getItem('wc-u-'+u)||'null');if(c&&(c.lang==='en'||c.lang==='th'))return c.lang;return localStorage.getItem('wc-lang')==='en'?'en':'th';}catch(e){return 'th';}})();\n"
           "var EN="+json.dumps(EN,ensure_ascii=False)+";\n"
           "var EN_D="+json.dumps(frag,ensure_ascii=False)+";\n"
           "var EN_DK=Object.keys(EN_D).sort(function(a,b){return b.length-a.length;});\n"
