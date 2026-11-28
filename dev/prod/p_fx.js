@@ -33,6 +33,6 @@ function animMain(){
 function bellRing(){
   bellRingTs=Date.now();if(fxReduced())return;
   var b=document.querySelector('.bellwrap [data-act="bell"]');if(!b)return;
-  b.classList.remove('ring');void b.offsetWidth;b.classList.add('ring');
+  b.classList.remove('bswing');void b.offsetWidth;b.classList.add('bswing');
 }
-function ringCls(){return Date.now()-bellRingTs<1200&&!fxReduced()?' ring':'';}
+function ringCls(){return Date.now()-bellRingTs<1200&&!fxReduced()?' bswing':'';}

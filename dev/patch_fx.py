@@ -32,11 +32,11 @@ css="""
 .tokt{display:flex;flex-direction:column;gap:2px;min-width:0}
 @keyframes tokpop{from{transform:scale(.3);opacity:0}to{transform:none;opacity:1}}
 @keyframes tokd{to{stroke-dashoffset:0}}
-/* กระดิ่งขยับ */
-[data-act="bell"].ring svg{animation:bellring 1.1s ease-in-out;transform-origin:50% 12%}
-[data-act="bell"].ring .badge{animation:bpop .5s ease-out}
+/* กระดิ่งขยับ (ตัวเลขไม่ขยายเกินขนาดจริง ไม่ให้แถบด้านบนล้น) */
+[data-act="bell"].bswing svg{animation:bellring 1.1s ease-in-out;transform-origin:50% 12%}
+[data-act="bell"].bswing .badge{animation:bpop .5s ease-out}
 @keyframes bellring{0%,100%{transform:rotate(0)}10%{transform:rotate(18deg)}20%{transform:rotate(-15deg)}30%{transform:rotate(12deg)}40%{transform:rotate(-9deg)}50%{transform:rotate(6deg)}60%{transform:rotate(-4deg)}70%{transform:rotate(2deg)}}
-@keyframes bpop{0%{transform:scale(.4)}60%{transform:scale(1.25)}100%{transform:scale(1)}}
+@keyframes bpop{0%{transform:scale(.4);opacity:.3}100%{transform:none;opacity:1}}
 /* KPI + กราฟวิ่ง */
 .anim svg.chart .bar{transform-box:fill-box;transform-origin:50% 100%;animation:fxup .75s cubic-bezier(.2,.8,.2,1) both}
 .anim svg.chart .bar.hb{transform-origin:0 50%;animation-name:fxright}
@@ -52,7 +52,7 @@ css="""
 @keyframes fxdraw{to{stroke-dashoffset:0}}
 @keyframes fxfade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
 @keyframes fxw{from{width:0}}
-@media (prefers-reduced-motion:reduce){.anim *,.toast,.toast.out,.tok,.tokp,[data-act="bell"].ring svg,.cfm{animation:none!important}.tokp{stroke-dashoffset:0}}
+@media (prefers-reduced-motion:reduce){.anim *,.toast,.toast.out,.tok,.tokp,[data-act="bell"].bswing svg,.cfm{animation:none!important}.tokp{stroke-dashoffset:0}}
 /* หน้าล็อกอิน: รหัสผิด สั่น + สีแดง */
 .shake{animation:shake .45s cubic-bezier(.36,.07,.19,.97)}
 @keyframes shake{10%,90%{transform:translateX(-2px)}20%,80%{transform:translateX(4px)}30%,50%,70%{transform:translateX(-8px)}40%,60%{transform:translateX(8px)}}

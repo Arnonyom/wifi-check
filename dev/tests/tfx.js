@@ -45,7 +45,7 @@ await logout();
 // ---------- ผู้ดูแล ----------
 await login('admin','Admin@2026');
 await p.waitForTimeout(400);
-ok(await p.$('.bellwrap [data-act=bell].ring')!==null,'bell swings when there are unread notifications');
+ok(await p.$('.bellwrap [data-act=bell].bswing')!==null,'bell swings when there are unread notifications');
 // KPI + กราฟวิ่ง
 await p.click('#nav [data-v=report]');await p.click('[data-act=rsec][data-s=stats]');await p.waitForTimeout(60);
 ok(await p.$('#main.anim')!==null,'stats: charts animate when opened');
