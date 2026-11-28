@@ -4,9 +4,16 @@
    - ธีม: สว่าง · มืด · Black (ดำสนิท) · Liquid Glass · กำหนดสีเอง (เลือกสีหลัก + พื้นสว่าง/มืด) · จำไว้ในเครื่องนี้
    - เปลี่ยนรหัสผ่าน (ย้ายมาจากหน้าโปรไฟล์) · ออกจากระบบ (ถามยืนยันเหมือนเดิม) */
 var gearPend=null,CUSTOM_KEY='wc-custom';
-var THEMES=[['light','สว่าง'],['dark','มืด'],['black','Black'],['glass','Liquid Glass'],['custom','กำหนดสีเอง']];
+var THEMES=[['light','กลางวัน'],['dark','กลางคืน'],['white','White'],['black','Black'],['glass','Liquid Glass'],['custom','กำหนดสีเอง']];
+var CBASE=[['light','สว่าง'],['dark','มืด'],['glass','แก้ว']];
 function themeName(t){var o=THEMES.find(function(x){return x[0]===t;});return o?o[1]:t;}
-function customCfg(){var c={c:'#7AC143',dark:false};try{var x=JSON.parse(localStorage.getItem(CUSTOM_KEY)||'null');if(x&&/^#[0-9a-fA-F]{6}$/.test(x.c))c={c:x.c,dark:!!x.dark};}catch(e){}return c;}
+// สีที่เลือกเอง: {c: สีหลัก, base: light|dark|glass} (แบบเดิม {dark:true} = มืด)
+function customCfg(){var c={c:'#7AC143',base:'light'};try{var x=JSON.parse(localStorage.getItem(CUSTOM_KEY)||'null');if(x&&/^#[0-9a-fA-F]{6}$/.test(x.c))c={c:x.c,base:['light','dark','glass'].indexOf(x.base)>=0?x.base:(x.dark?'dark':'light')};}catch(e){}return c;}
+function hueShift(h,deg){var a=hexRgb(h).map(function(v){return v/255;}),mx=Math.max.apply(null,a),mn=Math.min.apply(null,a),l=(mx+mn)/2,d=mx-mn,hh=0,ss=0;
+  if(d){ss=d/(1-Math.abs(2*l-1));hh=mx===a[0]?((a[1]-a[2])/d)%6:mx===a[1]?(a[2]-a[0])/d+2:(a[0]-a[1])/d+4;hh*=60;}
+  hh=((hh+deg)%360+360)%360;var C=(1-Math.abs(2*l-1))*ss,X=C*(1-Math.abs((hh/60)%2-1)),m=l-C/2,r=hh<60?[C,X,0]:hh<120?[X,C,0]:hh<180?[0,C,X]:hh<240?[0,X,C]:hh<300?[X,0,C]:[C,0,X];
+  return rgbHex(r.map(function(v){return (v+m)*255;}));}
+function rgba(h,a){var x=hexRgb(h);return 'rgba('+x[0]+','+x[1]+','+x[2]+','+a+')';}
 function hexRgb(h){return [parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)];}
 function rgbHex(a){return '#'+a.map(function(v){v=Math.max(0,Math.min(255,Math.round(v)));return (v<16?'0':'')+v.toString(16);}).join('');}
 function mixC(a,b,p){var x=hexRgb(a),y=hexRgb(b);return rgbHex(x.map(function(v,i){return v*p+y[i]*(1-p);}));}
@@ -14,10 +21,19 @@ function lum(h){return hexRgb(h).map(function(v){v/=255;return v<=0.03928?v/12.9
 function contrast(a,b){var x=lum(a),y=lum(b);return (Math.max(x,y)+0.05)/(Math.min(x,y)+0.05);}
 // ปรับสีให้อ่านออกบนพื้นหลัง (ความต่างอย่างน้อย 4.5:1)
 function readable(c,bg,toward){var x=c;for(var i=0;i<20&&contrast(x,bg)<4.5;i++)x=mixC(toward,x,0.12+i*0.04);return x;}
-var CUSTOM_VARS=['--bg','--surface','--surface-2','--ink','--muted','--line','--brand','--brand-strong','--on-strong','--brand-soft','--on-brand','--late','--late-soft','--amber','--off','--off-soft','--hatch','--scrim','--shadow','--grid','--axis','color-scheme'];
+var CUSTOM_VARS=['--cg1','--cg2','--cg3','--cg4','--cgb','--bg','--surface','--surface-2','--ink','--muted','--line','--brand','--brand-strong','--on-strong','--brand-soft','--on-brand','--late','--late-soft','--amber','--off','--off-soft','--hatch','--scrim','--shadow','--grid','--axis','color-scheme'];
 function applyCustom(cfg){
-  var r=document.documentElement.style,c=cfg.c,v;
-  if(cfg.dark){
+  var r=document.documentElement.style,c=cfg.c,v,root=document.documentElement;
+  clearCustom();
+  if(cfg.base==='glass'){
+    // แก้ว: ใช้ Liquid Glass แต่เปลี่ยนสีพื้นหลังและสีหลักเป็นสีที่เลือก
+    root.setAttribute('data-theme','glass');root.setAttribute('data-cust','1');
+    v={'--cg1':rgba(c,.85),'--cg2':rgba(hueShift(c,40),.7),'--cg3':rgba(hueShift(c,-70),.55),'--cg4':rgba(hueShift(c,150),.45),'--cgb':mixC(c,'#ffffff',0.18),
+       '--brand':c,'--brand-strong':readable(mixC(c,'#000000',0.85),'#ffffff','#000000'),'--brand-soft':rgba(c,.28),'--on-brand':lum(c)>0.35?'#101412':'#ffffff','--ink':mixC(c,'#0d1512',0.10)};
+    Object.keys(v).forEach(function(k){r.setProperty(k,v[k]);});applyGlass(glassLevel());return;
+  }
+  root.setAttribute('data-theme','custom');
+  if(cfg.base==='dark'){
     var bg=mixC(c,'#0a0c0b',0.07);
     v={'--bg':bg,'--surface':mixC(c,'#111413',0.10),'--surface-2':mixC(c,'#181c1a',0.14),'--ink':'#EDF1EE','--muted':'#A3AEA8','--line':mixC(c,'#222724',0.22),
        '--brand':readable(c,bg,'#ffffff'),'--brand-strong':readable(c,bg,'#ffffff'),'--on-strong':bg,'--brand-soft':mixC(c,bg,0.22),'--on-brand':lum(c)>0.35?'#0a0c0b':'#ffffff',
@@ -30,16 +46,18 @@ function applyCustom(cfg){
        '--late':'#7A4A00','--late-soft':'#FFF0CF','--amber':'#E0A100','--off':'#A8322A','--off-soft':'#FBE6E3','--hatch':mixC(c,'#ffffff',0.09),'--scrim':'rgba(8,12,10,.55)',
        '--shadow':'0 1px 2px rgba(16,24,20,.06),0 8px 24px rgba(16,24,20,.07)','--grid':mixC(c,'#e8ece9',0.10),'--axis':mixC(c,'#b9c2bd',0.15),'color-scheme':'light'};
   }
-  CUSTOM_VARS.forEach(function(k){r.setProperty(k,v[k]);});
+  CUSTOM_VARS.forEach(function(k){if(v[k]!=null)r.setProperty(k,v[k]);});
 }
-function clearCustom(){var r=document.documentElement.style;CUSTOM_VARS.forEach(function(k){r.removeProperty(k);});}
+function clearCustom(){var r=document.documentElement.style;CUSTOM_VARS.forEach(function(k){r.removeProperty(k);});document.documentElement.removeAttribute('data-cust');}
+// ธีมที่เลือก (กำหนดสีเองแบบแก้ว ใช้ data-theme=glass + data-cust)
+function curTheme(){var R=document.documentElement;if(R.hasAttribute('data-cust'))return 'custom';return R.getAttribute('data-theme')||(effDark()?'dark':'light');}
 function setTheme(t){
   document.documentElement.setAttribute('data-theme',t);try{localStorage.setItem(THEME_KEY,t);}catch(e){}
   if(t==='custom')applyCustom(customCfg());else clearCustom();
   if(t==='glass')applyGlass(glassLevel());
   renderAll();
 }
-function effDark(){var t=document.documentElement.getAttribute('data-theme');if(t)return t==='dark'||t==='black'||(t==='custom'&&customCfg().dark);return window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches;}
+function effDark(){var t=document.documentElement.getAttribute('data-theme');if(t)return t==='dark'||t==='black'||(t==='custom'&&customCfg().base==='dark');return window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches;}
 if(document.documentElement.getAttribute('data-theme')==='custom')applyCustom(customCfg());
 /* ขอเปลี่ยน → แสดงแถบยืนยันในเมนู · ภาษา/ธีม ยังไม่เปลี่ยนจนกว่าจะยืนยัน · แถบเลื่อน/สี แสดงให้ดูก่อน ยกเลิกแล้วกลับค่าเดิม */
 function gearAsk(k,v){
@@ -69,14 +87,14 @@ function gearAskHtml(){
 }
 function themePanel(){
   var t=curTheme(),p=gearPend,v=p&&p.k==='glass'?p.v:glassLevel(),cc=p&&p.k==='color'?p.v:customCfg(),sel=p&&p.k==='theme'?p.v:t;
-  var sw=function(o){return o==='custom'?' style="background:linear-gradient(135deg,'+cc.c+' 0 50%,'+(cc.dark?'#0a0c0b':'#ffffff')+' 50% 100%)"':'';};
+  var sw=function(o){return o==='custom'?' style="background:linear-gradient(135deg,'+cc.c+' 0 50%,'+(cc.base==='dark'?'#0a0c0b':cc.base==='glass'?'#cfe9ff':'#ffffff')+' 50% 100%)"':'';};
   return '<div class="pop thpop" role="dialog" aria-label="ตั้งค่า">'+langRow()+(p&&p.k==='lang'?gearAskHtml():'')+
     '<p class="small muted">ธีมหน้าจอ</p><div class="thopts">'+
-    THEMES.map(function(o){return '<button class="thopt'+(t===o[0]?' on':'')+(sel===o[0]&&sel!==t?' pend':'')+'" data-act="theme-set" data-t="'+o[0]+'" aria-pressed="'+(t===o[0])+'"><span class="thsw thsw-'+o[0]+'"'+sw(o[0])+'></span>'+o[1]+'</button>';}).join('')+'</div>'+
+    THEMES.map(function(o){return '<button class="thopt'+(t===o[0]?' on':'')+(sel===o[0]&&sel!==t?' pend':'')+'" data-act="theme-set" data-t="'+o[0]+'" aria-pressed="'+(t===o[0])+'"><span class="thsw thsw-'+o[0]+'"'+sw(o[0])+'>'+(o[0]==='light'?ico(ICONS.sun):o[0]==='dark'?ico(ICONS.moon):'')+'</span>'+o[1]+'</button>';}).join('')+'</div>'+
     (p&&p.k==='theme'?gearAskHtml():'')+
-    (t==='glass'?'<label for="glassRange" class="small">ความใส ↔ ขุ่น <b class="tnum" id="glassVal">'+v+'%</b></label><input id="glassRange" type="range" min="0" max="100" step="1" value="'+v+'"><div class="row between small muted"><span>ใส</span><span>ขุ่น</span></div>'+(p&&p.k==='glass'?gearAskHtml():''):'')+
+    (t==='glass'||(t==='custom'&&cc.base==='glass')?'<label for="glassRange" class="small">ความใส ↔ ขุ่น <b class="tnum" id="glassVal">'+v+'%</b></label><input id="glassRange" type="range" min="0" max="100" step="1" value="'+v+'"><div class="row between small muted"><span>ใส</span><span>ขุ่น</span></div>'+(p&&p.k==='glass'?gearAskHtml():''):'')+
     (t==='custom'?'<div class="cust"><label for="custColor" class="small">สีหลัก</label><input id="custColor" type="color" value="'+cc.c+'">'+
-       '<div class="seg" role="group" aria-label="พื้นหลัง"><button type="button" data-act="cust-base" data-d="0" aria-pressed="'+!cc.dark+'">พื้นสว่าง</button><button type="button" data-act="cust-base" data-d="1" aria-pressed="'+cc.dark+'">พื้นมืด</button></div></div>'+
+       '<div class="seg" role="group" aria-label="พื้นหลัง">'+CBASE.map(function(x){return '<button type="button" data-act="cust-base" data-b="'+x[0]+'" aria-pressed="'+(cc.base===x[0])+'">'+x[1]+'</button>';}).join('')+'</div></div>'+
        '<div class="custsw" role="group" aria-label="สีแนะนำ">'+['#7AC143','#2F80ED','#9B51E0','#E2557B','#F2994A','#14A3A3','#6B7280'].map(function(x){return '<button type="button" class="csw'+(x.toLowerCase()===cc.c.toLowerCase()?' on':'')+'" data-act="cust-pick" data-c="'+x+'" style="background:'+x+'" aria-label="สี '+x+'"></button>';}).join('')+'</div>'+
        (p&&p.k==='color'?gearAskHtml():''):'')+
     (me?'<div class="thout">'+(me.mustChange?'':'<button class="btn sec grow" data-act="pw-self">'+ico('<circle cx="8" cy="15" r="4"/><path d="M10.8 12.2 20 3M17 6l3 3M14.5 8.5l2.5 2.5"/>')+'<span>เปลี่ยนรหัสผ่าน</span></button>')+
@@ -88,7 +106,7 @@ document.addEventListener('input',function(e){
   // ระหว่างลาก ไม่วาดเมนูใหม่ (แถบเลื่อน/ตัวเลือกสีจะได้ไม่ปิด) · แสดงแถบยืนยันเมื่อปล่อย (change)
   var start=function(k,old){if(!gearPend||gearPend.k!==k){gearRevert();gearPend={k:k,old:old};}};
   if(t.id==='glassRange'){var v=+t.value;start('glass',glassLevel());gearPend.v=v;applyGlass(v);var gv=$('glassVal');if(gv)gv.textContent=v+'%';}
-  else if(t.id==='custColor'){start('color',customCfg());var cur=gearPend.v||gearPend.old,nv={c:t.value,dark:cur.dark};gearPend.v=nv;applyCustom(nv);}
+  else if(t.id==='custColor'){start('color',customCfg());var cur=gearPend.v||gearPend.old,nv={c:t.value,base:cur.base};gearPend.v=nv;applyCustom(nv);}
 });
 // สีจากตัวเลือกสี: วาดเมนูใหม่เมื่อปล่อย (ระหว่างลากไม่วาดใหม่ เพื่อไม่ให้ตัวเลือกสีปิด)
 document.addEventListener('change',function(e){var t=e.target;if(t&&(t.id==='custColor'||t.id==='glassRange')&&gearPend)renderChrome();});
@@ -98,7 +116,7 @@ document.addEventListener('click',function(e){
   if(a==='theme-set'){e.stopPropagation();var tt=b.getAttribute('data-t');if(tt===curTheme()&&!gearPend)return;if(tt===curTheme()){gearRevert();renderChrome();return;}gearAsk('theme',tt);return;}
   if(a==='gear-yes'){e.stopPropagation();gearConfirm();return;}
   if(a==='gear-no'){e.stopPropagation();gearRevert();renderChrome();return;}
-  if(a==='cust-base'||a==='cust-pick'){e.stopPropagation();var cur=gearPend&&gearPend.k==='color'?gearPend.v:customCfg(),nv=a==='cust-base'?{c:cur.c,dark:b.getAttribute('data-d')==='1'}:{c:b.getAttribute('data-c'),dark:cur.dark};applyCustom(nv);gearAsk('color',nv);return;}
+  if(a==='cust-base'||a==='cust-pick'){e.stopPropagation();var cur=gearPend&&gearPend.k==='color'?gearPend.v:customCfg(),nv=a==='cust-base'?{c:cur.c,base:b.getAttribute('data-b')}:{c:b.getAttribute('data-c'),base:cur.base};applyCustom(nv);gearAsk('color',nv);return;}
   if(a==='theme'&&gearPend){gearRevert();} // ปิดเมนูโดยไม่ยืนยัน = ยกเลิก
   if(a==='pw-self'&&themeOpen){themeOpen=false;logoutAsk=false;gearRevert();setTimeout(renderChrome,0);} // เปิดหน้าต่างเปลี่ยนรหัสผ่านจากเมนู (ปิดเมนูก่อน)
 },true);

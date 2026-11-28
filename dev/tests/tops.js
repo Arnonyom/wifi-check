@@ -16,12 +16,12 @@ await p.selectOption('#edOther',opts[1].split('|')[0]);await p.waitForTimeout(10
 await p.selectOption('#edRange','week');await p.waitForTimeout(100);
 console.log(tag,'plan:',await p.$eval('#slotEd',e=>e.innerText.split('\n').filter(l=>/วัน|ข้าม|ไป/.test(l)).join(' | ')));
 if(tag==='d')await p.screenshot({path:S+'ops_swap.png',fullPage:false});
-await p.click('[data-act=save-days]');await p.waitForTimeout(600);
+await p.click('[data-act=save-days]');await p.waitForTimeout(80);{const _y=await p.$('#cfbox [data-cf=yes]');if(_y)await _y.click();}await p.waitForTimeout(600);
 const grid=async()=>p.$$eval('table.wk tbody tr',rs=>rs.map(r=>[...r.children].slice(0,6).map(c=>c.innerText.split('\n').slice(0,2).join(' ').trim().slice(0,22)).join(' | ')));
 console.log(tag,'after swap:\n  '+(await grid()).join('\n  '));
 // revert one day
 await (await p.$$('table.wk tbody tr:nth-child(2) [data-act=edit-slot]'))[1].click();await p.waitForTimeout(150);
-await p.check('input[name=edMode][value=work]');await p.waitForTimeout(100);await p.click('[data-act=save-days]');await p.waitForTimeout(500);
+await p.check('input[name=edMode][value=work]');await p.waitForTimeout(100);await p.click('[data-act=save-days]');await p.waitForTimeout(80);{const _y=await p.$('#cfbox [data-cf=yes]');if(_y)await _y.click();}await p.waitForTimeout(500);
 console.log(tag,'after revert Tue:\n  '+(await grid()).slice(0,3).join('\n  '));
 // cover with same team for 2 weeks
 await (await p.$$('table.wk tbody tr:nth-child(1) [data-act=edit-slot]'))[0].click();await p.waitForTimeout(150);
@@ -29,12 +29,12 @@ await p.check('input[name=edMode][value=cover]');await p.waitForTimeout(100);
 console.log(tag,'cover groups',await p.$$eval('#edOther optgroup',g=>g.map(x=>x.label+':'+x.children.length).join(', ')));
 const co=await p.$$eval('#edOther option',o=>o.map(x=>x.value).filter(Boolean));await p.selectOption('#edOther',co[0]);await p.selectOption('#edRange','2w');await p.waitForTimeout(100);
 console.log(tag,'cover plan:',await p.$eval('[data-act=save-days]',e=>e.textContent),'| skips',await p.$$eval('#slotEd .chip.mute',e=>e.length));
-await p.click('[data-act=save-days]');await p.waitForTimeout(500);
+await p.click('[data-act=save-days]');await p.waitForTimeout(80);{const _y=await p.$('#cfbox [data-cf=yes]');if(_y)await _y.click();}await p.waitForTimeout(500);
 // attendance on behalf: go to this week, a past day cell without record
 await p.click('[data-act=sched-nav][data-n="-1"]');await p.waitForTimeout(150);
 await (await p.$$('table.wk tbody tr:nth-child(1) [data-act=edit-slot]'))[0].click();await p.waitForTimeout(150);
 console.log(tag,'att section:',await p.$eval('#attEd',e=>e.innerText.split('\n').slice(0,3).join(' | ')));
-if(await p.$('[data-act=att-mode][data-m=both]:not([disabled])'))await p.click('[data-act=att-mode][data-m=both]');await p.waitForTimeout(100);await p.fill('#atInT','09:15');await p.fill('#atNote','ลืมเช็กอิน');await p.click('[data-act=save-att]');await p.waitForTimeout(500);
+if(await p.$('[data-act=att-mode][data-m=both]:not([disabled])'))await p.click('[data-act=att-mode][data-m=both]');await p.waitForTimeout(100);await p.fill('#atInT','09:15');await p.fill('#atNote','ลืมเช็กอิน');await p.click('[data-act=save-att]');await p.waitForTimeout(80);{const _y=await p.$('#cfbox [data-cf=yes]');if(_y)await _y.click();}await p.waitForTimeout(500);
 console.log(tag,'cell after att:',(await grid())[0]);
 if(tag==='d')await p.screenshot({path:S+'ops_att.png',fullPage:false});
 // detail -> go-edit

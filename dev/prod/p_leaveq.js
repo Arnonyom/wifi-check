@@ -44,8 +44,8 @@ function viewLeave(){
     '<p class="muted small">ลาถึง <b>'+esc(thDate(t,{weekday:'short',day:'numeric',month:'short',year:'numeric'}))+'</b> · '+(days?'วันทำงานที่ลา: <b>'+days+' วัน</b> ('+shiftTxt(me)+')':'ช่วงนี้ไม่มีกะของคุณ (ทีมไม่ทำงาน)')+'</p>'+
     '<div><label for="lvReason">เหตุผล (ไม่บังคับ)</label><input id="lvReason" maxlength="120" value="'+esc(lv.reason)+'" placeholder="เช่น ไปพบแพทย์ ธุระครอบครัว"></div>'+
     '<div class="err" role="alert">'+esc(lv.err)+'</div>'+(lv.ok?'<p class="ok" role="status">'+esc(lv.ok)+'</p>':'')+
-    '<div><button class="btn" data-act="lv-submit">ส่งคำขอลา</button></div></section>'+
-    '<section class="card"><h2>คำขอของฉัน</h2><div class="list">'+(mine.map(function(l){return leaveRow(l,false);}).join('')||'<p class="muted small" style="padding:10px 0">ยังไม่มีคำขอ</p>')+'</div></section></div>';
+    '<div><button class="btn ibtn" data-act="lv-submit">'+'<svg class="sendic" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 3 10 14"/><path d="M21 3 14.5 21l-4.5-7-7-4.5z"/></svg>'+'<span>ส่งคำขอลา</span></button></div></section>'+
+    '<section class="card"><h2>คำขอของฉัน</h2><div class="list">'+(mine.map(function(l){return '<div class="lvitem'+(l.id===lv.newId?' new':'')+'">'+leaveRow(l,false)+lvFlow(l)+'</div>';}).join('')||'<p class="muted small" style="padding:10px 0">ยังไม่มีคำขอ</p>')+'</div></section></div>';
 }
 /* ---------- ผู้ดูแล: ลาแทนพนักงาน (หน้า "ลา") ---------- */
 function lvAdmHtml(){
@@ -63,7 +63,7 @@ function lvAdmHtml(){
       (e?' · สิทธิ์'+LEAVE_TH[a.type]+'คงเหลือ <b>'+(q-u)+'</b> / '+q+' วัน (ปี '+yrLabel(y)+')':'')+'</p>'+
     '<div><label for="laReason">เหตุผลที่ลาแทน (บังคับ)</label><input id="laReason" maxlength="120" value="'+esc(a.reason)+'" placeholder="เช่น โทรแจ้งว่าป่วย เข้าระบบไม่ได้"></div>'+
     '<div class="err" role="alert">'+esc(a.err)+'</div>'+
-    '<div><button class="btn" data-act="la-submit">บันทึกการลาแทน</button></div></section>';
+    '<div><button class="btn ibtn" data-act="la-submit">'+'<svg class="sendic" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 3 10 14"/><path d="M21 3 14.5 21l-4.5-7-7-4.5z"/></svg>'+'<span>บันทึกการลาแทน</span></button></div></section>';
 }
 async function submitAdmLeave(){
   if(busy)return;
@@ -75,12 +75,14 @@ async function submitAdmLeave(){
   else if(state.leaves.some(function(l){return l.emp===a.emp&&(l.status==='pending'||l.status==='approved')&&l.from<=t&&l.to>=f;}))a.err='มีคำขอลาที่ทับช่วงวันนี้อยู่แล้ว';
   else if(usedY(a.emp,a.type,['approved','pending'],y)+days>quotaOf(a.emp,y,a.type))a.err='เกินสิทธิ์'+LEAVE_TH[a.type]+'คงเหลือ';
   if(a.err){renderView();return;}
-  busy=true;
+  var e0=emp(a.emp);
+  if(!await askConfirm('บันทึกการลาแทน '+(e0?e0.name:'')+': '+LEAVE_TH[a.type]+' '+sd(f)+(t!==f?' – '+sd(t):'')+' ('+days+' วันทำงาน)?','บันทึก'))return;
+  if(busy)return;busy=true;
   try{
     var r=await rpc('admin_request_leave',{p_emp:a.emp,p_type:a.type,p_from:f,p_to:t,p_reason:a.reason.trim()});
     await loadAll();
     lvAdm={open:false,emp:a.emp,type:a.type,len:1,reason:'',err:''};lvFilter='pending';lvReject=null;lvErr='';lvOpen=r&&r.id?r.id:null;
-    toast('บันทึกการลาแทนแล้ว','เลือกผู้ทำแทนในแต่ละกะ แล้วกด "ยืนยันอนุมัติ"');
+    toast('บันทึกการลาแทนแล้ว','เลือกผู้ทำแทนในแต่ละกะ แล้วกด "ยืนยันอนุมัติ"','ok');
   }catch(er){a.err=errMsg(er);}
   busy=false;renderAll();
   var c=document.querySelector('.lvcard .stack select');if(c&&c.scrollIntoView)c.closest('.lvcard').scrollIntoView({block:'center'});
@@ -189,4 +191,16 @@ function lvBalCard(){
   var t=tbl(['ชื่อ','พักร้อน ใช้/สิทธิ์','ลากิจ ใช้/สิทธิ์','ลาป่วย ใช้/สิทธิ์'],es.map(function(e){return [e.name].concat(['vac','per','sick'].map(function(k){return usedY(e.id,k,['approved'],y)+' / '+quotaOf(e.id,y,k);}));}),es.map(function(e){return 'emp:'+e.id;}));
   return '<section class="card chartcard span2" id="lvBal"><div class="cardh"><h3>สิทธิ์วันลาคงเหลือ ปี '+yrLabel(y)+'</h3></div><p class="muted small">แถบเข้ม = ใช้แล้ว · แถบจาง = รออนุมัติ'+(adm?' · ผู้ดูแลบันทึกลาแทน '+adm+' ครั้ง':'')+'</p>'+
     '<div class="list">'+rows+'</div><details class="tv"><summary>ดูเป็นตาราง</summary><div class="scroll">'+t+'</div></details></section>';
+}
+/* ขั้นตอนคำขอลา: พนักงานส่ง → ผู้ดูแลพิจารณา → ผล (อนุมัติ / ไม่อนุมัติ / ยกเลิก) */
+function lvFlow(l){
+  var st=l.status,dec=st==='approved'||st==='rejected',end=st==='approved'?['ok','อนุมัติแล้ว']:st==='rejected'?['bad','ไม่อนุมัติ']:st==='cancelled'?['off','ยกเลิกแล้ว']:['todo','ผลการอนุมัติ'];
+  var ck='<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+  var xx='<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M7 7l10 10M17 7 7 17"/></svg>';
+  var step=function(cls,ic,label,sub){return '<li class="fs '+cls+'"><span class="fdot" aria-hidden="true">'+ic+'</span><span class="flab">'+label+(sub?'<small>'+sub+'</small>':'')+'</span></li>';};
+  var by=l.byAdmin?'ผู้ดูแลบันทึกให้':'พนักงานส่งคำขอ';
+  var mid=st==='pending'?step('cur','<i></i>','รอผู้ดูแลอนุมัติ','ส่งถึงผู้ดูแลแล้ว'):st==='cancelled'?step('off','–','ผู้ดูแลพิจารณา',''):step('done',ck,'ผู้ดูแลพิจารณาแล้ว',l.decidedTs?esc(sd(bkk(l.decidedTs).date)):'');
+  var fin=step(end[0]==='ok'?'done':end[0],end[0]==='ok'?ck:end[0]==='bad'?xx:end[0]==='off'?'–':'3',end[1],'');
+  var now0=st==='pending'?'รอผู้ดูแลอนุมัติ':end[1];
+  return '<ol class="lvflow" aria-label="ขั้นตอนคำขอลา: ตอนนี้ '+esc(now0)+'">'+step('done',ck,by,esc(sd(bkk(l.ts).date)))+mid+fin+'</ol>';
 }

@@ -20,10 +20,32 @@ rep("{v:'leaves',label:'คำขอลา',","{v:'leaves',label:'ลา',",2)
 rep("{v:'leave',label:'ขอลา'}","{v:'leave',label:'ลา'}",2)
 # ปฏิทินเลือกวัน: วันที่ที่ไม่ได้อยู่เป็นคู่ (เช่น laFrom, holD, clrFrom) ต้องจำค่าที่เลือกด้วย (เดิมเลือกแล้วไม่เปลี่ยน)
 rep("function onDate(id,val){\n  var p=PAIRS[id];\n  if(p){","function onDate(id,val){\n  var p=PAIRS[id];\n  if(!p)dv[id]=val;\n  if(p){")
+# ผู้ดูแล: การ์ดคำขอลาแสดงขั้นตอนด้วย
+rep("    return '<article class=\"card lvcard\">'+leaveRow(l,true)+act+panel+'</article>';","    return '<article class=\"card lvcard\">'+leaveRow(l,true)+lvFlow(l)+act+panel+'</article>';")
 # หน้าตั้งค่าระบบ: การ์ดตั้งค่าวันลา
 rep("    holCard()+clrCard()+","    holCard()+lvqCard()+clrCard()+")
 css="""
 /* วันลา */
+.ibtn{display:inline-flex;align-items:center;gap:8px}.ibtn svg{flex:none}
+.ibtn:active .sendic{transform:translate(3px,-3px)}.sendic{transition:transform .15s}
+.lvitem{border-bottom:1px solid var(--line);padding-bottom:8px}.lvitem .li{border-bottom:0}
+.lvitem.new{animation:lvnew 1.6s ease-out;border-radius:10px}
+@keyframes lvnew{0%{background:var(--brand-soft)}100%{background:transparent}}
+.lvflow{list-style:none;margin:4px 0 2px;padding:0;display:flex;align-items:flex-start;gap:0;font-size:13px}
+.fs{flex:1;display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px;position:relative;min-width:0}
+.fs+.fs::before{content:"";position:absolute;top:12px;right:50%;width:100%;height:2px;background:var(--line);z-index:0}
+.fs.done+.fs::before,.fs.done+.fs.cur::before{background:var(--brand-strong)}
+.fdot{position:relative;z-index:1;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:var(--surface-2);color:var(--muted);border:2px solid var(--line);font-weight:700;font-size:12px}
+.fs.done .fdot{background:var(--brand-strong);border-color:var(--brand-strong);color:var(--on-strong)}
+.fs.cur .fdot{border-color:var(--amber);background:var(--late-soft)}
+.fs.cur .fdot i{width:8px;height:8px;border-radius:50%;background:var(--amber);animation:fpulse 1.4s ease-in-out infinite}
+.fs.bad .fdot{background:var(--off);border-color:var(--off);color:#fff}
+.fs.off .fdot{opacity:.6}
+.flab{display:flex;flex-direction:column;line-height:1.25;color:var(--muted)}.flab small{font-size:11px}
+.fs.done .flab,.fs.cur .flab,.fs.bad .flab{color:var(--ink);font-weight:600}
+.fs.cur .flab{color:var(--late)}
+@keyframes fpulse{0%,100%{transform:scale(.7);opacity:.6}50%{transform:scale(1.25);opacity:1}}
+@media (prefers-reduced-motion:reduce){.lvitem.new,.fs.cur .fdot i{animation:none}}
 section.spop.open>*{flex-shrink:0}
 .lenst{display:flex;align-items:center;gap:10px;min-height:44px}.lenst b{min-width:56px;text-align:center}
 .lenst .btn{min-width:44px;font-size:18px;font-weight:700}

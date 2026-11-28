@@ -41,8 +41,8 @@ await p.fill('#pwNew','Reset#2026');await p.fill('#pwNew2','Reset#2026');await p
 console.log(tag,' reset ok -> pending chips',await p.$$eval('.chip.late',e=>e.filter(x=>x.textContent.includes('รอตั้งรหัสใหม่')).length));
 // new employee form
 await p.click('[data-act=new-emp]');await p.fill('#fName','ทดสอบ รหัสใหม่');await p.fill('#fUser','tester'+tag);await p.fill('#fPin','Start#123');await p.fill('#fPin2','Start#124');await p.selectOption('#fTeam','OPS');
-await p.click('[data-act=save-emp]');await p.waitForTimeout(200);console.log(tag,'new emp mismatch ->',await p.textContent('#fErr'));
-await p.fill('#fPin2','Start#123');await p.click('[data-act=save-emp]');await p.waitForTimeout(500);console.log(tag,'new emp ok ->',(await p.textContent('#main')).includes('ทดสอบ รหัสใหม่'));
+await p.click('[data-act=save-emp]');await p.waitForTimeout(80);{const _y=await p.$('#cfbox [data-cf=yes]');if(_y)await _y.click();}await p.waitForTimeout(200);console.log(tag,'new emp mismatch ->',await p.textContent('#fErr'));
+await p.fill('#fPin2','Start#123');await p.click('[data-act=save-emp]');await p.waitForTimeout(80);{const _y=await p.$('#cfbox [data-cf=yes]');if(_y)await _y.click();}await p.waitForTimeout(500);console.log(tag,'new emp ok ->',(await p.textContent('#main')).includes('ทดสอบ รหัสใหม่'));
 await p.click('[data-pr] >> nth=0');await p.waitForTimeout(150);await p.click('[data-act=edit-emp]');await p.waitForTimeout(100);console.log(tag,'edit form has pw field?',await p.$('#fPin')!==null);
 await p.close();
 }

@@ -15,12 +15,19 @@ async function doLogin(){
   busy=true;btn.disabled=true;err.textContent='';loginMsg='';
   try{
     var r=await sb.auth.signInWithPassword({email:u+'@'+(CFG.USER_DOMAIN||'wifi-check.app'),password:p});
-    if(r.error){err.textContent=/invalid|credentials/i.test(r.error.message)?'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง':errMsg(r.error);btn.disabled=false;busy=false;return;}
+    if(r.error){var bad=/invalid|credentials/i.test(r.error.message);err.textContent=bad?'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง':errMsg(r.error);btn.disabled=false;busy=false;if(bad)loginShake();return;}
     busy=false;lastPw=p;
     await enter(r.data.user.id);
   }catch(e){err.textContent=errMsg(e);btn.disabled=false;}
   busy=false;
 }
+/* รหัสผิด: การ์ดสั่น + ช่องกรอกเป็นสีแดง (หายเมื่อพิมพ์ใหม่) */
+function loginShake(){
+  var c=document.querySelector('.login-wrap .hero');['lu','lp'].forEach(function(id){var x=$(id);if(x){x.classList.add('bad');x.setAttribute('aria-invalid','true');}});
+  if(c){c.classList.remove('shake');void c.offsetWidth;c.classList.add('shake');setTimeout(function(){c.classList.remove('shake');},500);}
+  var p=$('lp');if(p){try{p.focus();p.select();}catch(e){}}
+}
+document.addEventListener('input',function(e){var t=e.target;if(t&&(t.id==='lu'||t.id==='lp')){['lu','lp'].forEach(function(id){var x=$(id);if(x){x.classList.remove('bad');x.removeAttribute('aria-invalid');}});}});
 async function doLogout(){
   try{await sb.auth.signOut({scope:'local'});}catch(e){} // เฉพาะเครื่องนี้ ไม่ตัดเครื่องอื่นของบัญชีเดียวกัน
   me=null;lastPw='';pwm=null;view='home';themeOpen=false;logoutAsk=false;modal=null;bellOpen=false;dp=null;state=emptyState();loginMsg='';renderAll();

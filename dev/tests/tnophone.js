@@ -13,7 +13,7 @@ for(const vp of [{width:390,height:844},{width:1280,height:900}]){
  const id=await p.evaluate(()=>window.__mockdb.profiles.find(x=>x.username==='malee').id);
  await p.click('[data-pr="'+id+'"]');await p.waitForTimeout(150);await p.click('[data-act=edit-emp][data-id="'+id+'"]');await p.waitForTimeout(150);
  ok(!(await p.$('#fPhone')),tag+' no phone field in edit form');
- await p.fill('#fName','มาลี รักงานมาก');await p.click('[data-act=save-emp]');await p.waitForTimeout(400);
+ await p.fill('#fName','มาลี รักงานมาก');await p.click('[data-act=save-emp]');await p.waitForTimeout(80);{const _y=await p.$('#cfbox [data-cf=yes]');if(_y)await _y.click();}await p.waitForTimeout(400);
  const pr=await p.evaluate(()=>window.__mockdb.profiles.find(x=>x.username==='malee'));
  ok(pr.name==='มาลี รักงานมาก',tag+' edit saved');
  // เพิ่มพนักงานใหม่
@@ -21,7 +21,7 @@ for(const vp of [{width:390,height:844},{width:1280,height:900}]){
  ok(!(await p.$('#fPhone')),tag+' no phone field in new form');
  await p.fill('#fName','ทดสอบ ใหม่');await p.fill('#fUser','tester'+tag);await p.fill('#fPin','Temp1234!');if(await p.$('#fPin2'))await p.fill('#fPin2','Temp1234!');
  if(await p.$('#fTeam'))await p.selectOption('#fTeam','OPS');await p.waitForTimeout(100);
- await p.click('[data-act=save-emp]');await p.waitForTimeout(400);
+ await p.click('[data-act=save-emp]');await p.waitForTimeout(80);{const _y=await p.$('#cfbox [data-cf=yes]');if(_y)await _y.click();}await p.waitForTimeout(400);
  const call=await p.evaluate(()=>(window.__calls||[]).filter(c=>c[0]==='fn'&&c[2]&&c[2].action==='create').pop());
  ok(call&&!('phone' in call[2]),tag+' create request has no phone ('+(call?Object.keys(call[2]).join(','):'no call')+')');
  await p.close();}

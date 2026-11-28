@@ -10,10 +10,15 @@ async function submitLeave(){
   else if(state.leaves.some(function(l){return l.emp===me.id&&(l.status==='pending'||l.status==='approved')&&l.from<=t&&l.to>=f;}))lv.err='มีคำขอลาที่ทับช่วงวันนี้อยู่แล้ว';
   else if(usedY(me.id,lv.type,['approved','pending'],y)+days>quotaOf(me.id,y,lv.type))lv.err='เกินสิทธิ์'+LEAVE_TH[lv.type]+'คงเหลือ';
   if(lv.err){renderView();return;}
-  busy=true;
+  // ถามยืนยันก่อนส่ง
+  var rng=sd(f)+(t!==f?' – '+sd(t):'');
+  if(!await askConfirm('ส่งคำขอ'+LEAVE_TH[lv.type]+' '+rng+' ('+days+' วันทำงาน) ให้ผู้ดูแลอนุมัติ?','ส่งคำขอ'))return;
+  if(busy)return;busy=true;
   try{
-    await rpc('request_leave',{p_type:lv.type,p_from:f,p_to:t,p_reason:lv.reason.trim()});
-    lv.reason='';lv.len=1;lv.ok='ส่งคำขอแล้ว รอผู้ดูแลอนุมัติ';await loadAll();
+    var r=await rpc('request_leave',{p_type:lv.type,p_from:f,p_to:t,p_reason:lv.reason.trim()});
+    lv.reason='';lv.len=1;lv.ok='';lv.newId=r&&r.id?r.id:null;await loadAll();
+    toast('ส่งคำขอลาแล้ว',LEAVE_TH[lv.type]+' '+rng+' · รอผู้ดูแลอนุมัติ','ok');
   }catch(e){lv.err=errMsg(e);}
   busy=false;renderAll();
+  var nw=document.querySelector('.lvitem.new');if(nw&&nw.scrollIntoView)nw.scrollIntoView({block:'center',behavior:fxReduced()?'auto':'smooth'});
 }

@@ -35,7 +35,7 @@ ok(await p.$('#main [data-act=dp][data-id=lvFrom]')===null&&await vis('#main .df
 ok((await p.textContent('#main .lvrule')).includes('ไม่เกิน 3 วัน'),'sick: rule shown');
 for(let i=0;i<5;i++){const pl=await p.$('[data-act=lv-len][data-n="1"]:not([disabled])');if(pl){await pl.click();await p.waitForTimeout(50);}}
 ok((await p.textContent('#main .lenst b')).includes('3')&&await p.$('[data-act=lv-len][data-n="1"][disabled]')!==null,'sick: length stops at 3 days');
-await p.click('[data-act=lv-submit]');await p.waitForTimeout(300);
+await p.click('[data-act=lv-submit]');await p.waitForTimeout(80);{const _y=await p.$('#cfbox [data-cf=yes]');if(_y)await _y.click();}await p.waitForTimeout(300);
 let c=await calls('request_leave');
 ok(c.length===1&&c[0].p_type==='sick'&&c[0].p_from==='2026-12-01'&&c[0].p_to==='2026-12-03','sick: sends today + 3 days ('+JSON.stringify(c[0])+')');
 // พักร้อน: ย้อนหลังไม่ได้
@@ -43,13 +43,13 @@ await p.click('[data-act=lvtype][data-t=vac]');await p.waitForTimeout(100);
 ok(await p.$('#main [data-act=dp][data-id=lvFrom]')!==null,'vacation: start date can be chosen');
 ok((await p.textContent('#main .lenst b')).includes('1'),'length resets to 1 after submit');
 await p.click('#main [data-act=dp][data-id=lvFrom]');await p.waitForTimeout(100);await p.click('[data-act=dp-m][data-n="-1"]');await p.waitForTimeout(80);await p.click('[data-act=dp-pick][data-d="2026-11-30"]');await p.waitForTimeout(150);
-await p.click('[data-act=lv-submit]');await p.waitForTimeout(200);
+await p.click('[data-act=lv-submit]');await p.waitForTimeout(80);{const _y=await p.$('#cfbox [data-cf=yes]');if(_y)await _y.click();}await p.waitForTimeout(200);
 ok((await p.textContent('#main .err')).includes('ตั้งแต่วันนี้'),'vacation: past date rejected');
 ok((await calls('request_leave')).length===1,'vacation: nothing sent for past date');
 await p.click('#main [data-act=dp][data-id=lvFrom]');await p.waitForTimeout(100);if(!await p.$('[data-act=dp-pick][data-d="2026-12-07"]'))await p.click('[data-act=dp-m][data-n="1"]');await p.waitForTimeout(80);await p.click('[data-act=dp-pick][data-d="2026-12-07"]');await p.waitForTimeout(150);
 await p.click('[data-act=lv-len][data-n="1"]');await p.waitForTimeout(80);
 ok((await p.textContent('#main')).includes('8 ธ.ค.'),'vacation: shows end date from length');
-await p.click('[data-act=lv-submit]');await p.waitForTimeout(300);
+await p.click('[data-act=lv-submit]');await p.waitForTimeout(80);{const _y=await p.$('#cfbox [data-cf=yes]');if(_y)await _y.click();}await p.waitForTimeout(300);
 c=await calls('request_leave');ok(c.length===2&&c[1].p_from==='2026-12-07'&&c[1].p_to==='2026-12-08','vacation: advance request with length 2 sent');
 // โปรไฟล์พนักงาน: ไม่มีเปลี่ยนรหัสผ่าน · ไม่มี Admin tool · ยังแก้รูป/ชื่อไม่ได้
 await p.click('#nav [data-v=profile]');await p.waitForTimeout(200);
@@ -70,8 +70,8 @@ await p.click('[data-act=cust-pick][data-c="#E2557B"]');await p.waitForTimeout(1
 ok(await vis('.thpop .gask')&&await p.evaluate(()=>getComputedStyle(document.body).backgroundColor)!==bg0,'custom color: previews and asks to confirm');
 await p.click('[data-act=gear-no]');await p.waitForTimeout(100);
 ok(await p.evaluate(()=>getComputedStyle(document.body).backgroundColor)===bg0,'custom color: cancel restores');
-await p.click('[data-act=cust-pick][data-c="#2F80ED"]');await p.click('[data-act=cust-base][data-d="1"]');await p.click('[data-act=gear-yes]');await p.waitForTimeout(150);
-ok(await p.evaluate(()=>JSON.parse(localStorage.getItem('wc-custom')).c==='#2F80ED'&&JSON.parse(localStorage.getItem('wc-custom')).dark===true),'custom color: saved on this device (blue, dark)');
+await p.click('[data-act=cust-pick][data-c="#2F80ED"]');await p.click('[data-act=cust-base][data-b=dark]');await p.click('[data-act=gear-yes]');await p.waitForTimeout(150);
+ok(await p.evaluate(()=>JSON.parse(localStorage.getItem('wc-custom')).c==='#2F80ED'&&JSON.parse(localStorage.getItem('wc-custom')).base==='dark'),'custom color: saved on this device (blue, dark)');
 const ink=await p.evaluate(()=>getComputedStyle(document.documentElement).getPropertyValue('--ink').trim());ok(ink.toUpperCase()==='#EDF1EE','custom dark: light text');
 await p.click('[data-act=theme-set][data-t=light]');await p.click('[data-act=gear-yes]');await p.waitForTimeout(150);
 ok(await p.evaluate(()=>document.documentElement.style.getPropertyValue('--bg')==='')&&await p.evaluate(()=>document.documentElement.getAttribute('data-theme'))==='light','back to light: custom colors removed');
@@ -117,7 +117,7 @@ ok(await p.evaluate(()=>window.__mockdb.lq.some(r=>r.emp==='e2'&&r.type==='vac'&
 ok((await p.textContent('#lvqCard .lvqlog')).includes('ทดสอบ'),'change shows in history');
 await p.click('[data-act=lvq-mode][data-m=sub]');await p.fill('#lvqDays','20');await p.click('[data-act=lvq-check]');await p.waitForTimeout(100);
 ok((await p.textContent('#lvqCard .alert-y')).includes('→ 0'),'reduce never goes below 0');await p.click('[data-act=lvq-no]');
-await p.fill('#lvqD_vac','11');await p.click('[data-act=lvq-def]');await p.waitForTimeout(250);
+await p.fill('#lvqD_vac','11');await p.click('[data-act=lvq-def]');await p.waitForTimeout(80);{const _y=await p.$('#cfbox [data-cf=yes]');if(_y)await _y.click();}await p.waitForTimeout(250);
 ok(await p.evaluate(()=>window.__mockdb.settings[0].q_vac===11),'default allowance saved');
 // (แก้บั๊กเดิม) เลือกวันที่ในการ์ดวันหยุดแล้วต้องเปลี่ยนตาม
 await p.click('#main section.spop.open .spx');await p.click('[data-set-tab=all]');await p.click('[data-set-open=hol]');await p.waitForTimeout(150);
@@ -127,10 +127,10 @@ await p.click('#main section.spop.open .spx');await p.click('[data-set-open=lvq]
 // ลาแทนพนักงาน
 await p.click('[data-act=la-go]');await p.waitForTimeout(300);
 ok((await p.textContent('#main h1')).trim()==='ลา'&&await vis('#laCard'),'"enter leave for employee" opens on leave page');
-await p.selectOption('#laEmp','e3');await p.click('[data-act=la-type][data-t=sick]');await p.click('[data-act=la-submit]');await p.waitForTimeout(150);
+await p.selectOption('#laEmp','e3');await p.click('[data-act=la-type][data-t=sick]');await p.click('[data-act=la-submit]');await p.waitForTimeout(80);{const _y=await p.$('#cfbox [data-cf=yes]');if(_y)await _y.click();}await p.waitForTimeout(150);
 ok((await p.textContent('#laCard .err')).includes('เหตุผล'),'reason required');
 await p.click('#laCard [data-act=dp][data-id=laFrom]');await p.waitForTimeout(100);await p.click('[data-act=dp-m][data-n="-1"]');await p.waitForTimeout(80);await p.click('[data-act=dp-pick][data-d="2026-11-27"]');await p.waitForTimeout(150);
-await p.fill('#laReason','โทรแจ้งว่าป่วย');await p.click('[data-act=la-submit]');await p.waitForTimeout(400);
+await p.fill('#laReason','โทรแจ้งว่าป่วย');await p.click('[data-act=la-submit]');await p.waitForTimeout(80);{const _y=await p.$('#cfbox [data-cf=yes]');if(_y)await _y.click();}await p.waitForTimeout(400);
 c=await calls('admin_request_leave');console.log(JSON.stringify(c));ok(c.length===1&&c[0].p_emp==='e3'&&c[0].p_from==='2026-11-27'&&c[0].p_reason==='โทรแจ้งว่าป่วย','admin leave sent (past date allowed)');
 ok(await vis('[data-act=lv-approve]')&&(await p.textContent('#main')).includes('ผู้ดูแลบันทึกให้'),'approval panel opens · marked "entered by admin"');
 // รายงาน › สถิติ
@@ -147,9 +147,9 @@ await logout();
 // พนักงานหลังเปิดสิทธิ์: แก้ชื่อ/รูปเองได้
 await login('malee','Temp1234!');await p.click('#nav [data-v=profile]');await p.waitForTimeout(200);
 ok(await vis('#main [data-act=av-pick]')&&await vis('#main [data-act=name-edit]'),'staff: can edit photo/name after admin allows');
-await p.click('[data-act=name-edit]');await p.fill('#myName','ม');await p.click('[data-act=name-save]');await p.waitForTimeout(200);
+await p.click('[data-act=name-edit]');await p.fill('#myName','ม');await p.click('[data-act=name-save]');await p.waitForTimeout(80);{const _y=await p.$('#cfbox [data-cf=yes]');if(_y)await _y.click();}await p.waitForTimeout(200);
 ok((await p.textContent('#main .nameed .err')).includes('2–60'),'name: too short rejected');
-await p.fill('#myName','มาลี ใจงาม');await p.click('[data-act=name-save]');await p.waitForTimeout(300);
+await p.fill('#myName','มาลี ใจงาม');await p.click('[data-act=name-save]');await p.waitForTimeout(80);{const _y=await p.$('#cfbox [data-cf=yes]');if(_y)await _y.click();}await p.waitForTimeout(300);
 ok(await p.evaluate(()=>window.__mockdb.profiles.find(x=>x.id==='e2').name==='มาลี ใจงาม')&&(await p.textContent('#main .phd h2')).includes('มาลี ใจงาม'),'name: saved');
 await ctx.close();await b.close();
 console.log(errs.length?errs.join('\n'):'NO ERRORS');process.exit(errs.length?1:0);})();

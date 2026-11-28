@@ -31,7 +31,7 @@ dev/                                            ← ต้นฉบับ + เ�
   supabase/                    SQL ที่เคยใช้ + Edge Function admin-users
 ```
 
-ลำดับ build: ดูใน `build_all.sh` (patch_detail → … → patch_order → patch_profile → … → patch_ui2 → patch_leaveq → patch_gear → patch_avatar → patch_stats → build_prod → i18n → make_preview)
+ลำดับ build: ดูใน `build_all.sh` (patch_detail → … → patch_order → patch_profile → … → patch_ui2 → patch_leaveq → patch_gear → patch_avatar → patch_stats → patch_fx → build_prod → i18n → make_preview)
 (`patch_detail.py` สร้าง `app_src.html` ใหม่จาก `app_src_before_detail.html` ทุกครั้ง)
 
 ## ขั้นตอนทำงาน
@@ -80,7 +80,9 @@ dev/                                            ← ต้นฉบับ + เ�
 - หน้าพนักงาน (ผู้ดูแล): การ์ดละทีม ข้างในเป็นรายชื่อ · กดชื่อ (`data-pr`) แล้วขยายเห็นปุ่ม แก้ไข/รีเซ็ตรหัสผ่าน/ลบ · ลาก ⠿ สลับลำดับ (`prod/p_plist.js`, `p_order.js`)
 - ตำแหน่งตอนเข้า/ออกงาน (`prod/p_geo.js`): ต้องอนุญาตตำแหน่งจึงลงเวลาได้ · อ่านค่าไม่ได้ก็ลงได้ (ติดป้าย) · ชื่อสถานที่จาก OpenStreetMap · เก็บในตาราง `attendance_locations` (เห็นเฉพาะเจ้าตัว + ผู้ดูแล) ผ่าน `set_my_location` · หน้าตัวอย่างใช้ `window.__geoMock` · เทสต์ `tgeo`
 - แถบด้านบน: ชื่อ → กระดิ่ง → ปุ่มฟันเฟือง (`data-act=theme`: สวิตช์ภาษา ธีม เปลี่ยนรหัสผ่าน ออกจากระบบ) · **ทุกการเปลี่ยนในฟันเฟืองต้องยืนยัน** (`.gask` → `gear-yes`/`gear-no`, `prod/p_gear.js`) · ออกจากระบบ `logout-ask` → `logout`
-- ธีม: สว่าง / มืด / Black / Liquid Glass / กำหนดสีเอง (`wc-custom` = สีหลัก + พื้นสว่าง/มืด, ตั้งตัวแปรสีผ่าน `applyCustom`)
+- ธีม: กลางวัน / กลางคืน / White / Black / Liquid Glass / กำหนดสีเอง (`wc-custom` = `{c, base: light|dark|glass}` · แบบแก้วใช้ `data-theme=glass` + `data-cust` · `applyCustom`)
+- **ถามยืนยันก่อนทุกปุ่ม ส่ง/อนุมัติ/บันทึก** (`prod/p_confirm.js` วางต้นสคริปต์ ดักแบบ capture ด้วย `CF_ACTS`, หน้าต่าง `#cfbox` ปุ่ม `[data-cf=yes|no]`) · ส่งคำขอลา/ลาแทน ตรวจข้อมูลก่อนแล้วค่อยถาม (`askConfirm`) · ปุ่มเพิ่มใหม่ที่บันทึกข้อมูล ต้องใส่ใน `CF_ACTS` · เทสต์ที่กดปุ่มเหล่านี้ต้องกด `#cfbox [data-cf=yes]` ต่อ
+- ลูกเล่น (`prod/p_fx.js`): KPI นับขึ้น + กราฟวิ่ง (`animMain` เฉพาะตอนเปิดหน้า/เปลี่ยนช่วง) · กระดิ่งขยับ (`bellRing`) · toast สำเร็จ `toast(t,b,'ok')` · ล็อกอินผิด สั่น+แดง (`loginShake`) · คำขอลามีขั้นตอน (`lvFlow`) · เทสต์ `tfx`
 - วันลา (`prod/p_leaveq.js`, ตาราง `leave_quota` + `leave_quota_log`, ค่าตั้งต้น `settings.q_vac/q_per/q_sick`): สิทธิ์รายคนต่อปี `leave_quota_of` · ปรับ `admin_set_quota` (set/add) · ผู้ดูแลลาแทน `admin_request_leave` (ต้องมีเหตุผล, `leaves.by_admin`) · พักร้อน/ลากิจ เริ่มได้ตั้งแต่วันนี้ · ลาป่วยเริ่มได้เฉพาะวันนี้ ≤ 3 วัน · เลือกวันเริ่ม + จำนวนวัน · เมนูชื่อ "ลา" · รายงานมีการ์ดสิทธิ์คงเหลือ (`#lvBal`) · เทสต์ `tleave`
 - รายงาน › สถิติ: เลือก "ดูของ" ทุกคน/คนเดียว (`dashEmp`) กราฟพฤติกรรมเป็นของคนนั้น กราฟเปรียบเทียบยังแสดงทุกคนแต่คนอื่นจาง · ตารางกะเปิดมาเป็นมุมมองเดือน
 - วันหยุดราชการ (`prod/p_hol.js`, ตาราง `holidays`): ทีม A หยุด (`team_works` ในฐานข้อมูล + `teamWorksS` ในเว็บ) · ทีม B ทำตามรอบ · ผู้ดูแลเพิ่ม/ลบผ่าน `admin_set_holiday` · วันหยุดปี 2570 ใส่ตามปฏิทินทั่วไป รอตรวจกับประกาศ ครม.

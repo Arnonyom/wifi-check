@@ -47,7 +47,7 @@ for(const vp of [{width:1280,height:900},{width:390,height:844}]){
  await p.evaluate(()=>{const o=document.querySelector('#main section.spop.open .spx');if(o)o.click();});
  // 5) อนุมัติแล้วยกเลิกการลา lv2 (5 วันข้างหน้า)
  await p.click('#nav [data-act=tab][data-v=leaves]');await p.waitForTimeout(150);
- await p.click('[data-act=lv-open][data-id=lv2]');await p.waitForTimeout(150);await p.click('[data-act=lv-approve]');await p.waitForTimeout(400);
+ await p.click('[data-act=lv-open][data-id=lv2]');await p.waitForTimeout(150);await p.click('[data-act=lv-approve]');await p.waitForTimeout(80);{const _y=await p.$('#cfbox [data-cf=yes]');if(_y)await _y.click();}await p.waitForTimeout(400);
  const ovBefore=await p.evaluate(()=>window.__mockdb.overrides.filter(o=>o.leave_id==='lv2').length);ok(ovBefore>0,tag+' approve created cover ('+ovBefore+')');
  await p.click('[data-act=lvf][data-f=approved]');await p.waitForTimeout(150);
  await p.click('[data-act=lv-adm-cancel][data-id=lv2]');await p.waitForTimeout(100);

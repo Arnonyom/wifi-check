@@ -32,7 +32,7 @@ for(const vp of [{width:1280,height:900},{width:360,height:760}]){
  ok(!!(await p.$('#atInT'))&&!(await p.$('#atOutT')),tag+' mode "in" shows only check-in field');
  await p.fill('#atInT','07:20');await p.waitForTimeout(100);
  ok((await p.textContent('#attPrev')).includes('เข้า 07:20'),tag+' preview updates while typing');
- await p.click('#attEd [data-act=save-att]');await p.waitForTimeout(400);
+ await p.click('#attEd [data-act=save-att]');await p.waitForTimeout(80);{const _y=await p.$('#cfbox [data-cf=yes]');if(_y)await _y.click();}await p.waitForTimeout(400);
  let r=await p.evaluate(d=>window.__mockdb.attendance.find(a=>a.work_date===d&&a.shift_id==='B1'),prep.dIn);
  ok(r&&bkkHM(r.check_in)==='07:20'&&!r.check_out,tag+' saved check-in only ('+(r?bkkHM(r.check_in)+' / '+r.check_out:'none')+')');
  // 2) ลืมออกงาน (กะกลางคืน 19.00–07.00)
@@ -42,7 +42,7 @@ for(const vp of [{width:1280,height:900},{width:360,height:760}]){
  await p.click('#attEd [data-act=att-set][data-k=Out] >> nth=0');await p.waitForTimeout(150);
  ok(await p.inputValue('#atOutT')==='07:00',tag+' "end of shift" quick button sets 07:00');
  const prev=await p.textContent('#attPrev');ok(/ออก 07:00 \(/.test(prev),tag+' overnight check-out shows next-day date: '+prev.replace(/\s+/g,' '));
- await p.click('#attEd [data-act=save-att]');await p.waitForTimeout(400);
+ await p.click('#attEd [data-act=save-att]');await p.waitForTimeout(80);{const _y=await p.$('#cfbox [data-cf=yes]');if(_y)await _y.click();}await p.waitForTimeout(400);
  r=await p.evaluate(d=>window.__mockdb.attendance.find(a=>a.work_date===d&&a.shift_id==='B2'),prep.dOut);
  const next=new Date(Date.parse(prep.dOut+'T00:00:00Z')+864e5).toISOString().slice(0,10);
  ok(r&&r.check_in===prep.outIn&&bkkHM(r.check_out)==='07:00'&&bkkD(r.check_out)===next,tag+' check-out saved on next day, check-in unchanged');
@@ -59,7 +59,7 @@ for(const vp of [{width:1280,height:900},{width:360,height:760}]){
    ok(await modeOn()==='out',tag+' working shift: default mode out');
    await p.fill('#atOutT','23:59');await p.waitForTimeout(100);
    ok((await p.textContent('#attPrev')).includes('ยังมาไม่ถึง'),tag+' future check-out warned');
-   await p.click('#attEd [data-act=save-att]');await p.waitForTimeout(300);
+   await p.click('#attEd [data-act=save-att]');await p.waitForTimeout(80);{const _y=await p.$('#cfbox [data-cf=yes]');if(_y)await _y.click();}await p.waitForTimeout(300);
    const still=await p.evaluate(l=>window.__mockdb.attendance.find(a=>a.work_date===l.d&&a.shift_id===l.s).check_out,live);
    ok(!still&&(await p.textContent('#attErr')).includes('ยังมาไม่ถึง'),tag+' future check-out not saved');
  }else console.log('      (no live shift in mock now; future-time check skipped)');

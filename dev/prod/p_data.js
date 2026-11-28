@@ -88,17 +88,18 @@ async function loadAll(){
   loaded=true;
 }
 function announceNew(first){
-  var mx=lastNoteTs;
+  var mx=lastNoteTs,rang=false;
   state.notifications.slice().sort(function(a,b){return a.ts-b.ts;}).forEach(function(n){
     if(n.ts>lastNoteTs){
       mx=Math.max(mx,n.ts);
       if(!first&&me&&me.notify!==false&&n.read.indexOf(me.id)<0&&(me.role==='admin'||n.to.indexOf(me.id)>=0)){
-        toast(n.title,n.body,n.kind,n.id);
+        toast(n.title,n.body,n.kind,n.id);rang=true;
         if(me.push){try{if(window.Notification&&Notification.permission==='granted')new Notification(n.title,{body:n.body});}catch(e){}}
       }
     }
   });
   lastNoteTs=mx;
+  if(rang)bellRing(); // กระดิ่งขยับเมื่อมีแจ้งเตือนใหม่
 }
 async function refreshData(){
   if(!me||busy)return;
@@ -112,7 +113,7 @@ async function enter(uid){
   if(!e||!e.active){loginMsg='บัญชีนี้ถูกปิดใช้งาน ติดต่อผู้ดูแล';await sb.auth.signOut({scope:'local'});me=null;renderAll();return false;}
   me=e;view=e.role==='admin'?'today':'home';schedTeam=(e.team==='B')?'B':'A';schedAnchor=bkk(now()).date;
   editSlot=null;editEmp=null;armed='';modal=null;bellOpen=false;flash=null;dp=null;lvOpen=null;lvReject=null;lvErr='';loginMsg='';
-  det=[];lastNoteTs=0;announceNew(true);
-  renderAll();return true;
+  det=[];lastNoteTs=0;announceNew(true);fxKey='';
+  renderAll();setTimeout(function(){if(document.querySelector('.bellwrap .badge'))bellRing();},700);return true;
 }
 

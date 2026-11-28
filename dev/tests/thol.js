@@ -57,7 +57,7 @@ async function open(iso,u,pw){
  ok(!(await vis('[data-act=hol-add]')),'tap on the backdrop closes');
  await p.click('[data-set-open=rules]');await p.waitForTimeout(150);await p.keyboard.press('Escape');await p.waitForTimeout(150);
  ok(!(await vis('[data-act=save-rules]')),'Esc closes');
- await p.click('[data-set-open=rules]');await p.fill('#setOpen','30');await p.click('[data-act=save-rules]');await p.waitForTimeout(400);
+ await p.click('[data-set-open=rules]');await p.fill('#setOpen','30');await p.click('[data-act=save-rules]');await p.waitForTimeout(80);{const _y=await p.$('#cfbox [data-cf=yes]');if(_y)await _y.click();}await p.waitForTimeout(400);
  ok(await vis('[data-act=save-rules]'),'popup stays open after saving (page re-render)');
  await p.click('#main section.spop.open .spx');await p.waitForTimeout(100);
  await p.click('[data-set-open=sim]');await p.waitForTimeout(250);
@@ -67,9 +67,9 @@ async function open(iso,u,pw){
  await p.evaluate(()=>{});
 await p.evaluate(()=>{const o=document.querySelector('#main section.spop.open .spx');if(o)o.click();});await p.click('[data-set-open=hol]');await p.waitForTimeout(150);
  const n0=await p.$$eval('#holCard .hrow',e=>e.length);
- await p.click('[data-act=hol-add]');await p.waitForTimeout(150);
+ await p.click('[data-act=hol-add]');await p.waitForTimeout(80);{const _y=await p.$('#cfbox [data-cf=yes]');if(_y)await _y.click();}await p.waitForTimeout(150);
  ok((await p.textContent('#holCard')).includes('ใส่ชื่อวันหยุด'),'holiday name required');
- await p.fill('#holN','วันหยุดพิเศษทดสอบ');await p.click('[data-act=hol-add]');await p.waitForTimeout(300);
+ await p.fill('#holN','วันหยุดพิเศษทดสอบ');await p.click('[data-act=hol-add]');await p.waitForTimeout(80);{const _y=await p.$('#cfbox [data-cf=yes]');if(_y)await _y.click();}await p.waitForTimeout(300);
  ok((await p.$$eval('#holCard .hrow',e=>e.length))===n0+1&&(await p.textContent('#holCard')).includes('วันหยุดพิเศษทดสอบ'),'admin adds a holiday (today 2 Dec)');
  const dbh=await p.evaluate(()=>window.__mockdb.holidays.find(h=>h.d==='2026-12-02'));
  ok(dbh&&dbh.name==='วันหยุดพิเศษทดสอบ','holiday saved via admin_set_holiday');

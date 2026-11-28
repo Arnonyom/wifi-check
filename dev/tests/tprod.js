@@ -24,16 +24,16 @@ await p.click('[data-act=sched-nav][data-n="1"]');await p.waitForTimeout(150);
 await p.click('button.cell:not(.na) >> nth=1');await p.waitForTimeout(150);
 await p.check('input[name=edMode][value=cover]');await p.waitForTimeout(100);
 const opts=await p.$$eval('#edOther option',e=>e.map(o=>o.value).filter(Boolean));await p.selectOption('#edOther',opts[opts.length-1]);await p.waitForTimeout(100);
-await p.click('[data-act=save-days]');await p.waitForTimeout(500);
+await p.click('[data-act=save-days]');await p.waitForTimeout(80);{const _y=await p.$('#cfbox [data-cf=yes]');if(_y)await _y.click();}await p.waitForTimeout(500);
 console.log('rpc calls:',JSON.stringify(await p.evaluate(()=>window.__calls.filter(c=>c[1]==='set_override_days').map(c=>c[1]))));
 console.log('off cell present:',await p.$('.cell.off')!==null);
 // people: add employee
 await p.click('[data-act=tab][data-v=people]');await p.click('[data-act=new-emp]');
 await p.fill('#fName','ทดสอบ ระบบ');await p.fill('#fUser','tester1');await p.fill('#fPin','Abcd1234!');await p.fill('#fPin2','Abcd1234!');await p.selectOption('#fTeam','OPS');
-await p.click('[data-act=save-emp]');await p.waitForTimeout(500);
+await p.click('[data-act=save-emp]');await p.waitForTimeout(80);{const _y=await p.$('#cfbox [data-cf=yes]');if(_y)await _y.click();}await p.waitForTimeout(500);
 console.log('people has tester:',(await p.textContent('#main')).includes('ทดสอบ ระบบ'),'fn calls:',JSON.stringify(await p.evaluate(()=>window.__calls.filter(c=>c[0]==='fn').map(c=>c[2].action))));
 // settings rules
-await p.click('#nav [data-act=tab][data-v=profile]');await p.click('#main [data-act=tab][data-v=settings]');await p.evaluate(()=>{const o=document.querySelector('#main section.spop.open .spx');if(o)o.click();});await p.click('[data-set-open=rules]');await p.waitForTimeout(150);await p.fill('#setLate','20');await p.click('[data-act=save-rules]');await p.waitForTimeout(500);
+await p.click('#nav [data-act=tab][data-v=profile]');await p.click('#main [data-act=tab][data-v=settings]');await p.evaluate(()=>{const o=document.querySelector('#main section.spop.open .spx');if(o)o.click();});await p.click('[data-set-open=rules]');await p.waitForTimeout(150);await p.fill('#setLate','20');await p.click('[data-act=save-rules]');await p.waitForTimeout(80);{const _y=await p.$('#cfbox [data-cf=yes]');if(_y)await _y.click();}await p.waitForTimeout(500);
 console.log('rules msg:',(await p.textContent('#main')).includes('บันทึกกฎแล้ว'));
 await p.screenshot({path:S+'p_set.png'});await p.evaluate(()=>{const o=document.querySelector('#main section.spop.open .spx');if(o)o.click();});
 // logout
@@ -44,13 +44,13 @@ console.log('wichai home has check button:',await p.$('[data-act=checkin]')!==nu
 if(await p.$('[data-act=checkin]')){await p.click('[data-act=checkin]');await p.waitForTimeout(300);await p.screenshot({path:S+'p_modal.png'});await p.click('[data-act=modal-ok]');await p.waitForTimeout(600);console.log('after checkin flash:',(await p.textContent('#main')).match(/เข้างานสำเร็จ[^ ]*[^.]*/)?.[0]);}
 // leave
 await p.click('[data-act=tab][data-v=leave]');await p.click('[data-act=dp][data-id=lvFrom]');await p.waitForTimeout(150);
-const dd=await p.$$('.dday');await dd[dd.length-4].click();await p.waitForTimeout(150);await p.click('[data-act=lv-submit]');await p.waitForTimeout(500);
+const dd=await p.$$('.dday');await dd[dd.length-4].click();await p.waitForTimeout(150);await p.click('[data-act=lv-submit]');await p.waitForTimeout(80);{const _y=await p.$('#cfbox [data-cf=yes]');if(_y)await _y.click();}await p.waitForTimeout(500);
 console.log('leave msg:',(await p.textContent('#main')).match(/ส่งคำขอแล้ว[^ ]*|เกินสิทธิ์[^ ]*|ไม่มีกะ[^ ]*/)?.[0]);
 // bell toggle
 await p.click('[data-act=bell]');await p.click('[data-act=bell-notify]');await p.waitForTimeout(300);
 console.log('notify rpc:',JSON.stringify(await p.evaluate(()=>window.__calls.filter(c=>c[1]==='set_my_notify').map(c=>c[2]))));
 await p.click('[data-act=theme]');await p.click('[data-act=logout-ask]');await p.click('.thout [data-act=logout]');
 await login(p,'admin');await p.click('[data-act=tab][data-v=leaves]');await p.waitForTimeout(200);
-if(await p.$('[data-act=lv-open]')){await p.click('[data-act=lv-open] >> nth=0');await p.waitForTimeout(150);await p.click('[data-act=lv-approve]');await p.waitForTimeout(500);console.log('approve rpc:',JSON.stringify(await p.evaluate(()=>window.__calls.filter(c=>c[1]==='approve_leave').length)));}
+if(await p.$('[data-act=lv-open]')){await p.click('[data-act=lv-open] >> nth=0');await p.waitForTimeout(150);await p.click('[data-act=lv-approve]');await p.waitForTimeout(80);{const _y=await p.$('#cfbox [data-cf=yes]');if(_y)await _y.click();}await p.waitForTimeout(500);console.log('approve rpc:',JSON.stringify(await p.evaluate(()=>window.__calls.filter(c=>c[1]==='approve_leave').length)));}
 console.log(errs.length?errs.join('\n'):'NO ERRORS');
 await b.close();})();
