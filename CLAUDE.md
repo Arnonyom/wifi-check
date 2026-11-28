@@ -31,7 +31,7 @@ dev/                                            ← ต้นฉบับ + เ�
   supabase/                    SQL ที่เคยใช้ + Edge Function admin-users
 ```
 
-ลำดับ build: ดูใน `build_all.sh` (patch_detail → … → patch_order → patch_profile → … → patch_ui2 → patch_leaveq → patch_gear → patch_avatar → patch_stats → patch_fx → patch_r4 → build_prod → i18n → make_preview)
+ลำดับ build: ดูใน `build_all.sh` (patch_detail → … → patch_order → patch_profile → … → patch_ui2 → patch_leaveq → patch_gear → patch_avatar → patch_stats → patch_fx → patch_r4 → patch_geotest → build_prod → i18n → make_preview)
 (`patch_detail.py` สร้าง `app_src.html` ใหม่จาก `app_src_before_detail.html` ทุกครั้ง)
 
 ## ขั้นตอนทำงาน
@@ -86,6 +86,7 @@ dev/                                            ← ต้นฉบับ + เ�
 - วันลา (`prod/p_leaveq.js`, ตาราง `leave_quota` + `leave_quota_log`, ค่าตั้งต้น `settings.q_vac/q_per/q_sick`): สิทธิ์รายคนต่อปี `leave_quota_of` · ปรับ `admin_set_quota` (set/add) · ผู้ดูแลลาแทน `admin_request_leave` (ต้องมีเหตุผล, `leaves.by_admin`) · พักร้อน/ลากิจ เริ่มได้ตั้งแต่วันนี้ · ลาป่วยเริ่มได้เฉพาะวันนี้ ≤ 3 วัน · เลือกวันเริ่ม + จำนวนวัน · เมนูชื่อ "ลา" · รายงานมีการ์ดสิทธิ์คงเหลือ (`#lvBal`) · เทสต์ `tleave`
 - รายงาน › สถิติ: เลือก "ดูของ" ทุกคน/คนเดียว (`dashEmp`) กราฟพฤติกรรมเป็นของคนนั้น กราฟเปรียบเทียบยังแสดงทุกคนแต่คนอื่นจาง · ช่วงเวลา 7/30/90/180 วัน/1 ปี/กำหนดเอง ≤ 366 วัน (`dashDays`, `dashTo`, `dashCustom`, `dsFrom/dsTo`) · เกิน 92 วันกราฟรายวันรวมเป็นรายสัปดาห์ (`weekly`) · ปกติโหลดข้อมูลย้อนหลัง 130 วัน ช่วงยาวโหลดเพิ่มเอง (`histDays`) · ตารางกะเปิดมาเป็นมุมมองเดือน
 - สำรองข้อมูลทั้งหมดเป็น Excel (`prod/p_r4.js`, การ์ด `bkCard` ใน Admin tool › นำเข้า/ส่งออก): ดึงทุกตารางแบบแบ่งหน้า (`range`) ชีตละหมวด ไม่รวม avatar/prefs · เทสต์ `tr4`
+- ทดสอบตำแหน่ง (`prod/p_geotest.js`, การ์ด `geoTestCard` ใน Admin tool › ทดสอบ): สแกนแบบเดียวกับตอนลงเวลา แสดงสถานที่/พิกัด/ความแม่นยำ/สิทธิ์ ไม่บันทึก · เทสต์ `tgeot`
 - แถบสีด้านบน (meta theme-color) ตามธีม `syncThemeColor()` · ป๊อปอัป Admin tool โฟกัสปุ่มปิด (ไม่เด้งแป้นพิมพ์บน iOS) + ยกพ้นแป้นพิมพ์ (`--kb` จาก visualViewport) · การ์ดแจ้งเตือนบนมือถือเอาออกจาก Admin tool แล้ว (ตั้งที่กระดิ่ง)
 - วันหยุดราชการ (`prod/p_hol.js`, ตาราง `holidays`): ทีม A หยุด (`team_works` ในฐานข้อมูล + `teamWorksS` ในเว็บ) · ทีม B ทำตามรอบ · ผู้ดูแลเพิ่ม/ลบผ่าน `admin_set_holiday` · วันหยุดปี 2570 ใส่ตามปฏิทินทั่วไป รอตรวจกับประกาศ ครม.
 - ล้างข้อมูลทดสอบ: `admin_clear_data(from,to,att,sched,notif,rota,dry)` — dry=true นับอย่างเดียว · ไม่แตะ profiles/settings/holidays

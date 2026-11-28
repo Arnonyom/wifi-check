@@ -30,6 +30,7 @@ python3 patch_avatar.py >/dev/null
 python3 patch_stats.py >/dev/null
 python3 patch_fx.py >/dev/null
 python3 patch_r4.py >/dev/null
+python3 patch_geotest.py >/dev/null
 python3 build_prod.py >/dev/null
 python3 i18n.py
 python3 make_preview.py >/dev/null

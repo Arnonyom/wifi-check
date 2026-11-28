@@ -13,6 +13,7 @@ var SET_IC={
   cal:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/><path d="m12 13 1 2 2 .3-1.5 1.4.4 2.1-1.9-1-1.9 1 .4-2.1L9 15.3l2-.3z"/>',
   flask:'<path d="M9 3h6M10 3v6L4.5 18.5A1.7 1.7 0 0 0 6 21h12a1.7 1.7 0 0 0 1.5-2.5L14 9V3"/><path d="M7.5 15h9"/>',
   bag:'<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 12h18"/>',
+  pin:'<path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>',
   trash:'<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>'
 };
 // รหัสการ์ด → หมวด ไอคอน ชื่อ คำอธิบาย
@@ -25,10 +26,11 @@ var SET_META={
   export:['io','down','ส่งออกตารางกะ','ดาวน์โหลดเป็น Excel'],
   import:['io','up','นำเข้าตารางกะ','จากไฟล์ Excel หรือ .csv'],
   bk:['io','down','สำรองข้อมูลทั้งหมด','ดาวน์โหลดทุกหมวดเป็น Excel ไฟล์เดียว'],
+  geot:['test','pin','ทดสอบตำแหน่ง','สแกนดูว่าเครื่องนี้อ่านตำแหน่งได้ที่ไหน (ไม่บันทึก)'],
   sim:['test','flask','ทดสอบเข้า-ออกงาน','ลองลงเวลาแทนพนักงาน (ไม่บันทึกจริง)'],
   clr:['test','trash','ล้างข้อมูลทดสอบ','ลบข้อมูลที่ใส่ระหว่างทดสอบ']
 };
-var SET_ORDER=['rota','rotab','hol','lvq','rules','export','import','bk','sim','clr'];
+var SET_ORDER=['rota','rotab','hol','lvq','rules','export','import','bk','sim','geot','clr'];
 function accIdOf(c,i){
   if(c.querySelector('[data-v="sim"]'))return 'sim';
   if(c.querySelector('[data-act^="rotab"]')||c.id==='rotaBEd')return 'rotab';
@@ -40,6 +42,7 @@ function accIdOf(c,i){
   if(c.id==='clrCard')return 'clr';
   if(c.id==='lvqCard')return 'lvq';
   if(c.id==='bkCard')return 'bk';
+  if(c.id==='geoTestCard')return 'geot';
   var h2=c.querySelector('h2');if(h2&&/Push/.test(h2.textContent))return 'push';
   return 'c'+i;
 }
