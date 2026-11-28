@@ -42,11 +42,11 @@ await p.click('[data-act=tab][data-v=today]');await p.waitForTimeout(150);await 
 await p.click('[data-act=go-edit]');await p.waitForTimeout(300);console.log(tag,'go-edit opens editor',await p.$('#slotEd')!==null,await p.$('#attEd')!==null);
 // theme glass
 await p.click('[data-act=theme]');await p.waitForTimeout(100);await p.click('[data-act=theme-set][data-t=glass]');await p.click('.thpop [data-act=gear-yes]');await p.waitForTimeout(150);
-await p.click('[data-act=theme]');await p.waitForTimeout(100);
+// (หลังยืนยันธีม เมนูยังเปิดอยู่ ปรับความใสต่อได้เลย)
 await p.$eval('#glassRange',e=>{e.value=20;e.dispatchEvent(new Event('input',{bubbles:true}));});
 console.log(tag,'theme',await p.evaluate(()=>document.documentElement.getAttribute('data-theme')),'ga',await p.evaluate(()=>document.documentElement.style.getPropertyValue('--ga')));
 await p.screenshot({path:S+'glass_'+tag+'_clear.png'});
-await p.$eval('#glassRange',e=>{e.value=90;e.dispatchEvent(new Event('input',{bubbles:true}));});await p.mouse.click(5,600);await p.waitForTimeout(100);
+await p.$eval('#glassRange',e=>{e.value=90;e.dispatchEvent(new Event('input',{bubbles:true}));e.dispatchEvent(new Event('change',{bubbles:true}));});await p.waitForTimeout(100);await p.click('.thpop [data-act=gear-yes]');await p.waitForTimeout(100);console.log(tag,'glass saved',await p.evaluate(()=>localStorage.getItem('wc-glass')));await p.mouse.click(5,600);await p.waitForTimeout(100);
 await p.click('[data-act=tab][data-v=today]');await p.waitForTimeout(200);
 await p.screenshot({path:S+'glass_'+tag+'_frost.png'});
 await p.close();}

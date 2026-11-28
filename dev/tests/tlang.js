@@ -17,7 +17,7 @@ for(const vp of [{width:1280,height:900},{width:390,height:844}]){
  ok((await p.textContent('#main h1')).trim()==='เข้าสู่ระบบ',tag+' login: back to Thai');
  await p.fill('#lp','Admin@2026');await p.click('#lbtn');await p.waitForTimeout(800);
  // ไล่ทุกหน้า: ข้อความหน้าจอตอนไทย → เปลี่ยนเป็นอังกฤษ (ต้องยังล็อกอิน + ไม่มีคำไทยของแอป) → กลับไทย (ต้องเหมือนเดิม)
- const names=await p.evaluate(()=>{const d=window.__mockdb;return [].concat(d.profiles.map(x=>x.name),d.leaves.map(x=>x.reason),d.overrides.map(x=>x.note),d.attendance.map(x=>x.admin_note)).filter(Boolean).sort((a,b)=>b.length-a.length);});
+ const names=await p.evaluate(()=>{const d=window.__mockdb;return [].concat(d.profiles.map(x=>x.name),d.leaves.map(x=>x.reason),(d.lql||[]).map(x=>x.note),d.overrides.map(x=>x.note),d.attendance.map(x=>x.admin_note)).filter(Boolean).sort((a,b)=>b.length-a.length);});
  const pageText=()=>p.evaluate(()=>{const m=document.getElementById('main').cloneNode(true);m.querySelectorAll('#clk,.clock,.tnum,.pav').forEach(e=>e.remove());return document.getElementById('nav').innerText+'\n'+m.innerText.replace(/\d{1,2}:\d{2}(:\d{2})?/g,'#');});
  const strip=t=>{let x=t;names.forEach(n=>{x=x.split(n).join('');n.split(' ').forEach(w=>{if(w.length>2)x=x.split(w).join('');});});return x.replace(/[฀-๿]+…/g,'').replace(/^.*ไทย.*$/mg,'');};
  const pages=[['#nav [data-act=tab][data-v=today]','overview'],['#nav [data-act=tab][data-v=schedule]','schedule'],['#nav [data-act=tab][data-v=people]','staff'],['#nav [data-act=tab][data-v=leaves]','leaves'],['#nav [data-act=tab][data-v=report]','report'],['#nav [data-act=tab][data-v=profile]','profile'],['#main [data-act=tab][data-v=settings]','settings']];

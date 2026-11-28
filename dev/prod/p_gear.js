@@ -100,7 +100,7 @@ document.addEventListener('click',function(e){
   if(a==='gear-no'){e.stopPropagation();gearRevert();renderChrome();return;}
   if(a==='cust-base'||a==='cust-pick'){e.stopPropagation();var cur=gearPend&&gearPend.k==='color'?gearPend.v:customCfg(),nv=a==='cust-base'?{c:cur.c,dark:b.getAttribute('data-d')==='1'}:{c:b.getAttribute('data-c'),dark:cur.dark};applyCustom(nv);gearAsk('color',nv);return;}
   if(a==='theme'&&gearPend){gearRevert();} // ปิดเมนูโดยไม่ยืนยัน = ยกเลิก
-  if(a==='pw-self'&&themeOpen){themeOpen=false;logoutAsk=false;} // เปิดหน้าต่างเปลี่ยนรหัสผ่านจากเมนู
+  if(a==='pw-self'&&themeOpen){themeOpen=false;logoutAsk=false;gearRevert();setTimeout(renderChrome,0);} // เปิดหน้าต่างเปลี่ยนรหัสผ่านจากเมนู (ปิดเมนูก่อน)
 },true);
 // กดนอกเมนู / Esc = ยกเลิกสิ่งที่ยังไม่ยืนยัน
 document.addEventListener('click',function(e){if(gearPend&&themeOpen&&!(e.target.closest&&e.target.closest('.thwrap'))){gearRevert();}},true);
