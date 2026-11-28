@@ -13,7 +13,7 @@ for(const vp of [{width:1280,height:900},{width:390,height:844}]){
  await p.goto('file://'+S+'preview_detail.html');await p.waitForTimeout(300);
  // เปลี่ยนภาษาจากปุ่มบนหน้าล็อกอิน
  ok(await p.$('.top-right [data-act=theme]')!==null,tag+' login shows settings (gear) button');
- await p.click('[data-act=theme]');await p.click('.thpop [data-act=lang-set][data-l=en]');await p.waitForLoadState();await p.waitForTimeout(400);
+ await p.click('[data-act=theme]');await p.click('.thpop [data-act=lang-set][data-l=en]');await p.click('.thpop [data-act=gear-yes]');await p.waitForLoadState();await p.waitForTimeout(400);
  ok(await p.evaluate(()=>document.documentElement.lang)==='en',tag+' html lang=en after switch');
  ok((await p.textContent('#main h1')).trim()==='Sign in',tag+' login page in English');
  // ชื่อพนักงาน + เหตุผลการลา/หมายเหตุที่คนพิมพ์ (ข้อมูล ไม่ต้องแปล)
@@ -79,7 +79,7 @@ for(const vp of [{width:1280,height:900},{width:390,height:844}]){
  ok(list.length===0,tag+' no untranslated Thai text ('+list.length+')');
  // เปลี่ยนกลับเป็นไทย
  await p.goto('file://'+S+'preview_detail.html');await p.waitForTimeout(300);
- await p.click('[data-act=theme]');await p.click('.thpop [data-act=lang-set][data-l=th]');await p.waitForLoadState();await p.waitForTimeout(400);
+ await p.click('[data-act=theme]');await p.click('.thpop [data-act=lang-set][data-l=th]');await p.click('.thpop [data-act=gear-yes]');await p.waitForLoadState();await p.waitForTimeout(400);
  ok((await p.textContent('#main h1')).trim()==='เข้าสู่ระบบ'&&await p.evaluate(()=>document.documentElement.lang)==='th',tag+' switch back to Thai');
  await ctx.close();
 }

@@ -51,7 +51,7 @@ async function swipe(p,sel,dy){
   await p.waitForTimeout(400);
 }
 // เปลี่ยนรหัสผ่าน (พนักงาน)
-await p.click('#nav [data-act=tab][data-v=profile]');await p.waitForTimeout(150);await p.click('#main [data-act=pw-self]');await p.waitForTimeout(200);
+await p.click('#nav [data-act=tab][data-v=profile]');await p.waitForTimeout(150);await p.click('[data-act=theme]');await p.click('.thpop [data-act=pw-self]');await p.waitForTimeout(200);
 ok(!!(await p.$('#pwbox .modal')),'pw sheet open');
 await swipe(p,'#pwbox .modal',40);ok(!!(await p.$('#pwbox .modal')),'short swipe keeps pw sheet open');
 await swipe(p,'#pwbox .modal',200);ok(!(await p.$('#pwbox .modal')),'swipe down closes pw sheet');

@@ -41,9 +41,9 @@ async function open(iso,u,pw){
  const vis=sel=>p.$eval(sel,e=>!!e.getClientRects().length).catch(()=>false);
  const tiles=()=>p.$$eval('#main .stile:not([hidden])',e=>e.map(x=>x.dataset.tile));
  ok(!(await vis('[data-act=save-rules]'))&&!(await vis('[data-act=hol-add]'))&&!(await vis('[data-act=clr-check]')),'settings show as a card grid (no feature open)');
- ok(JSON.stringify(await tiles())===JSON.stringify(['rota','rotab','hol','rules','push','export','import','sim','clr']),'grid has every feature ('+(await tiles()).join(',')+')');
- ok((await p.$$eval('#main .settabs [data-set-tab]',e=>e.map(x=>x.textContent)).catch(()=>[])).join('|')==='ทั้งหมด|กะ & ทีม|วันหยุด|กฎ|นำเข้า/ส่งออก|ทดสอบ','tab bar: all / shifts / holidays / rules / import-export / testing');
- for(const [tab,want] of [['shift',['rota','rotab']],['hol',['hol']],['rule',['rules','push']],['io',['export','import']],['test',['sim','clr']],['all',['rota','rotab','hol','rules','push','export','import','sim','clr']]]){
+ ok(JSON.stringify(await tiles())===JSON.stringify(['rota','rotab','hol','lvq','rules','push','export','import','sim','clr']),'grid has every feature ('+(await tiles()).join(',')+')');
+ ok((await p.$$eval('#main .settabs [data-set-tab]',e=>e.map(x=>x.textContent)).catch(()=>[])).join('|')==='ทั้งหมด|กะ & ทีม|วันหยุด|วันลา|กฎ|นำเข้า/ส่งออก|ทดสอบ','tab bar: all / shifts / holidays / rules / import-export / testing');
+ for(const [tab,want] of [['shift',['rota','rotab']],['hol',['hol']],['leave',['lvq']],['rule',['rules','push']],['io',['export','import']],['test',['sim','clr']],['all',['rota','rotab','hol','lvq','rules','push','export','import','sim','clr']]]){
    await p.click('[data-set-tab='+tab+']');await p.waitForTimeout(80);
    ok(JSON.stringify(await tiles())===JSON.stringify(want)&&(await p.$eval('[data-set-tab='+tab+']',e=>e.getAttribute('aria-selected')))==='true','tab "'+tab+'" shows '+want.join(','));
  }

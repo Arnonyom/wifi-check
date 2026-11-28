@@ -31,7 +31,7 @@ dev/                                            ← ต้นฉบับ + เ�
   supabase/                    SQL ที่เคยใช้ + Edge Function admin-users
 ```
 
-ลำดับ build: ดูใน `build_all.sh` (patch_detail → … → patch_order → patch_profile → build_prod → i18n → make_preview)
+ลำดับ build: ดูใน `build_all.sh` (patch_detail → … → patch_order → patch_profile → … → patch_ui2 → patch_leaveq → patch_gear → patch_avatar → patch_stats → build_prod → i18n → make_preview)
 (`patch_detail.py` สร้าง `app_src.html` ใหม่จาก `app_src_before_detail.html` ทุกครั้ง)
 
 ## ขั้นตอนทำงาน
@@ -75,13 +75,17 @@ dev/                                            ← ต้นฉบับ + เ�
   - ข้อความที่เก็บลงฐานข้อมูล (notify, ข้อความจาก SQL) เก็บเป็นไทยเสมอ แล้วแปลตอนแสดงด้วย `_td()` ผ่าน `__data__` ใน i18n_en.json
   - เปลี่ยนภาษาทันทีไม่โหลดหน้าใหม่ · ค่าคงที่ที่แปลตอนเปิดแอป (TEAMS, DOW_TH, LEAVE_TH ฯลฯ) ถูกแปลใหม่ใน `relocalize()` ที่ i18n.py สร้างให้
   - เทสต์: `ten` (ไม่มีคำไทยหลงในโหมดอังกฤษ), `tlang` (สลับไป-กลับแล้วเหมือนเดิม)
-- โปรไฟล์ = แท็บสุดท้ายของเมนูล่าง: ข้อมูลของฉัน สมาชิกในทีม เปลี่ยนรหัสผ่าน ภาษา · ตั้งค่าระบบของผู้ดูแลอยู่ในนี้ (ไม่มีแท็บตั้งค่าแล้ว)
+- โปรไฟล์ = แท็บสุดท้ายของเมนูล่าง: ข้อมูลของฉัน (รูป · แก้ชื่อ) · ผู้ดูแล: รายชื่อผู้ดูแล + สวิตช์ "สิทธิ์ของพนักงาน" (แก้รูป/ชื่อเอง = `settings.allow_avatar/allow_name`) + การ์ดสีเข้ม **Admin tool** (= หน้าตั้งค่าระบบ) · เปลี่ยนรหัสผ่านอยู่ที่ฟันเฟือง
+- รูปโปรไฟล์ (`prod/p_avatar.js`): ย่อในเครื่องเป็น JPEG 160×160 เก็บใน `profiles.avatar` (data URL ≤ 80 KB) ผ่าน `set_avatar` · แก้ชื่อเอง `set_my_name` · ผู้ดูแลเปลี่ยนรูปคนอื่นที่หน้าพนักงาน
 - หน้าพนักงาน (ผู้ดูแล): การ์ดละทีม ข้างในเป็นรายชื่อ · กดชื่อ (`data-pr`) แล้วขยายเห็นปุ่ม แก้ไข/รีเซ็ตรหัสผ่าน/ลบ · ลาก ⠿ สลับลำดับ (`prod/p_plist.js`, `p_order.js`)
 - ตำแหน่งตอนเข้า/ออกงาน (`prod/p_geo.js`): ต้องอนุญาตตำแหน่งจึงลงเวลาได้ · อ่านค่าไม่ได้ก็ลงได้ (ติดป้าย) · ชื่อสถานที่จาก OpenStreetMap · เก็บในตาราง `attendance_locations` (เห็นเฉพาะเจ้าตัว + ผู้ดูแล) ผ่าน `set_my_location` · หน้าตัวอย่างใช้ `window.__geoMock` · เทสต์ `tgeo`
-- แถบด้านบน: ชื่อ → กระดิ่ง → ปุ่มฟันเฟือง (`data-act=theme`: สวิตช์ภาษา ธีม ออกจากระบบ) · ออกจากระบบต้องกดยืนยัน (`logout-ask` → `logout`)
+- แถบด้านบน: ชื่อ → กระดิ่ง → ปุ่มฟันเฟือง (`data-act=theme`: สวิตช์ภาษา ธีม เปลี่ยนรหัสผ่าน ออกจากระบบ) · **ทุกการเปลี่ยนในฟันเฟืองต้องยืนยัน** (`.gask` → `gear-yes`/`gear-no`, `prod/p_gear.js`) · ออกจากระบบ `logout-ask` → `logout`
+- ธีม: สว่าง / มืด / Black / Liquid Glass / กำหนดสีเอง (`wc-custom` = สีหลัก + พื้นสว่าง/มืด, ตั้งตัวแปรสีผ่าน `applyCustom`)
+- วันลา (`prod/p_leaveq.js`, ตาราง `leave_quota` + `leave_quota_log`, ค่าตั้งต้น `settings.q_vac/q_per/q_sick`): สิทธิ์รายคนต่อปี `leave_quota_of` · ปรับ `admin_set_quota` (set/add) · ผู้ดูแลลาแทน `admin_request_leave` (ต้องมีเหตุผล, `leaves.by_admin`) · พักร้อน/ลากิจ เริ่มได้ตั้งแต่วันนี้ · ลาป่วยเริ่มได้เฉพาะวันนี้ ≤ 3 วัน · เลือกวันเริ่ม + จำนวนวัน · เมนูชื่อ "ลา" · รายงานมีการ์ดสิทธิ์คงเหลือ (`#lvBal`) · เทสต์ `tleave`
+- รายงาน › สถิติ: เลือก "ดูของ" ทุกคน/คนเดียว (`dashEmp`) กราฟพฤติกรรมเป็นของคนนั้น กราฟเปรียบเทียบยังแสดงทุกคนแต่คนอื่นจาง · ตารางกะเปิดมาเป็นมุมมองเดือน
 - วันหยุดราชการ (`prod/p_hol.js`, ตาราง `holidays`): ทีม A หยุด (`team_works` ในฐานข้อมูล + `teamWorksS` ในเว็บ) · ทีม B ทำตามรอบ · ผู้ดูแลเพิ่ม/ลบผ่าน `admin_set_holiday` · วันหยุดปี 2570 ใส่ตามปฏิทินทั่วไป รอตรวจกับประกาศ ครม.
 - ล้างข้อมูลทดสอบ: `admin_clear_data(from,to,att,sched,notif,rota,dry)` — dry=true นับอย่างเดียว · ไม่แตะ profiles/settings/holidays
-- หน้าตั้งค่าระบบ (`prod/p_acc.js`): แท็บหมวด + ตารางการ์ด กด "เปิด" (`data-set-open`) เป็น popup · การ์ดเพิ่มใหม่ต้องใส่ใน SET_META/SET_ORDER และ accIdOf
+- หน้าตั้งค่าระบบ = **Admin tool** (`prod/p_acc.js`): แท็บหมวด (ทั้งหมด/กะ & ทีม/วันหยุด/วันลา/กฎ/นำเข้า-ส่งออก/ทดสอบ) + ตารางการ์ด กด "เปิด" (`data-set-open`) เป็น popup · การ์ดเพิ่มใหม่ต้องใส่ใน SET_META/SET_ORDER และ accIdOf
 - ออกจากระบบ = เฉพาะเครื่องนี้ (`signOut({scope:'local'})`) ห้ามใช้ `signOut()` เฉย ๆ เพราะจะตัดทุกเครื่องของบัญชี · `adminFn` เจอ 401 → ต่ออายุแล้วลองใหม่ 1 ครั้ง ไม่ได้ → กลับหน้าล็อกอิน (เทสต์ `tsess`)
-- Migration ที่ใช้ไปแล้ว: fix_function_search_path, add_must_change_pw, team_a_rotation_and_flex_shift, rotation_4_shifts_and_team_b_cycle, admin_attendance_and_multi_day_override, fix_forgot_checkout_and_admin_cancel_leave, drop_profiles_phone, admin_attendance_no_future, check_in_duplicate_message, profile_sort_order, attendance_locations, holidays_and_clear_data (+ schema.sql ตั้งต้น)
+- Migration ที่ใช้ไปแล้ว: fix_function_search_path, add_must_change_pw, team_a_rotation_and_flex_shift, rotation_4_shifts_and_team_b_cycle, admin_attendance_and_multi_day_override, fix_forgot_checkout_and_admin_cancel_leave, drop_profiles_phone, admin_attendance_no_future, check_in_duplicate_message, profile_sort_order, attendance_locations, holidays_and_clear_data, leave_quota_avatar (+ schema.sql ตั้งต้น)
 - repo เป็นสาธารณะ: ห้ามใส่รหัสผ่านจริง, service key หรือข้อมูลส่วนตัวพนักงานลงไฟล์ใด ๆ

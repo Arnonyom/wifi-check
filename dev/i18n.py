@@ -82,7 +82,7 @@ LANGJS=r"""function setLang(l){if(l===LANG)return;LANG=l;try{localStorage.setIte
   var f=document.querySelector('[data-act="lang-set"]');if(f&&f.focus)try{f.focus({preventScroll:true});}catch(e){}}
 function langBtn(){var en=LANG==='en';return '<button class="iconbtn langbtn" data-act="lang-set" data-l="'+(en?'th':'en')+'" lang="'+(en?'th':'en')+'" aria-label="'+(en?'เปลี่ยนเป็นภาษาไทย':'Switch to English')+'" title="'+(en?'ภาษาไทย':'English')+'">'+(en?'ไทย':'EN')+'</button>';}
 function langRow(){var en=LANG==='en';return '<button type="button" class="swrow langsw" role="switch" aria-checked="'+en+'" data-act="lang-set" data-l="'+(en?'th':'en')+'" aria-label="'+(en?'Language: English (switch to Thai)':'ภาษา: ไทย (เปลี่ยนเป็นอังกฤษ)')+'"><span>'+(en?'Language':'ภาษา')+'</span><span class="lsw"><span lang="th"'+(en?'':' class="on"')+'>ไทย</span><span class="sw'+(en?' on':'')+'"><i></i></span><span lang="en"'+(en?' class="on"':'')+'>EN</span></span></button>';}
-document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-act="lang-set"]');if(b){e.stopPropagation();if(b.getAttribute('data-l')!==LANG)setLang(b.getAttribute('data-l'));}},true);
+document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-act="lang-set"]');if(b){e.stopPropagation();var l=b.getAttribute('data-l');if(l!==LANG){if(typeof gearAsk==='function'&&b.closest('.thpop'))gearAsk('lang',l);else setLang(l);}}},true);
 if(LANG==='en'){var nv0=document.getElementById('nav');if(nv0)nv0.setAttribute('aria-label','Menu');}
 """
 CSS=".langopts{grid-template-columns:1fr 1fr}.langbtn{font-weight:700;font-size:13px;width:auto;min-width:40px;padding:0 10px}\n"

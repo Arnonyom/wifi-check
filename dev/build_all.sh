@@ -24,6 +24,10 @@ python3 patch_plist.py >/dev/null
 python3 patch_geo.py >/dev/null
 python3 patch_hol.py >/dev/null
 python3 patch_ui2.py >/dev/null
+python3 patch_leaveq.py >/dev/null
+python3 patch_gear.py >/dev/null
+python3 patch_avatar.py >/dev/null
+python3 patch_stats.py >/dev/null
 python3 build_prod.py >/dev/null
 python3 i18n.py
 python3 make_preview.py >/dev/null

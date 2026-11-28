@@ -3,7 +3,7 @@ var CFG=window.APP_CONFIG||{};
 var sb=null;
 try{sb=window.supabase.createClient(CFG.SUPABASE_URL,CFG.SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});}catch(e){sb=null;}
 var busy=false,loginMsg='',lastNoteTs=0,loaded=false,curUid=null;
-function emptyState(){return {settings:{openBefore:30,lateAfter:30},employees:[],overrides:{},attendance:[],notifications:[],leaves:[],locs:{},holidays:{}};}
+function emptyState(){return {settings:{openBefore:30,lateAfter:30,q:{vac:10,per:3,sick:30},allowAvatar:false,allowName:false},quota:{},quotaLog:[],employees:[],overrides:{},attendance:[],notifications:[],leaves:[],locs:{},holidays:{}};}
 function save(){}
 function lsGet(k){try{return localStorage.getItem(k);}catch(e){return null;}}
 function lsSet(k,v){try{localStorage.setItem(k,v);}catch(e){}}
@@ -44,7 +44,7 @@ async function rpc(name,args){
   return Array.isArray(r.data)?r.data[0]:r.data;
 }
 function mapEmp(p){
-  return {id:p.id,username:p.username,name:p.name,role:p.role,team:p.team,shift:p.shift_id,active:p.active,canWork:p.can_work,notify:p.notify,mustChange:!!p.must_change_pw,sortOrder:p.sort_order==null?null:p.sort_order,push:lsGet('wc-push-'+p.id)==='1'};
+  return {id:p.id,username:p.username,name:p.name,role:p.role,team:p.team,shift:p.shift_id,active:p.active,canWork:p.can_work,notify:p.notify,mustChange:!!p.must_change_pw,avatar:p.avatar||'',sortOrder:p.sort_order==null?null:p.sort_order,push:lsGet('wc-push-'+p.id)==='1'};
 }
 async function loadAll(){
   var today=bkk(Date.now()).date,since=addDays(today,-130);
@@ -64,20 +64,24 @@ async function loadAll(){
   // ตำแหน่งตอนเข้า/ออกงาน: เห็นเฉพาะของตัวเอง (ผู้ดูแลเห็นทุกคน) · ถ้าโหลดไม่ได้ก็ใช้งานส่วนอื่นต่อได้
   // วันหยุดราชการ/นักขัตฤกษ์ (ทีม A ไม่ทำงาน) · โหลดไม่ได้ก็ใช้งานส่วนอื่นต่อได้
   var hq=null;try{hq=await sb.from('holidays').select('*').order('d');}catch(e){hq=null;}
+  // สิทธิ์วันลารายคน + ประวัติการปรับ (เห็นของตัวเอง · ผู้ดูแลเห็นทุกคน) · โหลดไม่ได้ก็ใช้ค่าตั้งต้น
+  var qq=null,ql=null;try{qq=await sb.from('leave_quota').select('*');ql=await sb.from('leave_quota_log').select('*').order('at',{ascending:false}).limit(300);}catch(e){}
   var lq=null;try{lq=await sb.from('attendance_locations').select('*').gte('created_at',since+'T00:00:00+07:00');}catch(e){lq=null;}
   if(q[0].data)clockOffset=Date.parse(q[0].data)-Date.now();
   var S=emptyState();
   S.employees=(q[1].data||[]).map(mapEmp);
-  if(q[2].data)S.settings={openBefore:q[2].data.open_before,lateAfter:q[2].data.late_after};
+  if(q[2].data){var sd0=q[2].data;S.settings={openBefore:sd0.open_before,lateAfter:sd0.late_after,q:{vac:sd0.q_vac==null?10:sd0.q_vac,per:sd0.q_per==null?3:sd0.q_per,sick:sd0.q_sick==null?30:sd0.q_sick},allowAvatar:!!sd0.allow_avatar,allowName:!!sd0.allow_name};}
   (q[3].data||[]).forEach(function(o){S.overrides[o.work_date+'|'+o.shift_id]={off:true,cover:o.cover,note:o.note||'',kind:o.kind||'',leave:o.leave_id,by:o.set_by,ts:Date.parse(o.set_at)};});
   S.attendance=(q[4].data||[]).map(function(a){return {id:a.id,emp:a.emp,date:a.work_date,shift:a.shift_id,in:Date.parse(a.check_in),out:a.check_out?Date.parse(a.check_out):null,late:a.late_min,lateFlag:a.late_flag,early:a.early_min,earlyFlag:a.early_flag,cover:a.is_cover,byAdmin:a.by_admin||null,adminNote:a.admin_note||''};});
-  S.leaves=(q[5].data||[]).map(function(l){return {id:l.id,emp:l.emp,type:l.type,from:l.from_date,to:l.to_date,days:l.days,reason:l.reason||'',status:l.status,note:l.note||'',by:l.decided_by,decidedTs:l.decided_at?Date.parse(l.decided_at):null,ts:Date.parse(l.created_at)};});
+  S.leaves=(q[5].data||[]).map(function(l){return {id:l.id,emp:l.emp,type:l.type,from:l.from_date,to:l.to_date,days:l.days,reason:l.reason||'',status:l.status,note:l.note||'',by:l.decided_by,decidedTs:l.decided_at?Date.parse(l.decided_at):null,ts:Date.parse(l.created_at),byAdmin:l.by_admin||null};});
   var read={};(q[7].data||[]).forEach(function(r){read[r.notif_id]=1;});
   var uid0=me?me.id:curUid;
   S.notifications=(q[6].data||[]).map(function(n){return {id:n.id,ts:Date.parse(n.ts),to:n.to_ids||[],title:n.title,body:n.body||'',kind:n.kind||'',read:read[n.id]&&uid0?[uid0]:[]};});
   S.rota=(q[8].data||[]).map(function(r){return {week:r.week_from,active:r.active,cyc:r.cyc||3,ids:[r.a2,r.a3,r.a4,r.a1||null]};});
   S.rotaB=(q[9].data||[]).map(function(r){return {start:r.start_date,active:r.active,day:r.b_day,night:r.b_night};});
   (lq&&!lq.error?lq.data||[]:[]).forEach(function(l){S.locs[l.att_id+'|'+l.kind]={status:l.status,lat:l.lat,lng:l.lng,acc:l.acc,place:l.place||null};});
+  (qq&&!qq.error?qq.data||[]:[]).forEach(function(r){S.quota[r.emp+'|'+r.yr+'|'+r.type]=r.days;});
+  S.quotaLog=(ql&&!ql.error?ql.data||[]:[]).map(function(r){return {emp:r.emp,yr:r.yr,type:r.type,old:r.old_days,nw:r.new_days,note:r.note||'',by:r.by_id,ts:Date.parse(r.at)};});
   (hq&&!hq.error?hq.data||[]:[]).forEach(function(h){S.holidays[h.d]=h.name;});
   state=S;
   if(me){var fresh=emp(me.id);if(fresh)me=fresh;}

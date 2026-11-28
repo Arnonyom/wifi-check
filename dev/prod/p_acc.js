@@ -2,7 +2,7 @@
    ปิดได้ด้วยปุ่ม ✕ · กดพื้นหลัง · ปุ่ม Esc · ทำหลังวาดหน้า (settingsAcc) จึงไม่ต้องแก้โค้ดของแต่ละหน้า
    หน้าต่างที่เปิดอยู่และแท็บที่เลือก จำไว้แม้หน้าถูกวาดใหม่ (เช่น หลังกดบันทึก) */
 var accOpen='',setTab='all';
-var SET_TABS=[['all','ทั้งหมด'],['shift','กะ & ทีม'],['hol','วันหยุด'],['rule','กฎ'],['io','นำเข้า/ส่งออก'],['test','ทดสอบ']];
+var SET_TABS=[['all','ทั้งหมด'],['shift','กะ & ทีม'],['hol','วันหยุด'],['leave','วันลา'],['rule','กฎ'],['io','นำเข้า/ส่งออก'],['test','ทดสอบ']];
 var SET_IC={
   rota:'<path d="M20 12a8 8 0 0 1-14.3 4.9M4 12a8 8 0 0 1 14.3-4.9"/><path d="M18.5 3v4.2h-4.2M5.5 21v-4.2h4.2"/>',
   team:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><circle cx="17.5" cy="9" r="2.5"/><path d="M18 14.2c2.2.3 3.8 2.2 3.8 4.8"/>',
@@ -12,6 +12,7 @@ var SET_IC={
   up:'<path d="M12 15V3M7 8l5-5 5 5M5 21h14"/>',
   cal:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/><path d="m12 13 1 2 2 .3-1.5 1.4.4 2.1-1.9-1-1.9 1 .4-2.1L9 15.3l2-.3z"/>',
   flask:'<path d="M9 3h6M10 3v6L4.5 18.5A1.7 1.7 0 0 0 6 21h12a1.7 1.7 0 0 0 1.5-2.5L14 9V3"/><path d="M7.5 15h9"/>',
+  bag:'<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 12h18"/>',
   trash:'<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>'
 };
 // รหัสการ์ด → หมวด ไอคอน ชื่อ คำอธิบาย
@@ -19,6 +20,7 @@ var SET_META={
   rota:['shift','rota','การหมุนกะทีม A','เวียนครบ 4 กะ เปลี่ยนทุกวันจันทร์'],
   rotab:['shift','team','รอบทำงานทีม B','ศ.–จ. สลับ ศ.–อา. · สลับกะทุก 2 สัปดาห์'],
   hol:['hol','cal','วันหยุดราชการ / นักขัตฤกษ์','ทีม A หยุด · ทีม B ทำตามรอบ'],
+  lvq:['leave','bag','การตั้งค่าวันลา','สิทธิ์วันลารายคน · ปรับเพิ่ม/ลด · ลาแทนพนักงาน'],
   rules:['rule','clock','กฎการลงเวลา','เวลาเปิดให้ลงเวลา และเกณฑ์สาย'],
   push:['rule','bell','แจ้งเตือนบนมือถือ','สถานะการแจ้งเตือน (Push)'],
   export:['io','down','ส่งออกตารางกะ','ดาวน์โหลดเป็น Excel'],
@@ -26,7 +28,7 @@ var SET_META={
   sim:['test','flask','ทดสอบเข้า-ออกงาน','ลองลงเวลาแทนพนักงาน (ไม่บันทึกจริง)'],
   clr:['test','trash','ล้างข้อมูลทดสอบ','ลบข้อมูลที่ใส่ระหว่างทดสอบ']
 };
-var SET_ORDER=['rota','rotab','hol','rules','push','export','import','sim','clr'];
+var SET_ORDER=['rota','rotab','hol','lvq','rules','push','export','import','sim','clr'];
 function accIdOf(c,i){
   if(c.querySelector('[data-v="sim"]'))return 'sim';
   if(c.querySelector('[data-act^="rotab"]')||c.id==='rotaBEd')return 'rotab';
@@ -36,6 +38,7 @@ function accIdOf(c,i){
   if(c.querySelector('#csvIn'))return 'import';
   if(c.id==='holCard')return 'hol';
   if(c.id==='clrCard')return 'clr';
+  if(c.id==='lvqCard')return 'lvq';
   var h2=c.querySelector('h2');if(h2&&/Push/.test(h2.textContent))return 'push';
   return 'c'+i;
 }

@@ -7,7 +7,7 @@ await p.click('[data-act=tab][data-v=schedule]');await p.waitForTimeout(200);
 await p.click('button:has-text("ทีม B")');await p.waitForTimeout(200);await p.click('[data-act=edit-slot] >> nth=0');await p.waitForTimeout(200);
 await p.check('input[name=edMode][value=swap]');await p.waitForTimeout(150);
 const ed=await p.$('#slotEd');await ed.scrollIntoViewIfNeeded();await p.screenshot({path:S+'mob_ed.png'});
-await p.click('[data-act=theme]');await p.click('[data-act=theme-set][data-t=glass]');await p.waitForTimeout(150);
+await p.click('[data-act=theme]');await p.click('[data-act=theme-set][data-t=glass]');await p.click('.thpop [data-act=gear-yes]');await p.waitForTimeout(150);
 await p.click('[data-act=tab][data-v=today]');await p.waitForTimeout(200);await p.screenshot({path:S+'mob_glass.png'});
 await p.click('[data-act=theme]');await p.waitForTimeout(800);await p.screenshot({path:S+'mob_glass_pop.png'});
 console.log(errs.length?errs.join('\n'):'NO ERRORS');await b.close();})();

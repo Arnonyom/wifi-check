@@ -23,7 +23,7 @@ function dow(d){return new Date(d+'T00:00:00Z').getUTCDay();}
 var DAYS={A:[1,2,3,4,5],B:[5,6,0,1]};
 function st(d,sid){return Date.parse(d+'T'+SH[sid][1]+':00+07:00');}
 function build(){
-  var db={tokens:{},profiles:[],settings:[{id:1,open_before:30,late_after:30}],overrides:[],attendance:[],leaves:[],notifications:[],reads:[],pw:{}};
+  var db={tokens:{},profiles:[],settings:[{id:1,open_before:30,late_after:30,q_vac:10,q_per:3,q_sick:30,allow_avatar:false,allow_name:false}],overrides:[],attendance:[],leaves:[],notifications:[],reads:[],pw:{}};
   P.forEach(function(p,i){db.profiles.push({id:p[0],username:p[1],name:p[2],role:p[3],team:p[4],shift_id:p[5],phone:'',active:true,can_work:false,notify:true,must_change_pw:p[1]==='somchai',created_at:new Date(1e12+i).toISOString()});db.pw[p[1]]=[p[0],p[1]==='admin'?'Admin@2026':'Temp1234!'];});
   var now=Date.now(),today=bkk(now),x=1;ANCHOR=monday(addDays(today,-28));ROTA=db.rota=[{week_from:ANCHOR,active:true,cyc:3,a2:'e2',a3:'e3',a4:'e4',a1:null},{week_from:monday(addDays(today,16)),active:true,cyc:4,a2:'e1',a3:'e2',a4:'e3',a1:'e4'}];var fr=addDays(today,16);while(dow(fr)!==5)fr=addDays(fr,1);ROTB=db.rota_b=[{start_date:fr,active:true,b_day:'e5',b_night:'e6'}];function R(){x=(Math.imul(x,1664525)+1013904223)>>>0;return x/4294967296;}
   for(var i=-100;i<=0;i++){var d=addDays(today,i);Object.keys(SH).forEach(function(sid){
@@ -65,10 +65,15 @@ function build(){
 }
 var HOLS={};
 var db=build();
+// ตัวอย่างสิทธิ์วันลา: บางคนได้ไม่เท่ากัน + ประวัติการปรับ + การลาที่ผู้ดูแลบันทึกให้
+(function(){var y=+bkk(Date.now()).slice(0,4),t0=Date.now();db.lq=[{emp:'e1',yr:y,type:'vac',days:12},{emp:'e5',yr:y,type:'vac',days:15},{emp:'e6',yr:y,type:'per',days:5}];
+ db.lql=[{id:3,emp:'e6',yr:y,type:'per',old_days:3,new_days:5,note:'ธุระครอบครัวต่อเนื่อง',by_id:'e0',at:new Date(t0-2*864e5).toISOString()},{id:2,emp:'e5',yr:y,type:'vac',old_days:10,new_days:15,note:'อายุงานครบ 5 ปี',by_id:'e0',at:new Date(t0-9*864e5).toISOString()},{id:1,emp:'e1',yr:y,type:'vac',old_days:10,new_days:12,note:'',by_id:'e0',at:new Date(t0-20*864e5).toISOString()}];
+ var td=bkk(t0),d=addDays(td,-20);while(DAYS.A.indexOf(dow(d))<0)d=addDays(d,-1);
+ db.leaves.push({id:'lv4',emp:'e4',type:'sick',from_date:d,to_date:d,days:1,reason:'โทรแจ้งว่าป่วย เข้าระบบไม่ได้',status:'approved',note:'',decided_by:'e0',decided_at:new Date(t0-20*864e5).toISOString(),created_at:new Date(t0-20*864e5).toISOString(),by_admin:'e0'});})();
 db.holidays=[['2026-12-05','วันพ่อแห่งชาติ'],['2026-12-07','ชดเชยวันพ่อแห่งชาติ'],['2026-12-10','วันรัฐธรรมนูญ'],['2026-12-31','วันสิ้นปี'],['2027-01-01','วันขึ้นปีใหม่'],['2027-02-22','ชดเชยวันมาฆบูชา']].map(function(h){return {d:h[0],name:h[1]};});db.holidays.forEach(function(h){HOLS[h.d]=h.name;});window.__mockdb=db;
 // หน้าตัวอย่าง: จำลองตำแหน่งเครื่อง (ไม่ขอสิทธิ์จริง ไม่ส่งข้อมูลออกนอกเครื่อง)
 window.__geoMock={geo:{getCurrentPosition:function(ok){setTimeout(function(){ok({coords:{latitude:13.74661,longitude:100.53928,accuracy:15}});},400);}},place:'อาคารสำนักงานตัวอย่าง, ถนนเพลินจิต, แขวงลุมพินี, เขตปทุมวัน, กรุงเทพมหานคร'};
-function rowsOf(t){return {profiles:db.profiles,settings:db.settings,overrides:db.overrides,attendance:db.attendance,holidays:db.holidays||(db.holidays=[]),attendance_locations:(db.locs||(db.locs=[])).filter(function(l){return session&&(session.role==='admin'||l.emp===session.uid);}),leaves:db.leaves,notifications:db.notifications,notification_reads:db.reads,rota_periods:db.rota,rota_b:db.rota_b}[t];}
+function rowsOf(t){return {profiles:db.profiles,leave_quota:(db.lq||(db.lq=[])).filter(function(r){return session&&(session.role==='admin'||r.emp===session.uid);}),leave_quota_log:(db.lql||(db.lql=[])).filter(function(r){return session&&(session.role==='admin'||r.emp===session.uid);}),settings:db.settings,overrides:db.overrides,attendance:db.attendance,holidays:db.holidays||(db.holidays=[]),attendance_locations:(db.locs||(db.locs=[])).filter(function(l){return session&&(session.role==='admin'||l.emp===session.uid);}),leaves:db.leaves,notifications:db.notifications,notification_reads:db.reads,rota_periods:db.rota,rota_b:db.rota_b}[t];}
 var session=null;window.__calls=[];
 function Q(t){this.t=t;this.f=[];this.op='select';}
 Q.prototype.select=function(){this.sel=true;return this;};
@@ -88,6 +93,15 @@ Q.prototype.then=function(res,rej){
   return Promise.resolve({data:data,error:null}).then(res,rej);};
 function fail(m){return {data:null,error:{message:m}};}
 var RPC={
+ admin_set_quota:function(a){if(session.role!=='admin')throw new Error('เฉพาะผู้ดูแลระบบ');if(!a.p_emps||!a.p_emps.length)throw new Error('เลือกพนักงานอย่างน้อย 1 คน');db.lq=db.lq||[];db.lql=db.lql||[];var s0=db.settings[0],c=0;
+   a.p_emps.forEach(function(e){var r=db.lq.find(function(x){return x.emp===e&&x.yr===a.p_yr&&x.type===a.p_type;}),o=r?r.days:s0['q_'+a.p_type],n=Math.max(0,Math.min(366,a.p_mode==='set'?a.p_days:o+a.p_days));
+     if(r)r.days=n;else db.lq.push({emp:e,yr:a.p_yr,type:a.p_type,days:n});if(n!==o){c++;db.lql.unshift({id:db.lql.length+1,emp:e,yr:a.p_yr,type:a.p_type,old_days:o,new_days:n,note:a.p_note||'',by_id:session.uid,at:new Date().toISOString()});}});return c;},
+ admin_set_leave_defaults:function(a){if(session.role!=='admin')throw new Error('เฉพาะผู้ดูแลระบบ');var s0=db.settings[0];s0.q_vac=a.p_vac;s0.q_per=a.p_per;s0.q_sick=a.p_sick;return null;},
+ admin_request_leave:function(a){if(session.role!=='admin')throw new Error('เฉพาะผู้ดูแลระบบ');if(!a.p_reason||!a.p_reason.trim())throw new Error('กรอกเหตุผลที่ลาแทน');var me=db.profiles.find(function(p){return p.id===a.p_emp;});var n=0;for(var d=a.p_from;d<=a.p_to;d=addDays(d,1))if(DAYS[SH[me.shift_id][0]].indexOf(dow(d))>=0)n++;
+   var l={id:uuid(),emp:me.id,type:a.p_type,from_date:a.p_from,to_date:a.p_to,days:n,reason:a.p_reason.trim(),status:'pending',note:'',decided_by:null,decided_at:null,created_at:new Date().toISOString(),by_admin:session.uid};db.leaves.push(l);return l;},
+ set_avatar:function(a){var s0=db.settings[0];if(session.role!=='admin'){if(a.p_emp!==session.uid)throw new Error('เฉพาะผู้ดูแลระบบ');if(!s0.allow_avatar)throw new Error('ผู้ดูแลยังไม่เปิดให้แก้รูปเอง');}var p=db.profiles.find(function(x){return x.id===a.p_emp;});p.avatar=a.p_avatar;return null;},
+ set_my_name:function(a){if(session.role!=='admin'&&!db.settings[0].allow_name)throw new Error('ผู้ดูแลยังไม่เปิดให้แก้ชื่อเอง');var nm=(a.p_name||'').trim();if(nm.length<2||nm.length>60)throw new Error('ชื่อต้องยาว 2–60 ตัวอักษร');db.profiles.find(function(x){return x.id===session.uid;}).name=nm;return null;},
+ admin_set_profile_perms:function(a){if(session.role!=='admin')throw new Error('เฉพาะผู้ดูแลระบบ');var s0=db.settings[0];if(a.p_avatar!=null)s0.allow_avatar=a.p_avatar;if(a.p_name!=null)s0.allow_name=a.p_name;return null;},
  set_profile_order:function(a){if(session.role!=='admin')throw new Error('เฉพาะผู้ดูแลระบบ');(a.p_ids||[]).forEach(function(id,i){var p=db.profiles.find(function(x){return x.id===id;});if(p)p.sort_order=i+1;});return null;},
  set_my_location:function(a){var r=db.attendance.find(function(x){return x.id===a.p_att;});if(!r||r.emp!==session.uid)throw new Error('ไม่พบรายการเข้างาน');
    db.locs=db.locs||[];db.locs=db.locs.filter(function(l){return !(l.att_id===a.p_att&&l.kind===a.p_kind);});var ok=a.p_status==='ok';

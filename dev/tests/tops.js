@@ -5,7 +5,7 @@ const tag=vp.width>500?'d':'m';const p=await b.newPage({viewport:vp});
 p.on('pageerror',e=>errs.push(e.message));p.on('console',m=>{if(m.type()==='error'&&!/fonts|ERR_|Failed to load/.test(m.text()))errs.push(m.text());});
 await p.goto('file://'+S+'preview_detail.html');await p.waitForTimeout(500);
 await p.fill('#lu','admin');await p.fill('#lp','Admin@2026');await p.click('#lbtn');await p.waitForTimeout(700);
-await p.click('[data-act=tab][data-v=schedule]');await p.waitForTimeout(150);
+await p.click('[data-act=tab][data-v=schedule]');await p.waitForTimeout(150);await p.click('[data-act=mode][data-m=week]');await p.waitForTimeout(100);
 await p.click('[data-act=sched-nav][data-n="1"]');await p.waitForTimeout(150);
 // open Monday 10:00 cell next week
 const cells=await p.$$('table.wk tbody tr:nth-child(2) [data-act=edit-slot]');await cells[0].click();await p.waitForTimeout(150);
@@ -41,7 +41,7 @@ if(tag==='d')await p.screenshot({path:S+'ops_att.png',fullPage:false});
 await p.click('[data-act=tab][data-v=today]');await p.waitForTimeout(150);await p.click('#main .pcard >> nth=0');await p.waitForTimeout(150);
 await p.click('[data-act=go-edit]');await p.waitForTimeout(300);console.log(tag,'go-edit opens editor',await p.$('#slotEd')!==null,await p.$('#attEd')!==null);
 // theme glass
-await p.click('[data-act=theme]');await p.waitForTimeout(100);await p.click('[data-act=theme-set][data-t=glass]');await p.waitForTimeout(150);
+await p.click('[data-act=theme]');await p.waitForTimeout(100);await p.click('[data-act=theme-set][data-t=glass]');await p.click('.thpop [data-act=gear-yes]');await p.waitForTimeout(150);
 await p.click('[data-act=theme]');await p.waitForTimeout(100);
 await p.$eval('#glassRange',e=>{e.value=20;e.dispatchEvent(new Event('input',{bubbles:true}));});
 console.log(tag,'theme',await p.evaluate(()=>document.documentElement.getAttribute('data-theme')),'ga',await p.evaluate(()=>document.documentElement.style.getPropertyValue('--ga')));

@@ -29,7 +29,7 @@ ok(await p.$eval('[data-act=rsec][data-s=table]',e=>e.getAttribute('aria-pressed
 await p.click('#nav [data-act=tab][data-v=profile]');await p.click('#main [data-act=tab][data-v=settings]');await p.click('#main [data-set-open=sim]');await p.waitForTimeout(200);
 ok((await p.textContent('#main h1')).includes('ทดสอบ'),'sim opens from settings');
 ok(await p.$eval('#nav [data-act=tab][data-v=profile]',e=>e.getAttribute('aria-current'))==='page','profile tab lit on sim');
-await p.click('#main [data-act=tab][data-v=settings]');await p.waitForTimeout(150);ok((await p.textContent('#main h1')).includes('ตั้งค่า'),'back to settings');
+await p.click('#main [data-act=tab][data-v=settings]');await p.waitForTimeout(150);ok((await p.textContent('#main h1')).includes('Admin tool'),'back to settings');
 if(tag==='m'){await p.click('#nav [data-act=tab][data-v=report]');await p.click('[data-act=rsec][data-s=cal]');await p.waitForTimeout(200);await p.screenshot({path:S+'slim_rep_m.png'});}
 await p.close();}
 console.log(errs.length?errs.join('\n'):'NO ERRORS');await b.close();})();

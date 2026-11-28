@@ -36,7 +36,7 @@ for(const vp of [{width:1280,height:900},{width:390,height:844},{width:320,heigh
  ok(await p.$('#main .pmem')===null&&!others.some(n=>mainTxt.includes(n)),tag+' staff sees only themselves (no other members)');
  ok(await p.$('#main [data-v=settings]')===null,tag+' staff has no system settings');
  if(tag==='m'){const w=await p.$eval('#main .profwrap',e=>e.getBoundingClientRect().width);ok(w<=310,tag+' phone: card narrower than screen ('+Math.round(w)+'px)');}
- await p.click('#main [data-act=pw-self]');await p.waitForTimeout(200);
+ await p.click('[data-act=theme]');await p.click('.thpop [data-act=pw-self]');await p.waitForTimeout(200);
  ok(await p.$('#pwbox .modal')!==null,tag+' change password opens from profile');
  await p.click('[data-act=pw-close]');await p.waitForTimeout(200);
  ok(await p.$('#main [data-act=lang-set]')===null,tag+' no language choice in profile');
@@ -71,7 +71,7 @@ for(const vp of [{width:1280,height:900},{width:390,height:844},{width:320,heigh
  await p.focus('[data-pm="'+ids[2]+'"]');await p.keyboard.press('Enter');await p.waitForTimeout(150);
  ok(JSON.stringify(await openIds())===JSON.stringify([ids[2]]),tag+' keyboard Enter expands');
  await p.click('#main [data-act=tab][data-v=settings]');await p.waitForTimeout(250);
- ok((await p.textContent('#main h1')).includes('ตั้งค่า')&&await p.$('[data-act=save-rules]')!==null,tag+' system settings opens from profile');
+ ok((await p.textContent('#main h1')).includes('Admin tool')&&await p.$('[data-act=save-rules]')!==null,tag+' system settings opens from profile');
  ok(await p.$eval(PB,e=>e.getAttribute('aria-current'))==='page',tag+' profile lit on settings');
  await p.click('#main [data-act=profile]');await p.waitForTimeout(200);
  ok((await p.textContent('#main h1')).trim()==='โปรไฟล์',tag+' back to profile');
