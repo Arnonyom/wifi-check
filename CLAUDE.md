@@ -69,7 +69,6 @@ dev/                                            ← ต้นฉบับ + เ�
 - หน้าเว็บเป็นไฟล์เดียว vanilla JS ห่อใน IIFE (`'use strict'`) ตัวแปรไม่อยู่ใน global — เทสต์ต้องตรวจผ่าน DOM (หรือใช้ `preview_hook.html`)
 - Supabase: RLS + ฟังก์ชัน SECURITY DEFINER, ผู้ใช้ล็อกอินด้วย `username@wifi-check.app`
 - Excel: เขียน/อ่าน .xlsx เองใน `prod/p_xlsx.js` (ไม่ใช้ CDN)
-- ธีม: สว่าง / มืด / Liquid Glass (ปรับความใส–ขุ่นได้)
 - ภาษา ไทย/อังกฤษ: `dev/i18n.py` (รันหลัง build_prod) หุ้มข้อความไทยในโค้ดด้วย `_tx()` คำแปลอยู่ใน `dev/i18n_en.json`
   - **เพิ่มข้อความไทยใหม่ ต้องเพิ่มคำแปลใน `i18n_en.json`** ไม่งั้น build จะหยุดและบอกว่าขาดคำไหน (`python3 dev/i18n.py --list` ดูรายการ)
   - ข้อความที่เก็บลงฐานข้อมูล (notify, ข้อความจาก SQL) เก็บเป็นไทยเสมอ แล้วแปลตอนแสดงด้วย `_td()` ผ่าน `__data__` ใน i18n_en.json
