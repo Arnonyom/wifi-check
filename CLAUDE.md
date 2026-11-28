@@ -82,5 +82,6 @@ dev/                                            ← ต้นฉบับ + เ�
 - วันหยุดราชการ (`prod/p_hol.js`, ตาราง `holidays`): ทีม A หยุด (`team_works` ในฐานข้อมูล + `teamWorksS` ในเว็บ) · ทีม B ทำตามรอบ · ผู้ดูแลเพิ่ม/ลบผ่าน `admin_set_holiday` · วันหยุดปี 2570 ใส่ตามปฏิทินทั่วไป รอตรวจกับประกาศ ครม.
 - ล้างข้อมูลทดสอบ: `admin_clear_data(from,to,att,sched,notif,rota,dry)` — dry=true นับอย่างเดียว · ไม่แตะ profiles/settings/holidays
 - หน้าตั้งค่าระบบ (`prod/p_acc.js`): แท็บหมวด + ตารางการ์ด กด "เปิด" (`data-set-open`) เป็น popup · การ์ดเพิ่มใหม่ต้องใส่ใน SET_META/SET_ORDER และ accIdOf
+- ออกจากระบบ = เฉพาะเครื่องนี้ (`signOut({scope:'local'})`) ห้ามใช้ `signOut()` เฉย ๆ เพราะจะตัดทุกเครื่องของบัญชี · `adminFn` เจอ 401 → ต่ออายุแล้วลองใหม่ 1 ครั้ง ไม่ได้ → กลับหน้าล็อกอิน (เทสต์ `tsess`)
 - Migration ที่ใช้ไปแล้ว: fix_function_search_path, add_must_change_pw, team_a_rotation_and_flex_shift, rotation_4_shifts_and_team_b_cycle, admin_attendance_and_multi_day_override, fix_forgot_checkout_and_admin_cancel_leave, drop_profiles_phone, admin_attendance_no_future, check_in_duplicate_message, profile_sort_order, attendance_locations, holidays_and_clear_data (+ schema.sql ตั้งต้น)
 - repo เป็นสาธารณะ: ห้ามใส่รหัสผ่านจริง, service key หรือข้อมูลส่วนตัวพนักงานลงไฟล์ใด ๆ
